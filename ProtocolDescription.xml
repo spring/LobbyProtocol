@@ -2,7 +2,7 @@
 <!DOCTYPE ProtocolDescription SYSTEM "ProtocolDescription.dtd">
 
 <!-- transform this xml into html (so you can view it in a browser): -->
-<?xml-stylesheet type="text/xsl" href="xml2html.xsl"?>
+<?xml-stylesheet type="text/xsl" href="ProtocolDescription_xml2html.xsl"?>
 
 <ProtocolDescription>
 
