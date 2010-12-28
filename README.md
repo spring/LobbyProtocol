@@ -13,6 +13,9 @@ bugs, community forum and everything spring related.
 Lobby clients and servers use this protocol to communicate together.
 The lobby-system is where player get together to organize games and chat.
 
+You can inspect the protocol in a human readable form
+by opening _ProtocolDescription.xml_ in your browser, if it supports XSL.
+
 ### Files
 
 * _ProtocolDescription.xml_ - the main document, describing the individual commands
