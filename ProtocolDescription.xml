@@ -1296,16 +1296,18 @@
       </Description>
     </Command>
 
-    <Command Name="REQUESTBATTLESTATUS" Source="client">
+    <Command Name="REQUESTBATTLESTATUS" Source="server">
       <Description>
-      Sent by server to user who just opened a battle or joined one.
+      Sent by the server to a user which just opened a battle or joined one.
       This command is sent after all CLIENTBATTLESTATUS commands for
-      all clients have been sent. This way user can choose suitable team, ally and color numbers
-      since he knows battle statuses of other clients already.
+      all clients have been sent. This way, the user can choose a suitable team,
+      ally-team and color, since he knows the battle statuses of other clients
+      already.
       </Description>
       <Response>
-      When client receives this command, he must send MYBATTLESTATUS command to the server so that
-      server can synchronize battle status with user's.
+      When a client receives this command, he has to send the MYBATTLESTATUS
+      command to the server, so that the server can synchronize the battle
+      status with the other clients.
       </Response>
     </Command>
 
