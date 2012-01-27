@@ -162,9 +162,10 @@
 
     <Command Name="TASSERVER" Source="server">
       <Arguments>
-        <Argument Name="server_version" Optional="no" Sentence="no">
-        This is server's version number (client should check if it supports this server
-        version before attempting to log in. If it does not support it, it should send
+        <Argument Name="protocol_version" Optional="no" Sentence="no">
+        This is the lobby protocol version used by the server.
+        The client may check if it supports this version before attempting to log in.
+        If it does not support it, it should send the
         <clink name="REQUESTUPDATEFILE"/> command).
         </Argument>
         <Argument Name="spring_version" Optional="no" Sentence="no">
