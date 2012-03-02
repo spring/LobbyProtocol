@@ -104,7 +104,7 @@
             <br />
             
             <xsl:for-each select="Arguments/Argument">
-              <span style="color: blue; font-weight: bold; text-decoration: underline"><xsl:value-of select="@Name"/></span>
+              <span style="color: #0066FF"><xsl:value-of select="@Name"/></span>
               <xsl:if test="string(.)">: <xsl:apply-templates select="." /></xsl:if>
               <br />
               <br />
