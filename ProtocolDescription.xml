@@ -162,13 +162,13 @@
 
     <Command Name="TASSERVER" Source="server">
       <Arguments>
-        <Argument Name="protocol_version" Optional="no" Sentence="no">
+        <Argument Name="protocolVersion" Optional="no" Sentence="no">
         This is the lobby protocol version used by the server.
         The client may check if it supports this version before attempting to log in.
         If it does not support it, it should send the
         <clink name="REQUESTUPDATEFILE"/> command).
         </Argument>
-        <Argument Name="spring_version" Optional="no" Sentence="no">
+        <Argument Name="springVersion" Optional="no" Sentence="no">
         This is the latest Spring version which user needs in order to play with other players on this server.
         Client should check if it has this Spring version before attempting to log in. If it does not have it,
         it should send a <clink name="REQUESTUPDATEFILE"/> command.
@@ -177,12 +177,12 @@
         server does not contain any updates nor does it require latest Spring version (this is usually so
         when server is running in LAN mode).
         </Argument>
-        <Argument Name="udpport" Optional="no" Sentence="no">
+        <Argument Name="udpPort" Optional="no" Sentence="no">
         This is server's UDP port where "NAT Help Server" is running. This is the port to
         which clients should send their UDP packets when trying to figure out their public
         UDP source port. This is used with some NAT traversal techniques (e.g. "hole punching").
         </Argument>
-        <Argument Name="servermode" Optional="no" Sentence="no">
+        <Argument Name="serverMode" Optional="no" Sentence="no">
         Tells what mode server is in. Currently valid are:
         <ul>
           <li>0 - normal mode</li>
@@ -228,7 +228,7 @@
 
     <Command Name="REGISTER" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
         <Argument Name="password" Optional="no" Sentence="no">
         Must be sent in encoded form (MD5 hash in base-64 form).
         </Argument>
@@ -291,7 +291,7 @@
 
     <Command Name="LOGIN" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
         <Argument Name="password" Optional="no" Sentence="no">
         Should be sent in encoded form (MD5 hash in base-64 form).
         Note that when server is running in lan mode, you can specify any username and password
@@ -350,7 +350,7 @@
 
     <Command Name="ACCEPTED" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
       Sent as a response to <clink name="LOGIN"/> command if it succeeded.
@@ -402,7 +402,8 @@
       "terms-of-use" agreement. Server may send multiple AGREEMENT commands (which corresponds to multiple
       new lines in agreement), finishing it by <clink name="AGREEMENTEND"/> command. Client should send
       <clink name="CONFIRMAGREEMENT"/> and then resend LOGIN command, or disconnect from the server if he has
-      chosen to refuse the agreement.      </Description>
+      chosen to refuse the agreement.
+	  </Description>
       <Response>
       No response is expected until <clink name="AGREEMENTEND"/> is received. See that command for more info.
       </Response>
@@ -487,7 +488,7 @@
 
     <Command Name="CLIENTIPPORT" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
         <Argument Name="ip" Optional="no" Sentence="no" />
         <Argument Name="port" Optional="no" Sentence="no" />
       </Arguments>
@@ -544,7 +545,7 @@
 
     <Command Name="ADDUSER" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
         <Argument Name="country" Optional="no" Sentence="no">
         A two-character country code based on ISO 3166 standard. See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
         </Argument>
@@ -567,7 +568,7 @@
 
     <Command Name="REMOVEUSER" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
       Sent to client telling him a user disconnected from server. Client should
@@ -578,7 +579,7 @@
 
     <Command Name="JOIN" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no" />
+        <Argument Name="chanName" Optional="no" Sentence="no" />
         <Argument Name="key" Optional="yes" Sentence="no">
         If channel is locked, then client must
         supply a correct key to join the channel (clients with access >= Account.ADMIN_ACCESS
@@ -596,7 +597,7 @@
 
     <Command Name="JOIN" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no">
+        <Argument Name="chanName" Optional="no" Sentence="no">
         Name of the channel to which client has just joined (by previously sending the <clink name="JOIN:client"/> command).
         </Argument>
       </Arguments>
@@ -610,7 +611,7 @@
 
     <Command Name="JOINFAILED" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="no" Sentence="yes">
         Always provided.
         </Argument>
@@ -634,8 +635,8 @@
 
     <Command Name="CHANNEL" Source="server">
     <Arguments>
-      <Argument Name="channame" Optional="no" Sentence="no" />
-      <Argument Name="usercount" Optional="no" Sentence="no">
+      <Argument Name="chanName" Optional="no" Sentence="no" />
+      <Argument Name="userCount" Optional="no" Sentence="no">
       Number of users in channel.
       </Argument>
     </Arguments>
@@ -656,7 +657,7 @@
 
     <Command Name="MUTELIST" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no" />
+        <Argument Name="chanName" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
       Sent by client when requesting mute list of a channel.
@@ -668,7 +669,7 @@
 
     <Command Name="MUTELISTBEGIN" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no" />
+        <Argument Name="chanName" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
       Sent by server when sending channel's mute list to the client. This command is immediately followed
@@ -705,9 +706,9 @@
 
     <Command Name="CHANNELTOPIC" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="author" Optional="no" Sentence="no"/>
-        <Argument Name="changedtime" Optional="no" Sentence="no">
+        <Argument Name="changedTime" Optional="no" Sentence="no">
         Time in milliseconds since Jan 1, 1970 (UTC). Divide by 1000 to get unix time.
         </Argument>
         <Argument Name="topic" Optional="no" Sentence="yes"/>
@@ -719,7 +720,7 @@
 
     <Command Name="CHANNELTOPIC" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="topic" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -730,7 +731,7 @@
 
     <Command Name="CLIENTS" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="clients" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -747,8 +748,8 @@
 
     <Command Name="JOINED" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent to all clients in a channel (except the new client) when a new client
@@ -758,7 +759,7 @@
 
     <Command Name="LEAVE" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by client when he is trying to leave a channel. When client is disconnected, he is
@@ -768,8 +769,8 @@
 
     <Command Name="LEFT" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -782,8 +783,8 @@
 
     <Command Name="FORCELEAVECHANNEL" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -794,8 +795,8 @@
 
     <Command Name="FORCELEAVECHANNEL" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -807,7 +808,7 @@
 
     <Command Name="CHANNELMESSAGE" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -818,7 +819,7 @@
 
     <Command Name="SAY" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -832,8 +833,8 @@
 
     <Command Name="SAID" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="userame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -844,7 +845,7 @@
 
     <Command Name="SAYEX" Source="client">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -855,8 +856,8 @@
 
     <Command Name="SAIDEX" Source="server">
       <Arguments>
-        <Argument Name="channame" Optional="no" Sentence="no"/>
-        <Argument Name="userame" Optional="no" Sentence="no"/>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -866,7 +867,7 @@
 
     <Command Name="SAYPRIVATE" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -879,7 +880,7 @@
 
     <Command Name="SAYPRIVATE" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -890,7 +891,7 @@
 
     <Command Name="SAIDPRIVATE" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -915,17 +916,17 @@
         Must be "*" if founder does not wish to have password-protected game.
         </Argument>
         <Argument Name="port" Optional="no" Sentence="no"/>
-        <Argument Name="maxplayers" Optional="no" Sentence="no"/>
-        <Argument Name="hashcode" Optional="no" Sentence="no">
+        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
+        <Argument Name="hashCode" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via unitsync.dll).
         </Argument>
         <Argument Name="rank" Optional="no" Sentence="no"/>
-        <Argument Name="maphash" Optional="no" Sentence="no">
+        <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer as returned from unitsync.dll.
         </Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modname" Optional="no" Sentence="yes"/>
+        <Argument Name="modName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       Sent by client when he is trying to open a new battle. The client becomes a founder of this battle, if command is successful
@@ -938,7 +939,7 @@
 
     <Command Name="OPENBATTLE" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent to a client who previously sent <clink name="OPENBATTLE:client"/> command to server, if client's
@@ -951,7 +952,7 @@
 
     <Command Name="BATTLEOPENED" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no" />
+        <Argument Name="battleID" Optional="no" Sentence="no" />
         <Argument Name="type" Optional="no" Sentence="no">
         Can be 0 or 1 (0 = normal battle, 1 = battle replay)
         </Argument>
@@ -965,21 +966,21 @@
         <Argument Name="founder" Optional="no" Sentence="no">
         Username of the client who started this battle.
         </Argument>
-        <Argument Name="IP" Optional="no" Sentence="no"/>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
         <Argument Name="port" Optional="no" Sentence="no"/>
-        <Argument Name="maxplayers" Optional="no" Sentence="no"/>
+        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
         <Argument Name="passworded" Optional="no" Sentence="no">
         A boolean - must be "0" or "1" and not "true" or "false" as it
         is default in Java! Use Misc.strToBool and Misc.boolToStr methods (from TASServer source)
         to convert from one to another.
         </Argument>
         <Argument Name="rank" Optional="no" Sentence="no"/>
-        <Argument Name="maphash" Optional="no" Sentence="no">
+        <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer as returned from unitsync.dll.
         </Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modname" Optional="no" Sentence="yes"/>
+        <Argument Name="modName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       Sent by server to all registered users, when a new battle has been opened.
@@ -990,7 +991,7 @@
 
     <Command Name="BATTLECLOSED" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent when founder has closed a battle (or if he was disconnected).
@@ -999,7 +1000,7 @@
 
     <Command Name="JOINBATTLE" Source="client">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
         <Argument Name="password" Optional="yes" Sentence="no"/>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no">
         A random, client-generated string wich will be written to script.txt
@@ -1015,8 +1016,8 @@
 
     <Command Name="JOINBATTLE" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
-        <Argument Name="hashcode" Optional="no" Sentence="no">
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="hashCode" Optional="no" Sentence="no">
         A signed 32-bit integer.
         </Argument>
       </Arguments>
@@ -1029,7 +1030,7 @@
 
     <Command Name="JOINBATTLEREQUEST" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="ip" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
@@ -1045,7 +1046,7 @@
 
     <Command Name="JOINBATTLEACCEPT" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by client in response to a JOINBATTLEREQUEST command in order to allow
@@ -1055,7 +1056,7 @@
 
     <Command Name="JOINBATTLEDENY" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -1066,8 +1067,8 @@
 
     <Command Name="JOINEDBATTLE" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no">
         A random, client-generated string wich will be written to script.txt
         by the host, to avoid account spoofing (= someone is trying to join
@@ -1081,8 +1082,8 @@
 
     <Command Name="LEFTBATTLE" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by server to all users when client left a battle (or got disconnected from the server).
@@ -1117,8 +1118,8 @@
 
     <Command Name="UPDATEBATTLEINFO" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no"/>
-        <Argument Name="SpectatorCount" Optional="no" Sentence="no">
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="spectatorCount" Optional="no" Sentence="no">
         Assume that spectator count is 0 if battle type is 0 (normal battle) and
         1 if battle type is 1 (battle replay), as founder of the battle is automatically set
         as a spectator in that case.
@@ -1127,10 +1128,10 @@
         A boolean (0 or 1). Note that when client creates a battle, server assumes
         it is unlocked (by default). Client must make sure it actually is.
         </Argument>
-        <Argument Name="maphash" Optional="no" Sentence="no">
+        <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer. See <clink name="OPENBATTLE"/> command for more info.
         </Argument>
-        <Argument Name="mapname" Optional="no" Sentence="yes"/>
+        <Argument Name="mapName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       Sent by server to all registered clients telling them
@@ -1142,15 +1143,15 @@
 
     <Command Name="UPDATEBATTLEINFO" Source="client">
       <Arguments>
-        <Argument Name="SpectatorCount" Optional="no" Sentence="no"/>
+        <Argument Name="spectatorCount" Optional="no" Sentence="no"/>
         <Argument Name="locked" Optional="no" Sentence="no">
         A boolean (0 or 1). Note that when client creates a battle, server assumes
         it is unlocked (by default). Client must make sure it actually is.
         </Argument>
-        <Argument Name="maphash" Optional="no" Sentence="no">
+        <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer. See <clink name="OPENBATTLE"/> command for more info.
         </Argument>
-        <Argument Name="mapname" Optional="no" Sentence="yes">
+        <Argument Name="mapName" Optional="no" Sentence="yes">
         Must NOT contain file extension!
         </Argument>
       </Arguments>
@@ -1174,7 +1175,7 @@
 
     <Command Name="SAIDBATTLE" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -1199,7 +1200,7 @@
 
     <Command Name="SAIDBATTLEEX" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
@@ -1234,7 +1235,7 @@
 
     <Command Name="CLIENTSTATUS" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="status" Optional="no" Sentence="no">
         See <clink name="MYSTATUS:client"/> command for possible values of this parameter.
         </Argument>
@@ -1249,7 +1250,7 @@
 
     <Command Name="MYBATTLESTATUS" Source="client">
       <Arguments>
-        <Argument Name="battlestatus" Optional="no" Sentence="no">
+        <Argument Name="battleStatus" Optional="no" Sentence="no">
           An integer but with limited range: 0..2147483647 (use signed int and
           consider only positive values and zero). Number is sent as text. Each bit has its meaning:
           <ul>
@@ -1268,7 +1269,7 @@
             <li>b28..b31 = undefined (reserved for future use)</li>
           </ul>
         </Argument>
-        <Argument Name="myteamcolor" Optional="no" Sentence="no">
+        <Argument Name="myTeamColor" Optional="no" Sentence="no">
         Should be 32-bit signed integer in decimal form (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
         B = blue, G = green, R = red).
@@ -1282,12 +1283,12 @@
 
     <Command Name="CLIENTBATTLESTATUS" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
-        <Argument Name="battlestatus" Optional="no" Sentence="no">
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="battleStatus" Optional="no" Sentence="no">
         See <clink name="MYBATTLESTATUS:client"/> command for possible values
         of this parameter.
         </Argument>
-        <Argument Name="teamcolor" Optional="no" Sentence="no">
+        <Argument Name="teamColor" Optional="no" Sentence="no">
         Uses same format as the one used with <clink name="MYBATTLESTATUS:client"/> command.
         </Argument>
       </Arguments>
@@ -1314,7 +1315,7 @@
 
     <Command Name="HANDICAP" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="value" Optional="no" Sentence="no">
         Must be in range [0, 100] (inclusive).
         </Argument>
@@ -1327,7 +1328,7 @@
 
     <Command Name="KICKFROMBATTLE" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by founder of the battle when he kicks the client out of the battle. Server remove client
@@ -1347,8 +1348,8 @@
 
     <Command Name="FORCETEAMNO" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
-        <Argument Name="teamno" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="teamNo" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by founder the of battle when he is trying to force some other client's team number
@@ -1358,8 +1359,8 @@
 
     <Command Name="FORCEALLYNO" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
-        <Argument Name="teamno" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="teamNo" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by founder of the battle when he is trying to force some other client's ally number
@@ -1369,7 +1370,7 @@
 
     <Command Name="FORCETEAMCOLOR" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="color" Optional="no" Sentence="no">
         Should be a 32-bit signed integer in decimal form (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
@@ -1385,7 +1386,7 @@
 
     <Command Name="FORCESPECTATORMODE" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by founder of the battle when he is trying to force some other client's mode
@@ -1395,10 +1396,10 @@
 
     <Command Name="DISABLEUNITS" Source="client">
       <Arguments>
-        <Argument Name="unitname1" Optional="no" Sentence="no">
+        <Argument Name="unitName1" Optional="no" Sentence="no">
         Multiple units may follow, but at least one must be present in the arguments list.
         </Argument>
-        <Argument Name="unitname2" Optional="no" Sentence="no"/>
+        <Argument Name="unitName2" Optional="no" Sentence="no"/>
         <Argument Name="..." Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -1409,10 +1410,10 @@
 
     <Command Name="DISABLEUNITS" Source="server">
       <Arguments>
-        <Argument Name="unitname1" Optional="no" Sentence="no">
+        <Argument Name="unitName1" Optional="no" Sentence="no">
         Multiple units may follow, but at least one must be present in the arguments list.
         </Argument>
-        <Argument Name="unitname2" Optional="no" Sentence="no"/>
+        <Argument Name="unitName2" Optional="no" Sentence="no"/>
         <Argument Name="..." Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -1423,10 +1424,10 @@
 
     <Command Name="ENABLEUNITS" Source="client">
       <Arguments>
-        <Argument Name="unitname1" Optional="no" Sentence="no">
+        <Argument Name="unitName1" Optional="no" Sentence="no">
         Multiple units may follow, but at least one must be present in the arguments list.
         </Argument>
-        <Argument Name="unitname2" Optional="no" Sentence="no"/>
+        <Argument Name="unitName2" Optional="no" Sentence="no"/>
         <Argument Name="..." Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -1437,10 +1438,10 @@
 
     <Command Name="ENABLEUNITS" Source="server">
       <Arguments>
-        <Argument Name="unitname1" Optional="no" Sentence="no">
+        <Argument Name="unitName1" Optional="no" Sentence="no">
         Multiple units may follow, but at least one must be present in the arguments list.
         </Argument>
-        <Argument Name="unitname2" Optional="no" Sentence="no"/>
+        <Argument Name="unitName2" Optional="no" Sentence="no"/>
         <Argument Name="..." Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -1465,7 +1466,7 @@
 
     <Command Name="RING" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by client to server when trying to play a "ring" sound to user 'username'.
@@ -1476,7 +1477,7 @@
 
     <Command Name="RING" Source="server">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by server to client telling him user 'username' just rang (client should play
@@ -1486,7 +1487,7 @@
 
     <Command Name="REDIRECT" Source="server">
       <Arguments>
-        <Argument Name="ipaddress" Optional="no" Sentence="no"/>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by server when in "redirection mode". When client connects, server will send him
@@ -1515,13 +1516,13 @@
     <Command Name="ADDBOT" Source="client">
       <Arguments>
         <Argument Name="name" Optional="no" Sentence="no"/>
-        <Argument Name="battlestatus" Optional="no" Sentence="no"/>
-        <Argument Name="teamcolor" Optional="no" Sentence="no">
+        <Argument Name="battleStatus" Optional="no" Sentence="no"/>
+        <Argument Name="teamColor" Optional="no" Sentence="no">
         Should be 32-bit signed integer in decimal system (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
         B = blue, G = green, R  = red).
         </Argument>
-        <Argument Name="AIDLL" Optional="no" Sentence="yes"/>
+        <Argument Name="ai dll" Optional="no" Sentence="yes"/> <!-- FIXME outdated (at least the name) -->
       </Arguments>
       <Description>
       With this command client can add bots to the battle.
@@ -1530,19 +1531,19 @@
 
     <Command Name="ADDBOT" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no">
+        <Argument Name="battleID" Optional="no" Sentence="no">
         BATTLE_ID is there just to help client verify that
         the bot is meant for his battle.
         </Argument>
         <Argument Name="name" Optional="no" Sentence="no"/>
         <Argument Name="owner" Optional="no" Sentence="no"/>
-        <Argument Name="battlestatus" Optional="no" Sentence="no"/>
-        <Argument Name="teamcolor" Optional="no" Sentence="no">
+        <Argument Name="battleStatus" Optional="no" Sentence="no"/>
+        <Argument Name="teamColor" Optional="no" Sentence="no">
         Should be 32-bit signed integer in decimal system (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
         B = blue, G = green, R  = red).
         </Argument>
-        <Argument Name="AIDLL" Optional="no" Sentence="yes"/>
+        <Argument Name="ai dll" Optional="no" Sentence="yes"/> <!-- FIXME outdated (at least the name) -->
       </Arguments>
       <Description>
       This command indicates that client has added a bot to the battle.
@@ -1560,7 +1561,7 @@
 
     <Command Name="REMOVEBOT" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no">
+        <Argument Name="battleID" Optional="no" Sentence="no">
         BATTLE_ID is there just to help client verify that
         the bot is meant for his battle.
         </Argument>
@@ -1575,10 +1576,10 @@
     <Command Name="UPDATEBOT" Source="client">
       <Arguments>
         <Argument Name="name" Optional="no" Sentence="no"/>
-        <Argument Name="battlestatus" Optional="no" Sentence="no">
+        <Argument Name="battleStatus" Optional="no" Sentence="no">
         Similar to that of the normal client's, see <clink name="MYBATTLESTATUS:client"/> for more info.
         </Argument>
-        <Argument Name="teamcolor" Optional="no" Sentence="no">
+        <Argument Name="teamColor" Optional="no" Sentence="no">
         Should be 32-bit signed integer in decimal system (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
         B = blue, G = green, R  = red).
@@ -1592,15 +1593,15 @@
 
     <Command Name="UPDATEBOT" Source="server">
       <Arguments>
-        <Argument Name="BATTLE_ID" Optional="no" Sentence="no">
+        <Argument Name="battleID" Optional="no" Sentence="no">
         BATTLE_ID is there just to help client verify that
         the bot is meant for his battle.
         </Argument>
         <Argument Name="name" Optional="no" Sentence="no"/>
-        <Argument Name="battlestatus" Optional="no" Sentence="no">
+        <Argument Name="battleStatus" Optional="no" Sentence="no">
         Similar to that of the normal client's, see <clink name="MYSTATUC:client"/> for more info.
         </Argument>
-        <Argument Name="teamcolor" Optional="no" Sentence="no">
+        <Argument Name="teamColor" Optional="no" Sentence="no">
         Should be 32-bit signed integer in decimal system (e.g. 255 and not FF)
         where each color channel should occupy 1 byte (e.g. in hexdecimal: $00BBGGRR,
         B = blue, G = green, R  = red).
@@ -1614,7 +1615,7 @@
 
     <Command Name="ADDSTARTRECT" Source="client">
       <Arguments>
-        <Argument Name="allyno" Optional="no" Sentence="no"/>
+        <Argument Name="allyNo" Optional="no" Sentence="no"/>
         <Argument Name="left" Optional="no" Sentence="no"/>
         <Argument Name="top" Optional="no" Sentence="no"/>
         <Argument Name="right" Optional="no" Sentence="no"/>
@@ -1630,7 +1631,7 @@
 
     <Command Name="ADDSTARTRECT" Source="server">
       <Arguments>
-        <Argument Name="allyno" Optional="no" Sentence="no"/>
+        <Argument Name="allyNo" Optional="no" Sentence="no"/>
         <Argument Name="left" Optional="no" Sentence="no"/>
         <Argument Name="top" Optional="no" Sentence="no"/>
         <Argument Name="right" Optional="no" Sentence="no"/>
@@ -1646,7 +1647,7 @@
 
     <Command Name="REMOVESTARTRECT" Source="client">
       <Arguments>
-        <Argument Name="allyno" Optional="no" Sentence="no"/>
+        <Argument Name="allyNo" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent by host of the battle removing a start rectangle for 'allyno' ally team. See client implementation
@@ -1656,7 +1657,7 @@
 
     <Command Name="REMOVESTARTRECT" Source="server">
       <Arguments>
-        <Argument Name="allyno" Optional="no" Sentence="no"/>
+        <Argument Name="allyNo" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
       Sent to clients participating in a battle (except for the host). Also see <clink name="ADDSTARTRECT:client"/> command.
@@ -1810,7 +1811,7 @@
 
     <Command Name="TESTLOGIN" Source="client">
       <Arguments>
-        <Argument Name="username" Optional="no" Sentence="no" />
+        <Argument Name="userName" Optional="no" Sentence="no" />
         <Argument Name="password" Optional="no" Sentence="no" />
       </Arguments>
       <Description>
