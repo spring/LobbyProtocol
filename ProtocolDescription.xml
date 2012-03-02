@@ -11,73 +11,24 @@
   <i>NOTE: This document is available in a HTML form at the following address:
   <url>http://springrts.com/dl/tasclient/ProtocolDescription.xml</url></i>
   </p>
+
+  <h3>Introduction</h3>
   <p>
   This is a simple text protocol in a "human readable form". I decided for text protocol since
   it's easier to debug and implement on the client side. It does require some more overhead,
   but since server and clients do not communicate much anyway, this is not an issue. What
   really eats the bandwidth is the game itself, not lobby.
   </p>
+
+  <h3>Nomenclature</h3>
   <p>
-  Single word arguments are separated by spaces, "sentences" (a sentence is a series of words
-  separated by spaces, denoting a single argument) are separated by TABs. Don't forget
-  to replace any TABs in your sentences with spaces! If you don't, your command is invalid
-  and will not be read correctly by server.
+  We use two terms for "clients": <i>client</i> and an <i>user</i>.
+  At first, <i>user</i> was considered to be a registered client,
+  that means a client that is logged-in.
+  The two terms are used uncleanly though, so you may best think of them as equal.
   </p>
   <p>
-  A client must maintain a constant connection with server, that is if no data is to be
-  transfered, client must send a PING command to the server on regular intervals. This
-  ensures server to properly detect any network timeouts/disconnects. Server will automatically
-  disconnect a client if no data has been received from it within a certain time period.
-  Client should send some data at least on half of that interval.
-  </p>
-  <p>
-  Whether battle is in progress or not, clients may find out by monitoring battle's founder
-  status. If his status changes to "in game", battle's status is also "in game".
-  </p>
-  <p>
-  Client's status and battle status are assumed to be 0 if not said otherwise. Each client
-  should assume that every other client's status and battle status are 0 if not stated
-  otherwise by the server. So when client joins the server, he is notified about statuses
-  of only those users, who have status or battle status different from 0. This way we also
-  save some bandwidth (although that is not really an issue here. If we were worried about
-  this protocol taking up too much bandwidth, we wouldn't use text protocol, now would we?).
-  </p>
-  <p>
-  I use two terms for "clients": a client and an user. At first user was considered to
-  be a registered client, that is client who is logged-in. I started to mix the two
-  terms after a while but that should not confuse you.
-  </p>
-  <p>
-  Most of the commands that notify about some changes are forwarded to the source of the
-  change too. For example: When client sends MYBATTLESTATUS command, server sends
-  CLIENTBATTLESTATUS command to all users in the battle, including the client who sent
-  MYBATTLESTATUS command. This is a good practice, because this way client can synchronize his
-  local status with server's after server has actually updated his status (serves also as
-  confirmation).
-  </p>
-  <p>
-  All commands except for some admin specific commands are listed here. See "AdminCommands.txt"
-  for those. For more details on specific command, see tryToExecCommand() method in TASServer.java.
-  </p>
-  <p>
-  Also, check notes (under "--- NOTES ---" field) in TASServer.java since they contain some
-  information and tricks on implementing this protocol.
-  </p>
-  <p>
-  As of version 0.33, command syntax has been slightly changed. Messages may now contain IDs:
-  Any message may be prefixed with a message ID. For an example:
-  "#123 SAY main hello!" <br />
-  Server will use this ID with a reply, for an example:
-  "#123 SAID main Betalord hello!" <br />
-  The message ID has only one function: to ease tracking server responses for the client.
-  Using message IDs means that client can also use synchronous communication (with certain commands),
-  which makes it easier to implement certain commands that require multiple responses in both directions.
-  <br />
-  Note that IDs should be non-negative values, in 31-bit range (0..2147483647). Negative values are
-  reserved for internal handling logic of server / lobby clients.
-  </p>
-  <p>
-  Legend:
+  <h4>Legend</h4>
   <ul>
     <li>{} = sentence = several words (at least one!) separated by space characters</li>
     <li>{} {} ... = two or more sentences. They are separated by TAB characters.</li>
@@ -87,6 +38,73 @@
   </ul>
   </p>
 
+  <h3>Protocol low-level format rules</h3>
+  <p>
+  Single word arguments are separated by spaces,
+  "sentences" (a sentence is a series of words separated by spaces, denoting a single argument)
+  are separated by TABs.
+  Make sure to replace all TABs in your sentences with spaces!
+  If you do not, your command is invalid, and will not be read correctly by the server.
+  </p>
+
+  <h3>Protocol rules</h3>
+  <p>
+  A client must maintain a constant connection with the server.
+  That is if no data is to be transfered,
+  the client must send PING commands to the server on regular intervals.
+  This ensures that the server can properly detect any network timeouts/disconnects.
+  The server will automatically disconnect a client
+  if no data has been received from it within a certain time period.
+  A client should send some data at least after half that interval passed.
+  </p>
+  <p>
+  Clients may find out whether a battle is in progress or not
+  by monitoring the battle-founder's status.
+  If his status changes to "in game", the battle's status is also "in game".
+  </p>
+  <p>
+  A client's status and battle status are assumed to be 0 if not specified otherwise.
+  Each client should assume that every other client's status and battle statuses are 0
+  if not stated otherwise by the server.
+  So when a client joins the server, he is notified about statuses of those users only,
+  who have status or battle status different from 0.
+  This way we also save some bandwidth
+  (although that is not really an issue here.
+  If we were worried about this protocol taking up too much bandwidth,
+  we would not use a text protocol, would we?).
+  </p>
+  <p>
+  Most of the commands that notify about some changes are forwarded to the source of the change too.
+  For example: When a client sends a MYBATTLESTATUS command,
+  the server sends a CLIENTBATTLESTATUS command to all users in the battle,
+  including the client who sent the MYBATTLESTATUS command.
+  This is a good practice, because this way the client can synchronize
+  his local status with the server's, after the server has actually updated
+  his status (it also serves as confirmation mechanism).
+  </p>
+  <p>
+  All commands except for some admin specific commands are listed here.
+  For more details on a specific command,
+  you may have a look at a lobby servers source code,
+  for example SpringLS or ueberserver.
+  </p>
+  <p>
+  <h4>Messages IDs</h4>
+  As of version 0.33, the command syntax has been slightly changed.
+  Messages may now contain IDs:
+  Any message may be prefixed with a message ID.
+  For example:
+  "#123 SAY main hello!" <br />
+  Server will use this ID with a reply, for example:
+  "#123 SAID main Betalord hello!" <br />
+  The message ID has only one function: to ease tracking server responses for the client.
+  Using message IDs means that the client can also use synchronous communication (with certain commands),
+  which makes it easier to implement commands that require multiple responses in both directions.
+  <br />
+  Note that IDs should be non-negative values, in a 31-bit range (0..2147483647).
+  Negative values are reserved for internal handling logic of the server / lobby clients.
+  </p>
+
   </Intro>
 
   <RecentChanges>
@@ -94,21 +112,21 @@
 
   <b><u>Version 0.36:</u></b><br />
   <ul>
-    <li>scriptPassword argument added: This change affects the following commands:
-        LOGIN, JOINBATTLE, JOINEDBATTLE.</li>
+    <li>'scriptPassword' argument added: This change affects the following commands:
+        <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
 
   <b><u>Version 0.35:</u></b><br />
   <ul>
-    <li>New 'servermode' argument has been added to TASSERVER command.</li>
-    <li>Added SETSCRIPTTAGS command. This command replaces UPDATEBATTLEDETAILS command.</li>
-    <li>Added REMOVESCRIPTTAGS command, companion to SETSCRIPTTAGS.</li>
+    <li>'serverMode' argument has been added to the <clink name="TASSERVER"/> command.</li>
+    <li>Added <clink name="SETSCRIPTTAGS"/> command. This command replaces <clink name="UPDATEBATTLEDETAILS"/> command.</li>
+    <li>Added <clink name="REMOVESCRIPTTAGS"/> command, companion to <clink name="SETSCRIPTTAGS"/>.</li>
     <li>New startpos type added: "choose before battle" (type 3). These change affects following commands:
-        OPENBATTLE, JOINBATTLE.</li>
+        <clink name="OPENBATTLE"/>, <clink name="JOINBATTLE"/>.</li>
     <li>Added two more in-game ranks, one at 300h, the other at 1000h.</li>
-    <li>Removed UPDATEBATTLEDETAILS command as it is no longer needed (use SETSCRIPTTAGS instead).
-        Also removed several arguments from JOINBATTLE and OPENBATTLE commands (all these
-        arguments are handled via SETSCRIPTTAGS command now). See descriptions of these commands for more info.</li>
+    <li>Removed <clink name="UPDATEBATTLEDETAILS"/> command as it is no longer needed (use <clink name="SETSCRIPTTAGS"/> instead).
+        Also removed several arguments from <clink name="JOINBATTLE"/> and <clink name="OPENBATTLE"/> commands (all these
+        arguments are handled via <clink name="SETSCRIPTTAGS"/> command now). See descriptions of these commands for more info.</li>
   </ul>
 
   <b><u>Version 0.34:</u></b><br />
@@ -116,22 +134,22 @@
     <li>Message/command ID system has been implemented to automatically (and transparently) support any
         command regardless of the method handler implementation. This means that the response to any command
         will always contain message ID if you specifed it with the original command.</li>
-    <li>PING command no longer supports 'key' argument since it is not needed anymore (use message ID instead)</li>
+    <li><clink name="PING"/> command no longer supports 'key' argument since it is not needed anymore (use message ID instead)</li>
     <li>Lobby programs should now acquire Spring version via unitsync.dll and not by running spring.exe, although
         both ways are legal.</li>
-    <li>LOGIN command now accepts additional parameter 'userID', which is optional. See LOGIN command description
+    <li><clink name="LOGIN"/> command now accepts additional parameter 'userID', which is optional. See the <clink name="LOGIN"/> command description
         for more info.</li>
-    <li>Added ACQUIREUSERID and USERID commands. See documentation bellow for further details.</li>
-    <li>Added 'url' parameter to SERVERMSGBOX command.</li>
+    <li>Added <clink name="ACQUIREUSERID"/> and <clink name="USERID"/> commands. See documentation bellow for further details.</li>
+    <li>Added 'url' parameter to <clink name="SERVERMSGBOX"/> command.</li>
     <li>Added lineage mode to "end game condition" parameter (which is used with several commands).</li>
   </ul>
 
   <b><u>Version 0.33:</u></b><br />
   <ul>
-    <li>TASSERVER command has been modified, see documentation bellow for further details.
-        Note that clients should now acquire local Spring version by running "spring.exe /version"
+    <li><clink name="TASSERVER"/> command has been modified, see documentation bellow for further details.
+        Note that clients should now acquire local Spring version by running "spring.exe --version"
         (they need this info to compare local Spring version to the server's).</li>
-    <li>REQUESTUPDATEFILE command has been modified, see documentation bellow for further details</li>
+    <li><clink name="REQUESTUPDATEFILE"/> command has been modified, see documentation bellow for further details</li>
     <li>Note that MsgIDs (as described in the "Introduction" part) aren't fully supported yet - server will
         parse IDs, but won't include them in the response.</li>
   </ul>
@@ -154,8 +172,9 @@
 
     <Command Name="PONG" Source="server">
       <Description>
-      Used as a response to a <clink name="PING"/> command. You can determine how long
-      did the reply took by using a message ID with the PING command.
+      Used as a response to a <clink name="PING"/> command.
+	  You can determine how long the reply took
+	  by using a message ID with the <clink name="PING"/> command.
       </Description>
       <Response />
     </Command>
