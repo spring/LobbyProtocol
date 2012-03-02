@@ -105,6 +105,96 @@
   Negative values are reserved for internal handling logic of the server / lobby clients.
   </p>
 
+
+  <p>
+  <h3>Sub-systems</h3>
+  </p>
+
+  <h4>Hole punching</h4>
+  <p>
+  <quote>
+  Hole punching is a computer networking technique
+  for establishing communications between two parties in separate organizations
+  who are both behind restrictive firewalls.
+  </quote>
+  <url>https://en.wikipedia.org/wiki/Hole_punching</url>
+
+  We use it for allowing clients to connect to the lobby server,
+  that would otherwise not be able to.
+
+  This will probably not work in LAN mode, especially if combined with
+  players from the internet.
+  </p>
+  <h5>Non-host perspective</h5>
+  <p>
+  When joining a battle, a client should first acquire his UDP source port
+  from the server before sending the <clink name="JOINBATTLE"/> command.
+  Once he has done that and joined the battle,
+  he should keep sendings some UDP packets to the server on regular intervals,
+  just to make sure the router does not forget about it and remove it
+  from its translation table
+  (some routers have timeout as short as 20 seconds,
+  so this should also be the minimum refresh interval).
+  Once the game actually starts,
+  the client lobby should stop sending UDP packets to the server
+  since the OS will not allow it anyway
+  (will not be able to bind the same source port,
+  as it will already be bound by spring.exe).
+  Also, there is no need for it,
+  since spring.exe will keep sending the packets
+  and so keep the port open instead of the lobby client.
+  Once the lobby client detects the user has returned from the game,
+  it should start sending the UDP packets again,
+  in order to keep the "connection" alive.
+  Another thing to note is,
+  that the lobby client does not need to "punch through"
+  like it has to when hosting, since spring.exe will do that anyway.
+
+  Just before starting the game,
+  the server will send a <clink name="HOSTPORT"/> command to the user,
+  containing the host's public UDP source port.
+  The lobby cient should replace the battle's port with this one,
+  as it will have to connect to this port and not the original one
+  (acquired through the <clink name="BATTLEOPENED"/> command).
+  </p>
+  <h5>Host perspective</h5>
+  <p>
+  Before sending the <clink name="OPENBATTLE"/> command,
+  the host should try to acquire his UDP source port from the server,
+  just to make sure it can acquire it at all
+  (better to find out it does not work before hosting,
+  than right before starting the game).
+  Nevertheless, the lobby client does not need to keep to refresh this port,
+  since it will not be used to actually host the game.
+  It is just a test to see if it works,
+  not to actually acquire a port for hosting.
+  Each time a new client joins the battle,
+  the server will send a <clink name="CLIENTPORT"/> command,
+  telling the host about this client's public UDP source port.
+  The host should remember this information,
+  as he will have to use it when starting the game.
+  Right before starting the game,
+  the host should try to acquire his source port again.
+  This time he will actually use this port to host the game.
+  Upon starting the game,
+  the server will notify all clients participating in his battle about his port,
+  using the <clink name="HOSTPORT"/> command.
+  The host does not need to keep refreshing his connection
+  to keep the port open,
+  as spring.exe will do that for him.
+  Also, upon returning from the game,
+  he does not need to start refreshing it either
+  (as a non-host would have to),
+  since when he will start a new game,
+  he will have to acquire a new source port anyway.
+  This is mostly because some people could play "single-player" games with bots
+  before opening the battle to other players,
+  and spring.exe would of course not keep the connection alive in that case,
+  and upon returning from the game,
+  the port would already be timed-out long ago.
+  This is why the host has to acquire a new port each time it starts a battle.
+  </p>
+
   </Intro>
 
   <RecentChanges>
