@@ -12,7 +12,7 @@
   us whether this argument is optional or mandatory, and 'Sentence' tells us
   if this argument may contain more than one word combined with space character
   as a delimiter.
-  
+
   Use 'clink' element in order to reference to other commands. Use "name" to
   reference to a command (you must put the command name in UPPERCASE!). You may
   also specify to which command you reference by Source type if there are two
@@ -22,7 +22,7 @@
   <clink name="JOIN:server" /> or shortly: <clink name="JOIN:c" /> and
   <clink name="JOIN:s" />. Also note that if reference is invalid xslt
   transformation will add a "[broken link]" tag to it (as html text).
-  
+
   'Examples' may contain some text to denote actual usage of the command.
 
   'CommonText' entity is used for general text formatting that may contain

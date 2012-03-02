@@ -2,20 +2,20 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" omit-xml-declaration="yes" media-type="text/html" encoding="utf-8"/>
 
-<!-- 
+<!--
 
   See DTD file for more info on various elements/attributes!
-   
+
   Some useful links:
   ******************
-  
+
   How to test if node contains no text:
     http://www.dpawson.co.uk/xsl/sect2/N3328.html#d4281e58
-    
+
   List of css tags:
     http://www.w3.org/TR/REC-CSS1
 
-  CSS font-family:  
+  CSS font-family:
     http://www.codestyle.org/css/font-family/
  -->
 
@@ -23,7 +23,7 @@
   <html>
   <head>
     <title>Index - Spring lobby protocol description</title>
-    
+
     <style type="text/css">
       h3 {
       color: navy;
@@ -34,13 +34,13 @@
       margin-bottom: 0.25em;
       border-bottom: 1px solid navy
       }
-      
+
     </style>
-    
+
   </head>
   <body>
 	<h1>Protocol command index</h1>
-   
+
 	<div>
 		<div style="float:left;width:40%">
 			<h2>Client</h2>
@@ -53,7 +53,7 @@
 							</a>
 						</li>
 					</xsl:if>
-				</xsl:for-each>       
+				</xsl:for-each>
 			</ul>
 		</div>
 		<div style="float:right;width:40%">
@@ -67,7 +67,7 @@
 							</a>
 						</li>
 					</xsl:if>
-				</xsl:for-each>       
+				</xsl:for-each>
 			</ul>
 		</div>
 	</div>
@@ -83,7 +83,7 @@
 <xsl:template match="clink">
 
   <xsl:variable name="type"><xsl:value-of select="substring-after(@name, ':')"/></xsl:variable> <!-- doesn't neccessarily exist! -->
-  
+
   <xsl:choose>
     <xsl:when test="$type=''">
       <!-- the ":x" post-fix doesn't exist -->
@@ -97,7 +97,7 @@
 		<xsl:otherwise>
 		  <!-- error: command does not exist! (link is broken) -->
           <a href="#{@name}"><xsl:value-of select="@name"/></a><span style="color: red"> [broken link]</span>
-		</xsl:otherwise>        
+		</xsl:otherwise>
       </xsl:choose>
     </xsl:when>
     <xsl:otherwise>
@@ -112,7 +112,7 @@
 		<xsl:otherwise>
 		  <!-- error: command does not exist! (link is broken) -->
           <a href="#{@name}"><xsl:value-of select="@name"/></a><span style="color: red"> [broken link]</span>
-		</xsl:otherwise>         
+		</xsl:otherwise>
       </xsl:choose>
     </xsl:otherwise>
   </xsl:choose>
@@ -156,8 +156,8 @@
   <a href="{$link}" style="white-space: nowrap"><xsl:value-of select="$link" /></a>
 </xsl:template>
 
-<!-- This template replaces all newlines with html BR tags 
-     Code has been copied from: 
+<!-- This template replaces all newlines with html BR tags
+     Code has been copied from:
      http://www.biglist.com/lists/xsl-list/archives/200310/msg01013.html
 -->
 <xsl:template name="insertBreaks">
