@@ -27,8 +27,8 @@
   that means a client that is logged-in.
   The two terms are used uncleanly though, so you may best think of them as equal.
   </p>
-  <p>
   <h4>Legend</h4>
+  <p>
   <ul>
     <li>{} = sentence = several words (at least one!) separated by space characters</li>
     <li>{} {} ... = two or more sentences. They are separated by TAB characters.</li>
@@ -51,7 +51,7 @@
   <p>
   A client must maintain a constant connection with the server.
   That is if no data is to be transfered,
-  the client must send PING commands to the server on regular intervals.
+  the client must send <clink name="PING"/> commands to the server on regular intervals.
   This ensures that the server can properly detect any network timeouts/disconnects.
   The server will automatically disconnect a client
   if no data has been received from it within a certain time period.
@@ -75,9 +75,9 @@
   </p>
   <p>
   Most of the commands that notify about some changes are forwarded to the source of the change too.
-  For example: When a client sends a MYBATTLESTATUS command,
-  the server sends a CLIENTBATTLESTATUS command to all users in the battle,
-  including the client who sent the MYBATTLESTATUS command.
+  For example: When a client sends a <clink name="MYBATTLESTATUS"/> command,
+  the server sends a <clink name="CLIENTBATTLESTATUS"/> command to all users in the battle,
+  including the client who sent the <clink name="MYBATTLESTATUS"/> command.
   This is a good practice, because this way the client can synchronize
   his local status with the server's, after the server has actually updated
   his status (it also serves as confirmation mechanism).
@@ -88,8 +88,8 @@
   you may have a look at a lobby servers source code,
   for example SpringLS or ueberserver.
   </p>
-  <p>
   <h4>Messages IDs</h4>
+  <p>
   As of version 0.33, the command syntax has been slightly changed.
   Messages may now contain IDs:
   Any message may be prefixed with a message ID.
