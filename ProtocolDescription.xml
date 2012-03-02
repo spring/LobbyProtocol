@@ -43,8 +43,19 @@
   Single word arguments are separated by spaces,
   "sentences" (a sentence is a series of words separated by spaces, denoting a single argument)
   are separated by TABs.
-  Make sure to replace all TABs in your sentences with spaces!
+  Make sure to replace all TABs in your sentences with spaces (2 or 8 usually)!
   If you do not, your command is invalid, and will not be read correctly by the server.
+  </p>
+  <p>
+  Lines sent and received may be of any length. It has been tested with 600 KB
+  long strings and it worked in both directions. Nevertheless, commands like
+  "CLIENTS" still try to divide data into several lines, just to make sure the
+  client will receive them. Since the Delphi lobby client (TASClient) now
+  supports lines of any length, dividing data into several lines is not needed
+  anymore. Though, we keep it just in case, to be compatible with other clients
+  which may emerge in the future. I do not divide data when sending info on
+  battles and clients in battles. This lines may get long, but not longer than a
+  couple of hundred bytes (they should always be under 1 KB in length).
   </p>
 
   <h3>Protocol rules</h3>
@@ -88,6 +99,15 @@
   you may have a look at a lobby servers source code,
   for example SpringLS or ueberserver.
   </p>
+  <p>
+  A Client may participate in only one battle at the same time. If he is hosting
+  a battle, he may not participate in other battles at the same time. The server
+  checks for that automatically.
+  </p>
+  <p>
+  Team colors are currently set by players, perhaps it would be better if only
+  the host would be able to change them?
+  </p>
   <h4>Messages IDs</h4>
   <p>
   As of version 0.33, the command syntax has been slightly changed.
@@ -108,6 +128,17 @@
 
   <p>
   <h3>Sub-systems</h3>
+  </p>
+
+  <h4>Syncing</h4>
+  <p>
+  To be in sync means, to have the same versions of all the content
+  required to play a game.
+  It works by clients comparing host's hash code with their own. If the two
+  codes match, client should update his battle status and this way telling other
+  clients in the battle that he is synced (or unsynced otherwise). The hash code
+  comes from hashing the mod's file and probably all the dependences too. See
+  unitsync documentation for details.
   </p>
 
   <h4>Hole punching</h4>
