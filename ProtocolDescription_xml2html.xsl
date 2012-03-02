@@ -76,8 +76,7 @@
         </xsl:choose>
       </xsl:variable>
       
-      <xsl:variable name="commfull">
-        <xsl:value-of select="@Name"/>
+      <xsl:variable name="commArgsList">
         <xsl:for-each select="Arguments/Argument">
           <xsl:choose>
             <xsl:when test="@Optional='yes' and @Sentence='yes'"><xsl:text> </xsl:text>[{<xsl:value-of select="@Name"/>}]</xsl:when>
@@ -91,7 +90,10 @@
       <a name="{@Name}:{@Source}"/> <!-- we need this to reference it with "a href" tag -->
       <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
         <tr bgcolor="{$headercolor}">
-          <td style='font-weight: bold; color: #4E5152'><xsl:value-of select="$commfull"/></td>
+          <td style='color: #4E5152'>
+            <span style="font-weight: bold"><xsl:value-of select="@Name"/></span>
+            <span style="font-style: italic"><xsl:value-of select="$commArgsList"/></span>
+          </td>
           <td style='width: 120px; text-align: center; font-style: italic'>
           Source: <xsl:value-of select="@Source"/>
           </td>
