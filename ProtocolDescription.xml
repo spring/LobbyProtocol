@@ -226,12 +226,42 @@
   This is why the host has to acquire a new port each time it starts a battle.
   </p>
 
+  <h4>Match-Making</h4>
+  <p>
+  With match-making, we mean a somewhat abstract way of automating
+  the process of users finding to each other in battle rooms
+  to play a game of a type they like.
+
+  For us this means, more specifically,
+  that users get shuffled around hosts (usually autohosts) that support match-making,
+  according to preferences they set, by the hand of a central match planning strategy/algorithm.
+  Match-making enabled hosts have to be marked as such.
+  The current way of doing this is, to let them report a CPU frequency of 6667.
+  This way, each lobby client may choose to visually outline this host property
+  in a certain way or not at all.
+  A user may choose to take part in match-making by entering one of these hosts battle.
+  When a match-maker sends a request for a certain user to switch hosts
+  by sending a <clink name="FORCEJOINBATTLE:client"/> command to the server,
+  and the server subsequently sends a <clink name="FORCEJOINBATTLE:server"/>
+  to that addressed user,
+  the lobby client must comply by joining that hosts battle-room.
+  To opt-out of the match-making process,
+  a user has to leave the battle-room,
+  after then he may join a non-match-making enabled host.
+  </p>
+
   </Intro>
 
   <RecentChanges>
   <p>
 
   <b><u>Version 0.37-SNAPSHOT:</u></b><br />
+  <ul>
+    <li>Implemented basic match-making system support,
+	see the <i>Match-Making</i> section in the beginning of this document.</li>
+    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+  </ul>
 
   <b><u>Version 0.36:</u></b><br />
   <ul>
@@ -469,6 +499,8 @@
         <clink name="JOINBATTLEACCEPT"/> and <clink name="JOINBATTLEDENY"/> commands)<br />
         'sp': client supports scriptPassword sent in the
               <clink name="JOINEDBATTLE"/> command
+        'm': client supports the basic match-making command
+              <clink name="FORCEJOINBATTLE:server"/>
         </Argument>
       </Arguments>
       <Description>
@@ -2003,6 +2035,36 @@
       <Examples>
         <Example>USERID FA23BB4A</Example>
       </Examples>
+    </Command>
+
+    <Command Name="FORCEJOINBATTLE" Source="client">
+      <Arguments>
+        <Argument Name="user" Optional="no" Sentence="no"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="battlePassword" Optional="yes" Sentence="no"/>
+      </Arguments>
+      <Description>
+      A client may send this command if he is a battle host or a lobby moderator.
+      The server will decide if they are, and send a command to the addressed user.
+	  See the <i>Match-Making</i> section in the beginning of this document for more details.
+      </Description>
+      <Response>
+      See <clink name="FORCEJOINBATTLE:server"/>.
+      </Response>
+    </Command>
+
+    <Command Name="FORCEJOINBATTLE" Source="server">
+      <Arguments>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="battlePassword" Optional="yes" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to a user specified in a previous <clink name="FORCEJOINBATTLE:client"/>
+      command which was received on the server form an other client (host or lobby moderator).
+      The receiving client must subsequently comply by sending a
+      <clink name="JOINBATTLE:client"/> command to the server.
+	  See the <i>Match-Making</i> section in the beginning of this document for more details.
+      </Description>
     </Command>
 
   </CommandList>
