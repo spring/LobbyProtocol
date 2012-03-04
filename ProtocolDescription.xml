@@ -469,7 +469,7 @@
         he should send "*" instead.
         </Argument>
         <Argument Name="lobby name and version" Optional="no" Sentence="yes" />
-        <Argument Name="userID" Optional="yes" Sentence="yes">
+        <Argument Name="userID" Optional="yes" Sentence="no">
         This is a unique user identification number provided by the client-side software.
         It should be an unsigned integer encoded in hexadecimal form (see examples).
         Note that this parameter is optional - by default it is not used/set. Server will
