@@ -2053,9 +2053,9 @@
 
     <Command Name="FORCEJOINBATTLE" Source="client">
       <Arguments>
-        <Argument Name="user" Optional="no" Sentence="no"/>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
-        <Argument Name="battlePassword" Optional="yes" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
+        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
       A client may send this command if he is a battle host or a lobby moderator.
@@ -2069,8 +2069,8 @@
 
     <Command Name="FORCEJOINBATTLE" Source="server">
       <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
-        <Argument Name="battlePassword" Optional="yes" Sentence="no"/>
+        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
+        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
       Sent to a user specified in a previous <clink name="FORCEJOINBATTLE:client"/>
