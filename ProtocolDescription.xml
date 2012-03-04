@@ -232,6 +232,25 @@
   <p>
 
   <b><u>Version 0.37-SNAPSHOT:</u></b><br />
+  <ul>
+    <li>
+    <i>Compatibility-Flags</i>
+    <p>
+    This list explains the current compatibility flags a client may send
+    with the <clink name="LOGIN:client"/> command.
+    This list will be emptied whenever a new protocol version gets released.
+    They denote that the client supports:
+    <ul>
+      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
+      <li><b>b</b>: the battle authorization system
+        (<clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>
+        and <clink name="JOINBATTLEDENY"/> commands)</li>
+      <li><b>sp</b>: the scriptPassword parameter, sent in the
+        <clink name="JOINEDBATTLE"/> command</li>
+    </ul>
+    </p>
+    </li>
+  </ul>
 
   <b><u>Version 0.36:</u></b><br />
   <ul>
@@ -463,12 +482,9 @@
         optional functionalities that break backward compatibility. Each flag in the space separated
         compFlags parameter indicates a specific functionality (like IRC user/channel flags).
         By default, all the optional functionalities are considered as not supported by the client.
-        The currently compatibility flags are:<br />
-        'a': client supports accountIDs sent in <clink name="ADDUSER"/> command<br />
-        'b': client supports battle authorization system (<clink name="JOINBATTLEREQUEST"/>,
-        <clink name="JOINBATTLEACCEPT"/> and <clink name="JOINBATTLEDENY"/> commands)<br />
-        'sp': client supports scriptPassword sent in the
-              <clink name="JOINEDBATTLE"/> command
+        For the current list of flags, see
+        <i>Recent changes - Version *-SNAPSHOT - Compatibility-Flags</i>
+        in the beginning of this document.
         </Argument>
       </Arguments>
       <Description>
