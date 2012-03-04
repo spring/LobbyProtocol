@@ -261,6 +261,25 @@
 	see the <i>Match-Making</i> section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+    <li>
+    <i>Compatibility-Flags</i>
+    <p>
+    This list explains the current compatibility flags a client may send
+    with the <clink name="LOGIN:client"/> command.
+    This list will be emptied whenever a new protocol version gets released.
+    They denote that the client supports:
+    <ul>
+      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
+      <li><b>b</b>: the battle authorization system
+        (<clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>
+        and <clink name="JOINBATTLEDENY"/> commands)</li>
+      <li><b>sp</b>: the scriptPassword parameter, sent in the
+        <clink name="JOINEDBATTLE"/> command</li>
+      <li><b>m</b>: the basic match-making command
+        <clink name="FORCEJOINBATTLE:server"/></li>
+    </ul>
+    </p>
+    </li>
   </ul>
 
   <b><u>Version 0.36:</u></b><br />
@@ -326,8 +345,8 @@
     <Command Name="PONG" Source="server">
       <Description>
       Used as a response to a <clink name="PING"/> command.
-	  You can determine how long the reply took
-	  by using a message ID with the <clink name="PING"/> command.
+      You can determine how long the reply took
+      by using a message ID with the <clink name="PING"/> command.
       </Description>
       <Response />
     </Command>
@@ -493,14 +512,9 @@
         optional functionalities that break backward compatibility. Each flag in the space separated
         compFlags parameter indicates a specific functionality (like IRC user/channel flags).
         By default, all the optional functionalities are considered as not supported by the client.
-        The currently compatibility flags are:<br />
-        'a': client supports accountIDs sent in <clink name="ADDUSER"/> command<br />
-        'b': client supports battle authorization system (<clink name="JOINBATTLEREQUEST"/>,
-        <clink name="JOINBATTLEACCEPT"/> and <clink name="JOINBATTLEDENY"/> commands)<br />
-        'sp': client supports scriptPassword sent in the
-              <clink name="JOINEDBATTLE"/> command
-        'm': client supports the basic match-making command
-              <clink name="FORCEJOINBATTLE:server"/>
+        For the current list of flags, see
+        <i>Recent changes - Version *-SNAPSHOT - Compatibility-Flags</i>
+        in the beginning of this document.
         </Argument>
       </Arguments>
       <Description>
@@ -517,8 +531,8 @@
       <Examples>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 192.168.1.100 TASClient 0.30</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30	FA23BB4A</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30	0	ab</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>FA23BB4A</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>0<b>[TAB]</b>ab</Example>
       </Examples>
     </Command>
 
@@ -577,7 +591,7 @@
       new lines in agreement), finishing it by <clink name="AGREEMENTEND"/> command. Client should send
       <clink name="CONFIRMAGREEMENT"/> and then resend LOGIN command, or disconnect from the server if he has
       chosen to refuse the agreement.
-	  </Description>
+      </Description>
       <Response>
       No response is expected until <clink name="AGREEMENTEND"/> is received. See that command for more info.
       </Response>
@@ -1387,9 +1401,9 @@
       <Arguments>
         <Argument Name="status" Optional="no" Sentence="no">
         A signed integer in text form (e.g. "1234").
-		Each bit has its meaning:
-	    <ul>
-		  <li>b0 = in game (0 - normal, 1 - in game)</li>
+        Each bit has its meaning:
+        <ul>
+          <li>b0 = in game (0 - normal, 1 - in game)</li>
           <li>b1 = away status (0 - normal, 1 - away)</li>
           <li>b2-b4 = rank (see Account class implementation for description of rank) - client is not
               allowed to change rank bits himself (only server may set them).</li>
@@ -1928,7 +1942,7 @@
       </Description>
       <Examples>
         <Example>SETSCRIPTTAGS GAME/MODOPTIONS/TEST=true</Example>
-        <Example>SETSCRIPTTAGS GAME/StartMetal=1000	GAME/StartEnergy=1000</Example>
+        <Example>SETSCRIPTTAGS GAME/StartMetal=1000<b>[TAB]</b>GAME/StartEnergy=1000</Example>
         <Example>See whitespaces: SETSCRIPTTAGS GAME/StartMetal=1000<b>[TAB]</b>GAME/StartEnergy=1000</Example>
       </Examples>
     </Command>
@@ -1947,7 +1961,7 @@
       </Description>
       <Examples>
         <Example>SETSCRIPTTAGS GAME/MODOPTIONS/TEST=true</Example>
-        <Example>SETSCRIPTTAGS GAME/StartMetal=1000	GAME/StartEnergy=1000</Example>
+        <Example>SETSCRIPTTAGS GAME/StartMetal=1000<b>[TAB]</b>GAME/StartEnergy=1000</Example>
         <Example>See whitespaces: SETSCRIPTTAGS GAME/StartMetal=1000<b>[TAB]</b>GAME/StartEnergy=1000</Example>
       </Examples>
     </Command>
