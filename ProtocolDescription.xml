@@ -491,6 +491,17 @@
         <Argument Name="cpu" Optional="no" Sentence="no">
         An integer denoting the speed of client's processor in MHz (or value of x+ tag if AMD).
         Client should leave this value at 0 if it can't figure out its CPU speed.
+        <b>HACK:</b> Some lobby clients will report a <i>special value</i> instead of the processor frequency.
+        This may be used by other lobby clients to display a specific icon or determine capabilities of a host.
+        Known CPU identifiers are listed below:
+        <ul>
+          <li><i>6666</i> Springie (autohost) or Zero-K lobby client</li>
+          <li><i>6667</i> Springie with match-maker enabled</li>
+          <li><i>7777</i> WebLobby (web based lobby client)</li>
+          <li><i>-1525630178</i> MUSLCE (Android lobby client)</li>
+        </ul>
+        This functionality will likely be deprecated
+        once there is properties suppport.
         </Argument>
         <Argument Name="localIP" Optional="no" Sentence="no">
         As localIP client should send his local IP (e.g. 192.168.x.y, or whatever it uses)
