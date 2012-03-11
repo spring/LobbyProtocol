@@ -294,6 +294,8 @@
         <clink name="JOINEDBATTLE"/> command</li>
       <li><b>m</b>: the basic match-making command
         <clink name="FORCEJOINBATTLE:server"/></li>
+      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command
+        (for decoupling games from battle-rooms)</li>
     </ul>
     </p>
     </li>
