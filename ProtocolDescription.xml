@@ -266,7 +266,7 @@
   <b><u>Version 0.37-SNAPSHOT:</u></b><br />
   <ul>
     <li>Implemented basic match-making system support,
-	see the <i>Match-Making</i> section in the beginning of this document.</li>
+    see the <i>Match-Making</i> section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
@@ -501,8 +501,9 @@
         (password will be ignored, but you must send some string anyway - you mustn't ommit it!)
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
-        An integer denoting the speed of client's processor in MHz (or value of x+ tag if AMD).
-        Client should leave this value at 0 if it can't figure out its CPU speed.
+        An integer denoting the speed of the client's processor in MHz
+        (or the value of the x+ tag if it is an AMD CPU).
+        The client should leave this value at 0 if it can not figure out its CPU speed.
         <b>HACK:</b> Some lobby clients will report a <i>special value</i> instead of the processor frequency.
         This may be used by other lobby clients to display a specific icon or determine capabilities of a host.
         Known CPU identifiers are listed below:
@@ -2083,7 +2084,7 @@
       <Description>
       A client may send this command if he is a battle host or a lobby moderator.
       The server will decide if they are, and send a command to the addressed user.
-	  See the <i>Match-Making</i> section in the beginning of this document for more details.
+      See the <i>Match-Making</i> section in the beginning of this document for more details.
       </Description>
       <Response>
       See <clink name="FORCEJOINBATTLE:server"/>.
@@ -2100,7 +2101,7 @@
       command which was received on the server form an other client (host or lobby moderator).
       The receiving client must subsequently comply by sending a
       <clink name="JOINBATTLE:client"/> command to the server.
-	  See the <i>Match-Making</i> section in the beginning of this document for more details.
+      See the <i>Match-Making</i> section in the beginning of this document for more details.
       </Description>
     </Command>
 
