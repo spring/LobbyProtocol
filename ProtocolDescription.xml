@@ -277,6 +277,7 @@
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
     <li>Added the <clink name="CONNECTUSER:client"/> server command.</li>
     <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -2159,11 +2160,12 @@
       </Arguments>
       <Description>
       The client may send this command if it is a battle host or lobby moderator.
-      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user.
+      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user,
+      or <clink name="CONNECTUSERFAILED:server"/> to the client issuing this command.
       See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
       </Description>
       <Response>
-      See <clink name="CONNECTUSER:server"/>.
+      See <clink name="CONNECTUSER:server"/> and <clink name="CONNECTUSERFAILED:server"/>.
       </Response>
     </Command>
 
@@ -2178,6 +2180,17 @@
       Instructs the client to connect spring to the given IP:port
       with the script password given in <clink name="CONNECTUSER:client"/>.
       See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
+      </Description>
+    </Command>
+
+    <Command Name="CONNECTUSERFAILED" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server to the user who just sent a <clink name="CONNECTUSER:client"/> request,
+      in the case of it being rejected by the server.
       </Description>
     </Command>
 
