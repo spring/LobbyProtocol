@@ -248,6 +248,9 @@
   To opt-out of the match-making process,
   a user has to leave the battle-room,
   after then he may join a non-match-making enabled host.
+  If the <clink name="FORCEJOINBATTLE:client"/> request was illegitimate,
+  the server will send <clink name="FORCEJOINBATTLEFAILED:server"/>
+  to the command issuing user.
   </p>
 
   <h5>Decoupling games from battle-rooms</h5>
@@ -269,6 +272,7 @@
     see the <i>Match-Making</i> section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
     <li>Added the <clink name="CONNECTUSER:client"/> server command.</li>
@@ -2087,7 +2091,7 @@
       See the <i>Match-Making</i> section in the beginning of this document for more details.
       </Description>
       <Response>
-      See <clink name="FORCEJOINBATTLE:server"/>.
+      See <clink name="FORCEJOINBATTLE:server"/> and <clink name="FORCEJOINBATTLEFAILED:server"/>.
       </Response>
     </Command>
 
@@ -2102,6 +2106,17 @@
       The receiving client must subsequently comply by sending a
       <clink name="JOINBATTLE:client"/> command to the server.
       See the <i>Match-Making</i> section in the beginning of this document for more details.
+      </Description>
+    </Command>
+
+    <Command Name="FORCEJOINBATTLEFAILED" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server to the user who just sent a <clink name="FORCEJOINBATTLE:client"/> request,
+      in the case of it being rejected by the server.
       </Description>
     </Command>
 
