@@ -2151,13 +2151,15 @@
 
     <Command Name="CONNECTUSER" Source="client">
       <Arguments>
-        <Argument Name="user" Optional="no" Sentence="no"/>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="ipAndPort" Optional="no" Sentence="no">
+        This might be IP v4 or v6, and has to be in the form "IP:Port".
+        </Argument>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
       The client may send this command if it is a battle host or lobby moderator.
-      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the user.
+      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user.
       See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
       </Description>
       <Response>
@@ -2167,7 +2169,9 @@
 
     <Command Name="CONNECTUSER" Source="server">
       <Arguments>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no"/>
+        <Argument Name="ipAndPort" Optional="no" Sentence="no">
+        This might be IP v4 or v6, and has to be in the form "IP:Port".
+        </Argument>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
        </Arguments>
       <Description>
@@ -2175,9 +2179,6 @@
       with the script password given in <clink name="CONNECTUSER:client"/>.
       See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
       </Description>
-      <Response>
-      See <clink name="CONNECTUSER:client"/>.
-      </Response>
     </Command>
 
   </CommandList>
