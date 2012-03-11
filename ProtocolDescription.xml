@@ -261,6 +261,8 @@
 	see the <i>Match-Making</i> section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+    <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
+    <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -2090,6 +2092,35 @@
       <clink name="JOINBATTLE:client"/> command to the server.
 	  See the <i>Match-Making</i> section in the beginning of this document for more details.
       </Description>
+    </Command>
+
+    <Command Name="LISTCOMPFLAGS" Source="client">
+      <Description>
+      A client may send this command after it has received <clink name="TASSERVER"/>
+      to query the server for supported comp-flags that may be specified on <clink name="LOGIN"/>.
+      </Description>
+      <Response>
+      See <clink name="COMPFLAGS:server"/>.
+      </Response>
+   </Command>
+
+   <Command Name="COMPFLAGS" Source="server">
+      <Arguments>
+        <Argument Name="compFlag1" Optional="yes" Sentence="no"/>
+        <Argument Name="compFlag2" Optional="yes" Sentence="no"/>
+        <Argument Name="..." Optional="yes" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent as a response to a <clink name="LISTCOMPFLAGS:client"/> command.
+      The server sends a list of supported comp-flags that may be specified
+      by the client on <clink name="LOGIN"/>.
+      </Description>
+      <Response />
+      <Examples>
+        <Example>COMPFLAGS a b</Example>
+        <Example>COMPFLAGS a b sp</Example>
+        <Example>COMPFLAGS</Example>
+      </Examples>
     </Command>
 
   </CommandList>
