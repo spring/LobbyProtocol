@@ -250,6 +250,14 @@
   after then he may join a non-match-making enabled host.
   </p>
 
+  <h5>Decoupling games from battle-rooms</h5>
+  <p>
+  For better match-making, you may now use the commands
+  <clink name="CONNECTUSER:client"/> (client) and <clink name="CONNECTUSER:server"/> (server).
+  They allow to initiate games without creating a battle-room first.
+  That means in practise, that we can also initiate multiple games from a single chat-room.
+  </p>
+
   </Intro>
 
   <RecentChanges>
@@ -263,6 +271,8 @@
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:client"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -2121,6 +2131,37 @@
         <Example>COMPFLAGS a b sp</Example>
         <Example>COMPFLAGS</Example>
       </Examples>
+    </Command>
+
+    <Command Name="CONNECTUSER" Source="client">
+      <Arguments>
+        <Argument Name="user" Optional="no" Sentence="no"/>
+        <Argument Name="ipAndPort" Optional="no" Sentence="no"/>
+        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The client may send this command if it is a battle host or lobby moderator.
+      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the user.
+      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
+      </Description>
+      <Response>
+      See <clink name="CONNECTUSER:server"/>.
+      </Response>
+    </Command>
+
+    <Command Name="CONNECTUSER" Source="server">
+      <Arguments>
+        <Argument Name="ipAndPort" Optional="no" Sentence="no"/>
+        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
+       </Arguments>
+      <Description>
+      Instructs the client to connect spring to the given IP:port
+      with the script password given in <clink name="CONNECTUSER:client"/>.
+      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
+      </Description>
+      <Response>
+      See <clink name="CONNECTUSER:client"/>.
+      </Response>
     </Command>
 
   </CommandList>
