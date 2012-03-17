@@ -1107,12 +1107,12 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to say something in a specific channel.
-      The client must first join the channel,
-      before he can receive from or send messages to that channel.
+      Send a chat message to a specific channel.
+      The client has to join the channel first,
+      to be allowed to use this command.
       </Description>
       <Response>
-      See <clink name="SAID:server"/> command.
+      See <clink name="SAID:server"/>.
       </Response>
     </Command>
 
@@ -1123,9 +1123,9 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients participating in this channel
-      when one of the clients sent a message to it
-      (including the author of this message).
+      Sent to all clients participating in a specific channel
+      when one of the clients sent a chat message to it
+      (including the author of the message).
       </Description>
     </Command>
 
@@ -1158,10 +1158,10 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to send a private message to some other client.
+      Send a private chat message to an other client.
       </Description>
       <Response>
-      See the <clink name="SAYPRIVATE:server"/> command.
+      See <clink name="SAYPRIVATE:server"/>.
       </Response>
     </Command>
 
@@ -1171,9 +1171,8 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to a client who just sent
-      a <clink name="SAYPRIVATE:client"/> command.
-      This way, the client can verify that server did get his message
+      Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
+      This way, the client can verify that the server did get his chat message
       and that the receiver will get it too.
       </Description>
     </Command>
@@ -1184,7 +1183,7 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server when some client sent this client a private message.
+      Indicates that a user sent a private chat message to the receiving client.
       </Description>
     </Command>
 
@@ -1473,13 +1472,16 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client that is participating in a battle
-      The server forwards this message to all other clients in the battle.
-      battleID is not required,
+      Send a chat message to all clients participating in a battle.
+      A 'battleID' argument is not required,
       since every user can participate in only one battle at a time.
       If the user is not participating in any battle,
-      this command is ignored and is considered invalid.
+      receiption of this command is considered invalid
+      and will therefore be ignored.
       </Description>
+      <Response>
+      See <clink name="SAIDBATTLE:server"/>.
+      </Response>
     </Command>
 
     <Command Name="SAIDBATTLE" Source="server">
@@ -1488,15 +1490,13 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients participating in a battle
-      when a client sent a message to it,
+      Sent to the participants of a battle when a client sent a chat message to it,
       using the <clink name="SAYBATTLE:client"/> command.
-      battleID is not required,
+      A 'battleID' is not required,
       since every client knows which battle he is participating in,
       since every client may participate in only one battle at a time.
       If the client is not participating in any battle,
-      he should ignore this command or raise an error,
-      as this should never happen!
+      he should ignore this command or raise an error.
       </Description>
     </Command>
 
