@@ -268,14 +268,14 @@
 
   <b><u>Version 0.37-SNAPSHOT:</u></b><br/>
   <ul>
-    <li>Implemented basic match-making system support,
-    see the <i>Match-Making</i> section in the beginning of this document.</li>
+    <li>Added basic match-making system support,
+      see the <i>Match-Making</i> section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
     <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
     <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
     <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
     <li>
