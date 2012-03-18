@@ -453,12 +453,16 @@
         <Argument Name="password" Optional="no" Sentence="no">
         Must be sent in encoded form (MD5 hash in base-64 form).
         </Argument>
+        <Argument Name="email" Optional="yes" Sentence="no">
+          A valid email address. Case will not be considered.
+        </Argument>
       </Arguments>
       <Description>
       The client sends this command when trying to register a new account.
       Note that the client mustn't already be logged in,
       or else the server will deny his request.
       If the server is running in LAN mode, this command will be ignored.
+      The optional email allows account recovery via <clink name="LOSTPASSWORD"/>.
       </Description>
       <Response>
       The server will respond with either a <clink name="REGISTRATIONDENIED"/>
@@ -518,6 +522,19 @@
       </Response>
     </Command>
 
+    <Command Name="CHANGEEMAIL" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Will change or, in case there was none previously, set the email associated with a users's account.
+      </Description>
+      <Response>
+      No formal response is required,
+      although the server may reply with a <clink name="SERVERMSG"/> command.
+      </Response>
+    </Command>
+    
     <Command Name="LOGIN" Source="client">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
@@ -2332,6 +2349,20 @@
       </Description>
     </Command>
 
+    <Command Name="LOSTPASSWORD" Source="client">
+      <Arguments>
+        <Argument Name="email" Optional="no" Sentence="no">
+          The email address associated with a given username. Case will not be considered.
+        </Argument>
+      </Arguments>
+      <Description>
+        If a user with given email address exists, the server sends an email to that address
+        containing the associated username and a means to to reset the password. This
+        could either be a new temporary password or for example a one-time-token that authorizes
+        setting up a new password via some webinterface.
+        If no username is found matching the given email address no error is returned.
+      </Description>
+    </Command>
   </CommandList>
 
 </ProtocolDescription>
