@@ -502,7 +502,7 @@
       Note that the client mustn't already be logged in,
       or else the server will deny his request.
       If the server is running in LAN mode, this command will be ignored.
-      The optional email allows account recovery via <clink name="LOSTPASSWORD"/>.
+      The optional email allows account recovery via <clink name="RECOVERACCOUNT"/>.
       </Description>
       <Response>
       The server will respond with either a <clink name="REGISTRATIONDENIED"/>
