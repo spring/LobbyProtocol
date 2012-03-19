@@ -2513,18 +2513,20 @@
       </Description>
     </Command>
 
-    <Command Name="LOSTPASSWORD" Source="client">
+    <Command Name="RECOVERACCOUNT" Source="client">
       <Arguments>
         <Argument Name="email" Optional="no" Sentence="no">
           The email address associated with a given username. Case will not be considered.
         </Argument>
+        <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-        If a user with given email address exists, the server sends an email to that address
-        containing the associated username and a means to to reset the password. This
-        could either be a new temporary password or for example a one-time-token that authorizes
-        setting up a new password via some webinterface.
-        If no username is found matching the given email address no error is returned.
+        Sends an e-mail with account recovery information.
+        If one or more accounts with the given email address (and optional userName) exists, the server sends an email
+        to that address containing the associated username(s) and a means to reset the password(s). This
+        could either be a new temporary password or for example a one-time-token that authorizes setting up a
+        new password via some webinterface.
+        If no account is found matching the given search criterias, no error is returned.
       </Description>
     </Command>
   </CommandList>
