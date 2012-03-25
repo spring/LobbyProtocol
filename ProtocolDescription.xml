@@ -261,6 +261,36 @@
   That means in practise, that we can also initiate multiple games from a single chat-room.
   </p>
 
+  <h5>Inter-lobby-client data exchange</h5>
+  <p>
+  For quasi direct communication between lobby clients,
+  in order to allow faster development cycles,
+  and to keep the lobby protocol from getting bloated unnecessarily,
+  a new set of commands was introduced.
+  They mirror most of the chat commands,
+  but instead of human, user2user chat interaction,
+  these are meant for programmatic, client2client or user2client communication.
+  The server just routes the messages to the intended receiving client(s).
+  They are meant to be used for stuff like standardized auto-host commands,
+  for example a common set of commands and arguments for voting.
+  Commands that may be used through this new communication channel
+  have to be discussed and approved by the lobby-dev meeting first,
+  and be documented in the <i>Inter-lobby-client data exchange protocol</i>.
+  When receiving messages through these new lobby protocol commands,
+  clients should generally not show them to the user as is,
+  but either ignore them,
+  or act according to the <i>Inter-lobby-client data exchange protocol</i>.
+  <ul>
+    <li><clink name="SAYDATA:client"/></li>
+    <li><clink name="SAIDDATA:server"/></li>
+    <li><clink name="SAYDATAPRIVATE:client"/></li>
+    <li><clink name="SAYDATAPRIVATE:server"/></li>
+    <li><clink name="SAIDDATAPRIVATE:server"/></li>
+    <li><clink name="SAYDATABATTLE:client"/></li>
+    <li><clink name="SAIDDATABATTLE:server"/></li>
+  </ul>
+  </p>
+
   </Intro>
 
   <RecentChanges>
@@ -270,6 +300,9 @@
   <ul>
     <li>Added basic match-making system support,
       see the <i>Match-Making</i> section in the beginning of this document.</li>
+    <li>Added the SAYDATA* command set,
+      see the <i>Inter-lobby-client data exchange</i>
+      section in the beginning of this document.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
     <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
     <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
@@ -278,6 +311,13 @@
     <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
     <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
     <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
+    <li>Added the <clink name="SAYDATAPRIVATE:server"/> server command.</li>
+    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -1110,6 +1150,7 @@
       Send a chat message to a specific channel.
       The client has to join the channel first,
       to be allowed to use this command.
+      Chat equivalent to the <clink name="SAYDATA:client"/> command.
       </Description>
       <Response>
       See <clink name="SAID:server"/>.
@@ -1126,6 +1167,7 @@
       Sent to all clients participating in a specific channel
       when one of the clients sent a chat message to it
       (including the author of the message).
+      Chat equivalent to the <clink name="SAIDDATA:server"/> command.
       </Description>
     </Command>
 
@@ -1159,6 +1201,7 @@
       </Arguments>
       <Description>
       Send a private chat message to an other client.
+      Chat equivalent to the <clink name="SAYDATAPRIVATE:client"/> command.
       </Description>
       <Response>
       See <clink name="SAYPRIVATE:server"/>.
@@ -1174,6 +1217,7 @@
       Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
       This way, the client can verify that the server did get his chat message
       and that the receiver will get it too.
+      Chat equivalent to the <clink name="SAYDATAPRIVATE:server"/> command.
       </Description>
     </Command>
 
@@ -1184,6 +1228,7 @@
       </Arguments>
       <Description>
       Indicates that a user sent a private chat message to the receiving client.
+      Chat equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       </Description>
     </Command>
 
@@ -1478,6 +1523,7 @@
       If the user is not participating in any battle,
       receiption of this command is considered invalid
       and will therefore be ignored.
+      Chat equivalent to the <clink name="SAYDATABATTLE:client"/> command.
       </Description>
       <Response>
       See <clink name="SAIDBATTLE:server"/>.
@@ -1497,6 +1543,7 @@
       since every client may participate in only one battle at a time.
       If the client is not participating in any battle,
       he should ignore this command or raise an error.
+      Chat equivalent to the <clink name="SAIDDATABATTLE:server"/> command.
       </Description>
     </Command>
 
@@ -2329,6 +2376,123 @@
       <Description>
       Sent by the server to the user who just sent a <clink name="CONNECTUSER:client"/> request,
       in the case of it being rejected by the server.
+      </Description>
+    </Command>
+
+    <Command Name="SAYDATA" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Send a data message to a specific channel.
+      The client has to join the channel first,
+      to be allowed to use this command.
+      Data equivalent to the <clink name="SAY:client"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+      <Response>
+      See <clink name="SAIDDATA:server"/>.
+      </Response>
+    </Command>
+
+    <Command Name="SAIDDATA" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to all clients participating in a specific channel
+      when one of the clients sent a data message to it
+      (including the author of the message).
+      Data equivalent to the <clink name="SAID:server"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+    </Command>
+
+    <Command Name="SAYDATAPRIVATE" Source="client">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Send a private data message to an other client.
+      Data equivalent to the <clink name="SAYPRIVATE:client"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+      <Response>
+      See <clink name="SAYDATAPRIVATE:server"/>.
+      </Response>
+    </Command>
+
+    <Command Name="SAYDATAPRIVATE" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to a client that just sent a <clink name="SAYDATAPRIVATE:client"/> command.
+      This way, the client can verify that the server did get his data message
+      and that the receiver will get it too.
+      Data equivalent to the <clink name="SAYDATAPRIVATE:server"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+    </Command>
+
+    <Command Name="SAIDDATAPRIVATE" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Indicates that a user sent a private data message to the receiving client.
+      Data equivalent to the <clink name="SAIDPRIVATE:server"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+    </Command>
+
+    <Command Name="SAYDATABATTLE" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Send a data message to all clients participating in a battle.
+      A 'battleID' argument is not required,
+      since every user can participate in only one battle at a time.
+      If the user is not participating in any battle,
+      receiption of this command is considered invalid
+      and will therefore be ignored.
+      Data equivalent to the <clink name="SAYBATTLE:client"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
+      </Description>
+      <Response>
+      See <clink name="SAIDDATABATTLE:server"/>.
+      </Response>
+    </Command>
+
+    <Command Name="SAIDDATABATTLE" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to the participants of a battle when a client sent a data message to it,
+      using the <clink name="SAYDATABATTLE:client"/> command.
+      A 'battleID' is not required,
+      since every client knows which battle he is participating in,
+      since every client may participate in only one battle at a time.
+      If the client is not participating in any battle,
+      he should ignore this command or raise an error.
+      Data equivalent to the <clink name="SAIDBATTLE:server"/> command.
+      For more info, see the <i>Inter-lobby-client data exchange</i> section
+      in the beginning of this document.
       </Description>
     </Command>
 
