@@ -568,7 +568,7 @@
         <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Will change, or in case there was none previously set, the email associated with a user's account.
+      Will change or, in case there was none previously associated, set the email associated with a user's account.
       The optional userName may only differ from the sender name iff the sender has admin status.
       </Description>
       <Response>
@@ -2398,6 +2398,7 @@
       </Description>
     </Command>
 
+<<<<<<< HEAD
     <Command Name="SAYDATA" Source="client">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
@@ -2515,6 +2516,8 @@
       </Description>
     </Command>
 
+=======
+>>>>>>> 0ac6ca0874a7b63279ded184849ee8929bfcca3d
     <Command Name="RECOVERACCOUNT" Source="client">
       <Arguments>
         <Argument Name="email" Optional="no" Sentence="no">
