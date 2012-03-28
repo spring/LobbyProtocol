@@ -2402,7 +2402,6 @@
       </Description>
     </Command>
 
-<<<<<<< HEAD
     <Command Name="SAYDATA" Source="client">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
@@ -2520,8 +2519,6 @@
       </Description>
     </Command>
 
-=======
->>>>>>> 0ac6ca0874a7b63279ded184849ee8929bfcca3d
     <Command Name="RECOVERACCOUNT" Source="client">
       <Arguments>
         <Argument Name="email" Optional="no" Sentence="no">
