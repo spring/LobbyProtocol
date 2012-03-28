@@ -565,9 +565,11 @@
     <Command Name="CHANGEEMAIL" Source="client">
       <Arguments>
         <Argument Name="newEmail" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Will change or, in case there was none previously, set the email associated with a users's account.
+      Will change, or in case there was none previously set, the email associated with a user's account.
+      The optional userName may only differ from the sender name iff the sender has admin status.
       </Description>
       <Response>
       No formal response is required,
