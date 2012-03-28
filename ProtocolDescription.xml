@@ -200,7 +200,7 @@
   It is just a test to see if it works,
   not to actually acquire a port for hosting.
   Each time a new client joins the battle,
-  the server will send a <clink name="CLIENTPORT"/> command,
+  the server will send a <clink name="CLIENTIPPORT"/> command,
   telling the host about this client's public UDP source port.
   The host should remember this information,
   as he will have to use it when starting the game.
@@ -354,12 +354,12 @@
   <b><u>Version 0.35:</u></b><br/>
   <ul>
     <li>'serverMode' argument has been added to the <clink name="TASSERVER"/> command.</li>
-    <li>Added <clink name="SETSCRIPTTAGS"/> command. This command replaces <clink name="UPDATEBATTLEDETAILS"/> command.</li>
+    <li>Added <clink name="SETSCRIPTTAGS"/> command. This command replaces UPDATEBATTLEDETAILS command.</li>
     <li>Added <clink name="REMOVESCRIPTTAGS"/> command, companion to <clink name="SETSCRIPTTAGS"/>.</li>
     <li>New startpos type added: "choose before battle" (type 3). These change affects following commands:
         <clink name="OPENBATTLE"/>, <clink name="JOINBATTLE"/>.</li>
     <li>Added two more in-game ranks, one at 300h, the other at 1000h.</li>
-    <li>Removed <clink name="UPDATEBATTLEDETAILS"/> command as it is no longer needed (use <clink name="SETSCRIPTTAGS"/> instead).
+    <li>Removed UPDATEBATTLEDETAILS command as it is no longer needed (use <clink name="SETSCRIPTTAGS"/> instead).
         Also removed several arguments from <clink name="JOINBATTLE"/> and <clink name="OPENBATTLE"/> commands (all these
         arguments are handled via <clink name="SETSCRIPTTAGS"/> command now). See descriptions of these commands for more info.</li>
   </ul>
@@ -573,7 +573,7 @@
       </Arguments>
       <Description>
       Will change or, in case there was none previously associated, set the email associated with a user's account.
-      The optional userName may only differ from the sender name iff the sender has admin status.
+      The optional userName may only differ from the sender name if the sender has admin status.
       </Description>
       <Response>
       No formal response is required,
@@ -1692,7 +1692,7 @@
     <Command Name="REQUESTBATTLESTATUS" Source="server">
       <Description>
       Sent by the server to a user which just opened a battle or joined one.
-      This command is sent after all <clink name="CLIENTBATTLESTATUS:"/>
+      This command is sent after all <clink name="CLIENTBATTLESTATUS"/>
       commands for all clients have been sent.
       This way, the user can choose a suitable team, ally-team and color,
       since he knows the battle statuses of other clients already.
