@@ -417,14 +417,14 @@
         <Argument Name="protocolVersion" Optional="no" Sentence="no">
         This is the lobby protocol version used by the server.
         The client may check if it supports this version before attempting to log in.
-        If it does not support it, it should send the
-        <clink name="REQUESTUPDATEFILE"/> command).
         </Argument>
         <Argument Name="springVersion" Optional="no" Sentence="no">
-        This is the latest Spring version which the user needs in order to play with other players on this server.
-        The client should check if it has this Spring version before attempting to log in.
-        If it does not have it,
-        it should send a <clink name="REQUESTUPDATEFILE"/> command.
+        Beginning with Spring release 89 this will be the full version string, including the latest patchlevel, 
+        for example "89.0" or "101.2".
+        The client should check if it has this Spring version before attempting to log in. 
+        If it does not find an exact match, but a compatible version (ie. "springVersion" is 101.2 but the
+        client has 101.1) is available, the client can choose to use that instead.
+        Otherwise, or if no compatible version was found, it may send a <clink name="REQUESTUPDATEFILE"/> command.
         <br/>
         Note that if the value of this parameter is "*",
         the client should simply ignore it since this means that
