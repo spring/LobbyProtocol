@@ -573,7 +573,7 @@
       </Arguments>
       <Description>
       Will change or, in case there was none previously associated, set the email associated with a user's account.
-      The optional userName may only differ from the sender name if the sender has admin status.
+      The optional userName may only differ from the sender name iff the sender has admin status.
       </Description>
       <Response>
       No formal response is required,
