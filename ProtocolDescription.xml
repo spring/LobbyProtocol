@@ -322,6 +322,7 @@
     <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
+		<li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -2288,6 +2289,12 @@
         <Example>USERID FA23BB4A</Example>
       </Examples>
     </Command>
+ 
+    <Command Name="GETINGAMETIME" Source="client">
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/> indicating the user's ingame time in minutes.
+      </Description>
+   </Command>
 
     <Command Name="FORCEJOINBATTLE" Source="client">
       <Arguments>
