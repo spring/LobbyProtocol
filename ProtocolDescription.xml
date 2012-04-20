@@ -322,6 +322,7 @@
     <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
+		<li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -673,6 +674,13 @@
       </Arguments>
       <Description>
       Sent as a response to a failed <clink name="LOGIN"/> command.
+      </Description>
+    </Command>
+
+    <Command Name="EXIT" Source="client">
+      <Description>
+      Clients should send this as their last command before severing the connection to indicate
+      a clean and deliberate disconnect. The server is not requried to acknowledge this in any way.
       </Description>
     </Command>
 
