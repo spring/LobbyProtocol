@@ -678,6 +678,11 @@
     </Command>
 
     <Command Name="EXIT" Source="client">
+      <Arguments>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+        Clients may optionally specify a reason for quitting. The server is not required to use this reason in any way.
+        </Argument>
+      </Arguments>
       <Description>
       Clients should send this as their last command before severing the connection to indicate
       a clean and deliberate disconnect. The server is not requried to acknowledge this in any way.
