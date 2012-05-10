@@ -680,7 +680,7 @@
 
     <Command Name="EXIT" Source="client">
       <Arguments>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes">
         Clients may optionally specify a reason for quitting. The server is not required to use this reason in any way.
         </Argument>
       </Arguments>
