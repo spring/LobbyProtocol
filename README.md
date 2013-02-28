@@ -22,3 +22,5 @@ by opening _ProtocolDescription.xml_ in your browser, if it supports XSL.
 * _README.md_ - this read-me
 
 You can get the latest official version of these files [here](https://github.com/spring/LobbyProtocol).
+
+A [readable Page](http://springrts.com/dl/LobbyProtocol/) is automaticly generated every night.
