@@ -296,7 +296,21 @@
   <RecentChanges>
   <p>
 
-  <b><u>Version 0.37-SNAPSHOT:</u></b><br/>
+  <b><u>Version 0.38:</u></b><br/>
+  <ul>
+    <li>Added the <clink name="OPENBATTLEEX:client"/> client command.</li>
+    <li>Added the <clink name="BATTLEOPENEDEX:server"/> server command.</li>
+    <li>
+    <i>Compatibility-Flags</i>
+    <p>
+    <ul>
+      <li><b>eb</b>: Two new arguments ( 'Engine Name', 'Engine Version' ) between 'Map Hash' and 'Map Name' for <clink name="BATTLEOPENEDEX"/> and <clink name="OPENBATTLEEX"/> commands</li>
+    </ul>
+    </p>
+    </li>
+  </ul>
+
+  <b><u>Version 0.37:</u></b><br/>
   <ul>
     <li>Added basic match-making system support,
       see the <i>Match-Making</i> section in the beginning of this document.</li>
@@ -1308,6 +1322,46 @@
       </Response>
     </Command>
 
+    <Command Name="OPENBATTLEEX" Source="client">
+      <Arguments>
+        <Argument Name="type" Optional="no" Sentence="no">
+        Can be 0 or 1 (0 = normal battle, 1 = battle replay)
+        </Argument>
+        <Argument Name="natType" Optional="no" Sentence="no">
+        NAT traversal method used by the host.
+        Must be one of:
+        0: none
+        1: Hole punching
+        2: Fixed source ports
+        </Argument>
+        <Argument Name="password" Optional="no" Sentence="no">
+        Must be "*" if founder does not wish to have password-protected game.
+        </Argument>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
+        <Argument Name="hashCode" Optional="no" Sentence="no">
+        A signed 32-bit integer (acquired via the unitsync library).
+        </Argument>
+        <Argument Name="rank" Optional="no" Sentence="no"/>
+        <Argument Name="mapHash" Optional="no" Sentence="no">
+        A signed 32-bit integer (acquired via the unitsync library).
+        </Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'Spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '91.0'</Argument>
+        <Argument Name="map" Optional="no" Sentence="yes"/>
+        <Argument Name="title" Optional="no" Sentence="yes"/>
+        <Argument Name="modName" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'eb' )
+      The client becomes a founder of this battle, if the command is successful.
+      </Description>
+      <Response>
+      The cient is notified about this command's success
+      via the <clink name="OPENBATTLE:server"/> /<clink name="OPENBATTLEFAILED:server"/> commands.
+      </Response>
+    </Command>
+
     <Command Name="OPENBATTLE" Source="server">
       <Arguments>
         <Argument Name="battleID" Optional="no" Sentence="no"/>
@@ -1356,6 +1410,46 @@
       <Description>
       Sent by the server to all registered users,
       when a new battle has been opened.
+      A series of instances of this command are sent to user when he logs in
+      (1 command for each battle).
+      </Description>
+    </Command>
+
+    <Command Name="BATTLEOPENEDEX" Source="server">
+      <Arguments>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="type" Optional="no" Sentence="no">
+        Can be 0 or 1 (0 = normal battle, 1 = battle replay)
+        </Argument>
+        <Argument Name="natType" Optional="no" Sentence="no">
+        NAT traversal method used by the host.
+        Must be one of:
+        0: none
+        1: Hole punching
+        2: Fixed source ports
+        </Argument>
+        <Argument Name="founder" Optional="no" Sentence="no">
+        Username of the client who started this battle.
+        </Argument>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
+        <Argument Name="passworded" Optional="no" Sentence="no">
+        A boolean - must be "0" (meaning false) or "1"!
+        </Argument>
+        <Argument Name="rank" Optional="no" Sentence="no"/>
+        <Argument Name="mapHash" Optional="no" Sentence="no">
+        A signed 32-bit integer as returned from (acquired via the unitsync library).
+        </Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'Spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '91.0'</Argument>
+        <Argument Name="map" Optional="no" Sentence="yes"/>
+        <Argument Name="title" Optional="no" Sentence="yes"/>
+        <Argument Name="modName" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server to all registered users,
+      when a new battle has been opened. ( Compatibility-Flag need: 'eb' )
       A series of instances of this command are sent to user when he logs in
       (1 command for each battle).
       </Description>
