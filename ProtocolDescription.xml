@@ -2259,12 +2259,17 @@
         <Argument Name="..."   Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client (battle host), to set script tags in script.txt.
-      The [pair] format is "key=value can have spaces".
-      Keys may not contain spaces,
-      and are expected to use the '/' character to separate tables (see example).
-      In version 0.35 of TASServer,
-      the command UPDATEBATTLEDETAILS was completely replaced by this command.
+      Sent by a client (battle host), to inform other clients about current
+      battle configuration (start positions type, mod options, map options...).
+      Only the battle host itself needs to write the corresponding script tags
+      into script.txt, other battle clients should merely use them for display
+      purposes.
+
+      The [pair] format is "key=value can have spaces". Keys may not contain
+      spaces, and are expected to use the '/' character to separate tables (see
+      example).
+      In version 0.35 of TASServer, the command UPDATEBATTLEDETAILS was
+      completely replaced by this command.
       The list of attributes that were replaced (with example usage):
       <ul>
         <li>SETSCRIPTTAGS GAME/StartMetal=1000</li>
@@ -2297,8 +2302,8 @@
       </Arguments>
       <Description>
       Relayed from battle host's <clink name="SETSCRIPTTAGS:client"/> message.
-      A client lobby program must cache and process these tags and apply them accordingly
-      when creating the "script.txt" file.
+      A client lobby program must process these tags and apply them accordingly
+      to the GUI presenting current battle configuration to the player.
       </Description>
       <Examples>
         <Example>SETSCRIPTTAGS GAME/MODOPTIONS/TEST=true</Example>
@@ -2315,7 +2320,9 @@
         <Argument Name="..."  Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client (battle host), to remove script tags in script.txt.
+      Sent by a client (battle host), to inform other clients that a battle
+      configuration setting has been removed (this is mainly usefull when
+      changing map with map options).
       </Description>
       <Examples>
         <Example>REMOVESCRIPTTAGS GAME/MODOPTIONS/TEST1 GAME/MODOPTIONS/TEST2</Example>
@@ -2331,7 +2338,8 @@
       </Arguments>
       <Description>
       Relayed from battle host's <clink name="REMOVESCRIPTTAGS:client"/> message.
-      A client lobby program has to remove these from its cached script tags database.
+      A client lobby program has to remove these from the GUI presenting
+      current battle configuration to the player.
       </Description>
       <Examples>
         <Example>REMOVESCRIPTTAGS GAME/MODOPTIONS/TEST1 GAME/MODOPTIONS/TEST2</Example>
