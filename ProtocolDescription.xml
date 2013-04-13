@@ -616,7 +616,9 @@
         <ul>
           <li><i>6666</i> Springie (autohost) or Zero-K lobby client</li>
           <li><i>6667</i> Springie with match-maker enabled</li>
-          <li><i>7777</i> WebLobby (web based lobby client)</li>
+          <li><i>7777</i> WebLobby (web based lobby client), running at windows</li>
+          <li><i>7778</i> WebLobby (web based lobby client), running at linux</li>
+          <li><i>7779</i> WebLobby (web based lobby client), running mac</li>
           <li><i>-1525630178</i> MUSLCE (Android lobby client)</li>
         </ul>
         This functionality will likely be deprecated
