@@ -1319,7 +1319,7 @@
       The client becomes a founder of this battle, if the command is successful.
       </Description>
       <Response>
-      The cient is notified about this command's success
+      The client is notified about this command's success
       via the <clink name="OPENBATTLE:server"/> /<clink name="OPENBATTLEFAILED:server"/> commands.
       </Response>
     </Command>
