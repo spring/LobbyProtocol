@@ -1348,8 +1348,8 @@
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'Spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '91.0'</Argument>
+        <Argument Name="engineName" Optional="no" Sentence="no">For example: 'spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="no">For example: '91.0'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="modName" Optional="no" Sentence="yes"/>
@@ -1443,8 +1443,8 @@
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer as returned from (acquired via the unitsync library).
         </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'Spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '91.0'</Argument>
+        <Argument Name="engineName" Optional="no" Sentence="no">For example: 'spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="no">For example: '91.0'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="modName" Optional="no" Sentence="yes"/>
