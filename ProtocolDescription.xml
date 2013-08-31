@@ -298,13 +298,17 @@
 
   <b><u>Version 0.38:</u></b><br/>
   <ul>
-    <li>Added the <clink name="OPENBATTLEEX:client"/> client command.</li>
-    <li>Added the <clink name="BATTLEOPENEDEX:server"/> server command.</li>
+    <li>Added the OPENBATTLEEX client command.</li>
+    <li>Added the BATTLEOPENEDEX server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
     <ul>
-      <li><b>eb</b>: Two new arguments ( 'Engine Name', 'Engine Version' ) between 'Map Hash' and 'Map Name' for <clink name="BATTLEOPENEDEX"/> and <clink name="OPENBATTLEEX"/> commands</li>
+      <li><b>eb</b>: deprecated: Two new arguments ( 'Engine Name', 'Engine Version' ) between 'Map Hash' and 'Map Name' for BATTLEOPENEDEX and OPENBATTLEEX commands</li>
+      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE, removed BATTLEOPENEDEX, OPENBATTLEEX,
+       moved Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/> and
+       made them sentences again, cl is mutal exclusive to eb.
+      </li>
     </ul>
     </p>
     </li>
@@ -444,7 +448,6 @@
         The client should check if it has this Spring version before attempting to log in. 
         If it does not find an exact match, but a compatible version (ie. "springVersion" is 101.2 but the
         client has 101.1) is available, the client can choose to use that instead.
-        Otherwise, or if no compatible version was found, it may send a <clink name="REQUESTUPDATEFILE"/> command.
         <br/>
         Note that if the value of this parameter is "*",
         the client should simply ignore it since this means that
@@ -473,37 +476,6 @@
       <Examples>
         <Example>TASSERVER 0.35 0.72b1 8201 0</Example>
         <Example>TASSERVER 0.35 * 8201 0</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="REQUESTUPDATEFILE" Source="client">
-      <Arguments>
-        <Argument Name="name and version" Optional="no" Sentence="yes">
-        Program name and version for which the client is requesting an update.
-        For example, if the user's Spring is outdated,
-        it will might provide "Spring 0.72b1",
-        or if the lobby client is outdated, it might provide "TASClient 0.30".
-        Similar for bots, for which the server provides updates.
-        FIXME This is only used for spring engine version still, i guess?
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent by a client that is using an outdated Spring or lobby client program
-      and is trying to figure out if the server has some update for him
-      (the client can figure out if he is using outdated
-      software via the <clink name="TASSERVER"/> command).
-      If both, Spring and lobby client program are outdated,
-      request only Spring update, since it will most
-      likely contain an update for the lobby client as well.
-      </Description>
-      <Response>
-      The server will respond with an <clink name="OFFERFILE"/> command
-      if it has an update for the client,
-      or else it will display a message box (via <clink name="SERVERMSGBOX"/> command) or similar.
-      </Response>
-      <Examples>
-        <Example>REQUESTUPDATEFILE Spring 0.72b1</Example>
-        <Example>REQUESTUPDATEFILE TASClient 0.30</Example>
       </Examples>
     </Command>
 
@@ -781,37 +753,6 @@
        (each MOTD corresponds to one line, for example).
       </Description>
       <Examples>
-      </Examples>
-    </Command>
-
-    <Command Name="OFFERFILE" Source="server">
-      <Arguments>
-        <Argument Name="options" Optional="no" Sentence="no">
-        An integer (in text format), where each bit has its own meaning:
-        <ul>
-          <li>bit0 - should the file be opened once it is downloaded?</li>
-          <li>bit1 - should lobby client program be closed once the file is downloaded?</li>
-          <li>bit2 - is this file "mandatory"? (e.g. a patch - if the user does not accept it, it must disconnect from the server)</li>
-        </ul>
-        </Argument>
-        <Argument Name="fileName" Optional="no" Sentence="yes">
-        The local file name the download should be saved to on the client side.
-        If "*", then the client should extract the file name from the URL.
-        </Argument>
-        <Argument Name="url" Optional="no" Sentence="yes">
-        URL from which the lobby client program should download the update file.
-        </Argument>
-        <Argument Name="description" Optional="no" Sentence="yes">
-        Description of the file offered.
-        The lobby client program should display this description
-        (in a message box, for example).
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent as a response to <clink name="REQUESTUPDATEFILE"/> command.
-      </Description>
-      <Examples>
-        <Example>OFFERFILE 7 *  http://taspring.clan-sy.com/dl/spring_0.74b2_update.exe This is a 0.74b1->0.74b2 patch.</Example>
       </Examples>
     </Command>
 
@@ -1285,7 +1226,6 @@
       </Description>
     </Command>
 
-
     <Command Name="OPENBATTLE" Source="client">
       <Arguments>
         <Argument Name="type" Optional="no" Sentence="no">
@@ -1310,46 +1250,8 @@
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="map" Optional="no" Sentence="yes"/>
-        <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modName" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the client when he is trying to open a new battle.
-      The client becomes a founder of this battle, if the command is successful.
-      </Description>
-      <Response>
-      The client is notified about this command's success
-      via the <clink name="OPENBATTLE:server"/> /<clink name="OPENBATTLEFAILED:server"/> commands.
-      </Response>
-    </Command>
-
-    <Command Name="OPENBATTLEEX" Source="client">
-      <Arguments>
-        <Argument Name="type" Optional="no" Sentence="no">
-        Can be 0 or 1 (0 = normal battle, 1 = battle replay)
-        </Argument>
-        <Argument Name="natType" Optional="no" Sentence="no">
-        NAT traversal method used by the host.
-        Must be one of:
-        0: none
-        1: Hole punching
-        2: Fixed source ports
-        </Argument>
-        <Argument Name="password" Optional="no" Sentence="no">
-        Must be "*" if founder does not wish to have password-protected game.
-        </Argument>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
-        <Argument Name="hashCode" Optional="no" Sentence="no">
-        A signed 32-bit integer (acquired via the unitsync library).
-        </Argument>
-        <Argument Name="rank" Optional="no" Sentence="no"/>
-        <Argument Name="mapHash" Optional="no" Sentence="no">
-        A signed 32-bit integer (acquired via the unitsync library).
-        </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="no">For example: 'spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="no">For example: '91.0'</Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="modName" Optional="no" Sentence="yes"/>
@@ -1405,46 +1307,8 @@
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer as returned from (acquired via the unitsync library).
         </Argument>
-        <Argument Name="map" Optional="no" Sentence="yes"/>
-        <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modName" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to all registered users,
-      when a new battle has been opened.
-      A series of instances of this command are sent to user when he logs in
-      (1 command for each battle).
-      </Description>
-    </Command>
-
-    <Command Name="BATTLEOPENEDEX" Source="server">
-      <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
-        <Argument Name="type" Optional="no" Sentence="no">
-        Can be 0 or 1 (0 = normal battle, 1 = battle replay)
-        </Argument>
-        <Argument Name="natType" Optional="no" Sentence="no">
-        NAT traversal method used by the host.
-        Must be one of:
-        0: none
-        1: Hole punching
-        2: Fixed source ports
-        </Argument>
-        <Argument Name="founder" Optional="no" Sentence="no">
-        Username of the client who started this battle.
-        </Argument>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-        <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
-        <Argument Name="passworded" Optional="no" Sentence="no">
-        A boolean - must be "0" (meaning false) or "1"!
-        </Argument>
-        <Argument Name="rank" Optional="no" Sentence="no"/>
-        <Argument Name="mapHash" Optional="no" Sentence="no">
-        A signed 32-bit integer as returned from (acquired via the unitsync library).
-        </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="no">For example: 'spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="no">For example: '91.0'</Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my hacked spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="modName" Optional="no" Sentence="yes"/>
