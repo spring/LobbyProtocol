@@ -416,11 +416,11 @@
 
     <Command Name="PING" Source="client">
       <Description>
-      The client should send this command every few seconds,
+      The client should send this command every ~30 seconds,
       to maintain a constant connection to the server.
       The server will assume a timeout occured if it does not hear from
-      the client for more than x seconds.
-      To figure out how long a it takes a replay to from the server to the client,
+      the client for more than 60 seconds.
+      To figure out how long a it takes a reply to from the server to the client,
       use a message ID with this command.
       </Description>
       <Response>
