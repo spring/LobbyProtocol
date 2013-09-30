@@ -46,6 +46,7 @@
 			<h2>Client</h2>
 			<ul>
 				<xsl:for-each select="CommandList/Command">
+					<xsl:sort select="@Name" data-type="text" order="ascending" />
 					<xsl:if test="@Source='client'">
 						<li>
 							<a href="ProtocolDescription.html#{@Name}:{@Source}">
@@ -60,6 +61,7 @@
 			<h2>Server</h2>
 			<ul>
 				<xsl:for-each select="CommandList/Command">
+					<xsl:sort select="@Name" data-type="text" order="ascending" />
 					<xsl:if test="@Source='server'">
 						<li>
 							<a href="ProtocolDescription.html#{@Name}:{@Source}">
