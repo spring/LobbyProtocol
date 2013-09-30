@@ -307,6 +307,7 @@
       <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE, removed BATTLEOPENEDEX, OPENBATTLEEX,
        moved Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/> and
        made them sentences again, cl is mutal exclusive to eb.
+       removed SAYPRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
       </li>
     </ul>
     </p>
