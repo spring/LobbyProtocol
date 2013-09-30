@@ -284,7 +284,6 @@
     <li><clink name="SAYDATA:client"/></li>
     <li><clink name="SAIDDATA:server"/></li>
     <li><clink name="SAYDATAPRIVATE:client"/></li>
-    <li><clink name="SAYDATAPRIVATE:server"/></li>
     <li><clink name="SAIDDATAPRIVATE:server"/></li>
     <li><clink name="SAYDATABATTLE:client"/></li>
     <li><clink name="SAIDDATABATTLE:server"/></li>
@@ -334,7 +333,6 @@
     <li>Added the <clink name="SAYDATA:client"/> client command.</li>
     <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
     <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
-    <li>Added the <clink name="SAYDATAPRIVATE:server"/> server command.</li>
     <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
     <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
     <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
@@ -1195,7 +1193,7 @@
       </Arguments>
       <Description>
       Send a private chat message to an other client.
-      Chat equivalent to the <clink name="SAYDATAPRIVATE:client"/> command.
+      Chat equivalent to the <clink name="SAIDPRIVATE:client"/> command.
       </Description>
       <Response>
       See <clink name="SAYPRIVATE:server"/>.
@@ -1211,7 +1209,7 @@
       Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
       This way, the client can verify that the server did get his chat message
       and that the receiver will get it too.
-      Chat equivalent to the <clink name="SAYDATAPRIVATE:server"/> command.
+      Chat equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       </Description>
     </Command>
 
@@ -2431,28 +2429,13 @@
       </Arguments>
       <Description>
       Send a private data message to an other client.
-      Data equivalent to the <clink name="SAYPRIVATE:client"/> command.
+      Data equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
       <Response>
-      See <clink name="SAYDATAPRIVATE:server"/>.
+      See <clink name="SAIDDATAPRIVATE:server"/>.
       </Response>
-    </Command>
-
-    <Command Name="SAYDATAPRIVATE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a client that just sent a <clink name="SAYDATAPRIVATE:client"/> command.
-      This way, the client can verify that the server did get his data message
-      and that the receiver will get it too.
-      Data equivalent to the <clink name="SAYDATAPRIVATE:server"/> command.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
     </Command>
 
     <Command Name="SAIDDATAPRIVATE" Source="server">
@@ -2462,7 +2445,7 @@
       </Arguments>
       <Description>
       Indicates that a user sent a private data message to the receiving client.
-      Data equivalent to the <clink name="SAIDPRIVATE:server"/> command.
+      Data equivalent to the <clink name="SAYDATAPRIVATE:client"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
