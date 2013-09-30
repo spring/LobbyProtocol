@@ -1142,7 +1142,6 @@
       Send a chat message to a specific channel.
       The client has to join the channel first,
       to be allowed to use this command.
-      Chat equivalent to the <clink name="SAYDATA:client"/> command.
       </Description>
       <Response>
       See <clink name="SAID:server"/>.
@@ -1159,7 +1158,6 @@
       Sent to all clients participating in a specific channel
       when one of the clients sent a chat message to it
       (including the author of the message).
-      Chat equivalent to the <clink name="SAIDDATA:server"/> command.
       </Description>
     </Command>
 
@@ -1193,7 +1191,6 @@
       </Arguments>
       <Description>
       Send a private chat message to an other client.
-      Chat equivalent to the <clink name="SAIDPRIVATE:client"/> command.
       </Description>
       <Response>
       See <clink name="SAYPRIVATE:server"/>.
@@ -1209,7 +1206,6 @@
       Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
       This way, the client can verify that the server did get his chat message
       and that the receiver will get it too.
-      Chat equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       </Description>
     </Command>
 
@@ -1220,7 +1216,6 @@
       </Arguments>
       <Description>
       Indicates that a user sent a private chat message to the receiving client.
-      Chat equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       </Description>
     </Command>
 
@@ -1518,7 +1513,6 @@
       If the user is not participating in any battle,
       receiption of this command is considered invalid
       and will therefore be ignored.
-      Chat equivalent to the <clink name="SAYDATABATTLE:client"/> command.
       </Description>
       <Response>
       See <clink name="SAIDBATTLE:server"/>.
@@ -1538,7 +1532,6 @@
       since every client may participate in only one battle at a time.
       If the client is not participating in any battle,
       he should ignore this command or raise an error.
-      Chat equivalent to the <clink name="SAIDDATABATTLE:server"/> command.
       </Description>
     </Command>
 
@@ -1553,6 +1546,9 @@
       (for example, when the founder of the battle kicks a user,
       the server uses this command to indicate what just happened).
       </Description>
+      <Response>
+      See <clink name="SAIDBATTLEEX:server"/>.
+      </Response>
     </Command>
 
     <Command Name="SAIDBATTLEEX" Source="server">
@@ -1853,6 +1849,9 @@
       although "normal" clients can ring players participating in their battle
       when they are hosting.
       </Description>
+      <Response>
+      See <clink name="RING:server"/>.
+      </Response>
     </Command>
 
     <Command Name="RING" Source="server">
@@ -2397,7 +2396,6 @@
       Send a data message to a specific channel.
       The client has to join the channel first,
       to be allowed to use this command.
-      Data equivalent to the <clink name="SAY:client"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
@@ -2416,7 +2414,6 @@
       Sent to all clients participating in a specific channel
       when one of the clients sent a data message to it
       (including the author of the message).
-      Data equivalent to the <clink name="SAID:server"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
@@ -2429,7 +2426,6 @@
       </Arguments>
       <Description>
       Send a private data message to an other client.
-      Data equivalent to the <clink name="SAIDDATAPRIVATE:server"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
@@ -2445,7 +2441,6 @@
       </Arguments>
       <Description>
       Indicates that a user sent a private data message to the receiving client.
-      Data equivalent to the <clink name="SAYDATAPRIVATE:client"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
@@ -2462,7 +2457,6 @@
       If the user is not participating in any battle,
       receiption of this command is considered invalid
       and will therefore be ignored.
-      Data equivalent to the <clink name="SAYBATTLE:client"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
@@ -2484,7 +2478,6 @@
       since every client may participate in only one battle at a time.
       If the client is not participating in any battle,
       he should ignore this command or raise an error.
-      Data equivalent to the <clink name="SAIDBATTLE:server"/> command.
       For more info, see the <i>Inter-lobby-client data exchange</i> section
       in the beginning of this document.
       </Description>
