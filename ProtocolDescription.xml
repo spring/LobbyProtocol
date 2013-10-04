@@ -415,12 +415,15 @@
 
     <Command Name="PING" Source="client">
       <Description>
-      The client should send this command every ~30 seconds,
-      to maintain a constant connection to the server.
-      The server will assume a timeout occured if it does not hear from
-      the client for more than 60 seconds.
-      To figure out how long a it takes a reply to from the server to the client,
-      use a message ID with this command.
+      This command must be used by the lobby clients to maintain their connection to the server. It serves 2 purposes:
+      notify the server that the client is still alive, and check if server is still available. The server will assume
+      a client died if it does not receive any data from it for one minute. Similarly, a lobby client should consider
+      the server became unavailable if it does not receive any data from it for one minute. So, if nothing has been sent
+      to server for 30 seconds, it is recommended to send this command to reset the server side timeout. Similarly, if
+      no data has been received from server for 30 seconds, it is recommended to use this command to detect if server
+      has become unavailable.
+      Additionally, this command can be used to compute the round trip delay time to lobby server (in this case a
+      message ID should be used so the PONG response can be associated with the corresponding original PING request)
       </Description>
       <Response>
       See <clink name="PONG"/>.
