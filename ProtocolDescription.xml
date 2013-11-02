@@ -297,17 +297,14 @@
 
   <b><u>Version 0.38:</u></b><br/>
   <ul>
-    <li>Added the OPENBATTLEEX client command.</li>
-    <li>Added the BATTLEOPENEDEX server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
     <ul>
-      <li><b>eb</b>: deprecated: Two new arguments ( 'Engine Name', 'Engine Version' ) between 'Map Hash' and 'Map Name' for BATTLEOPENEDEX and OPENBATTLEEX commands</li>
-      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE, removed BATTLEOPENEDEX, OPENBATTLEEX,
-       moved Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/> and
-       made them sentences again, cl is mutal exclusive to eb.
-       removed SAYPRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
+      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE,
+       added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
+       cl should be used by all clients
+       removed SAYRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
       </li>
     </ul>
     </p>
