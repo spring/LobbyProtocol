@@ -1239,7 +1239,7 @@
         <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modName" Optional="no" Sentence="yes"/>
+        <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'eb' )
@@ -1296,7 +1296,7 @@
         <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop'</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
-        <Argument Name="modName" Optional="no" Sentence="yes"/>
+        <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       Sent by the server to all registered users,
