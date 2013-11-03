@@ -321,6 +321,7 @@
     <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
+    <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -341,6 +342,7 @@
        added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
        removed SAYRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
       </li>
+      <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time </li>
     </ul>
     </p>
     </li>
@@ -2446,6 +2448,19 @@
         If no account is found matching the given search criterias, no error is returned.
       </Description>
     </Command>
+
+    <Command Name="NOCHANNELTOPIC" Source="server">
+      <Arguments>
+        <Argument Name="channel" Optional="no" Sentence="no">
+          The Channel name which the client joined
+        </Argument>
+      </Arguments>
+      <Description>
+        This command is inform the Client that no channel topic is set when joined.
+        Also see the <clink name="JOIN:client"/> and <clink name="CHANNELTOPIC:server"/> command.
+      </Description>
+    </Command>
+
   </CommandList>
 
 </ProtocolDescription>
