@@ -350,12 +350,9 @@
       <li><b>b</b>: the battle authorization system
         (<clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>
         and <clink name="JOINBATTLEDENY"/> commands)</li>
-      <li><b>sp</b>: the scriptPassword parameter, sent in the
-        <clink name="JOINEDBATTLE"/> command</li>
       <li><b>m</b>: the basic match-making command
         <clink name="FORCEJOINBATTLE:server"/></li>
-      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command
-        (for decoupling games from battle-rooms)</li>
+      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
     </ul>
     </p>
     </li>
@@ -366,6 +363,17 @@
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
+  <ul>
+    <li>
+    <i>Compatibility-Flags</i>
+    <p>
+    <ul>
+      <li><b>sp</b>: the scriptPassword parameter, sent in the <clink name="JOINEDBATTLE"/>command</li>
+    </ul>
+    </p>
+    </li>
+  </ul>
+
 
   <b><u>Version 0.35:</u></b><br/>
   <ul>
