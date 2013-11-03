@@ -56,12 +56,16 @@
       </td></tr>
     </table>
 
-    <xsl:if test="./RecentChanges">
+    <xsl:if test="./Versions">
       <h2>Recent changes</h2>
       <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
-      <tr><td>
-        <xsl:apply-templates select="RecentChanges"/>
-      </td></tr>
+       <xsl:for-each select="Versions/Version">
+        <tr><td>
+           <a name="{@Name}"/> <!-- we need this to reference it with "a href" tag -->
+	   <h2>Version <xsl:value-of select="@Name"/></h2>
+           <xsl:if test="string(.)"><xsl:apply-templates select="." /></xsl:if>
+        </td></tr>
+       </xsl:for-each>
       </table>
     </xsl:if>
 

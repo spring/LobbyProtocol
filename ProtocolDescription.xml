@@ -292,10 +292,8 @@
 
   </Intro>
 
-  <RecentChanges>
-  <p>
-
-  <b><u>Version 0.38:</u></b><br/>
+  <Versions>
+  <Version Name="0.38">
   <ul>
     <li>
     <i>Compatibility-Flags</i>
@@ -310,8 +308,9 @@
     </p>
     </li>
   </ul>
+  </Version>
 
-  <b><u>Version 0.37:</u></b><br/>
+  <Version Name="0.37">
   <ul>
     <li>Added basic match-making system support,
       see the <i>Match-Making</i> section in the beginning of this document.</li>
@@ -358,8 +357,9 @@
     </p>
     </li>
   </ul>
+  </Version>
 
-  <b><u>Version 0.36:</u></b><br/>
+  <Version Name="0.36">
   <ul>
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
@@ -374,9 +374,9 @@
     </p>
     </li>
   </ul>
+  </Version>
 
-  </p>
-  </RecentChanges>
+  </Versions>
 
   <CommandList>
 
