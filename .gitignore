@@ -3,9 +3,11 @@
 /CMakeCache.txt
 /Makefile
 /cmake_install.cmake
+/cmake/cmake_install.cmake
 
 # output
 /*.html
+/releases
 
 # temp files
 *~
