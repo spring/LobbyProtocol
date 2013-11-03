@@ -293,22 +293,6 @@
   </Intro>
 
   <Versions>
-  <Version Name="0.38">
-  <ul>
-    <li>
-    <i>Compatibility-Flags</i>
-    <p>
-    <ul>
-      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE,
-       added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
-       cl should be used by all clients
-       removed SAYRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
-      </li>
-    </ul>
-    </p>
-    </li>
-  </ul>
-  </Version>
 
   <Version Name="0.37">
   <ul>
@@ -335,8 +319,8 @@
     <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
-	<li>Added the <clink name="EXIT:client"/> client command.</li>
-	<li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
+    <li>Added the <clink name="EXIT:client"/> client command.</li>
+    <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>
     <i>Compatibility-Flags</i>
     <p>
@@ -353,6 +337,10 @@
         <clink name="FORCEJOINBATTLE:server"/></li>
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
       <li><b>sd</b>: SAYDATA* commands</li>
+      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE,
+       added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
+       removed SAYRIVATE (was redundant to <clink name="SAIDPRIVATE:server" />)
+      </li>
     </ul>
     </p>
     </li>
