@@ -1203,7 +1203,7 @@
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
         <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', version has to be fetched with unitsync's GetSpringVersion()</Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
