@@ -401,8 +401,8 @@
         The client may check if it supports this version before attempting to log in.
         </Argument>
         <Argument Name="springVersion" Optional="no" Sentence="no">
-        Default spring version used on lobby server. Can be locally determinated by calling unitsyncs GetSpringVersion(),
-        which will return the version, for example "95" or "94.1.1-1062-g9d16c2d develop".
+        Default spring version used on lobby server. Can be locally determinated by calling unitsyncs GetSpringVersion(), IsSpringReleaseVersion() and GetSpringVersionPatchset(),
+        which will return the version, for example "95.0" or "94.1.1-1062-g9d16c2d develop".
         <br/>
         Note that if the value of this parameter is "*",
         the client should simply ignore it since this means that
@@ -1200,8 +1200,7 @@
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
         <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', version has to be fetched with unitsync's GetSpringVersion()
-	See also <clink name="TASSERVER:server"/></Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
@@ -1258,7 +1257,7 @@
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer as returned from (acquired via the unitsync library).
         </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my hacked spring'</Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
         <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
