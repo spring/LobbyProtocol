@@ -1206,7 +1206,7 @@
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'eb' )
+      Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'cl' )
       The client becomes a founder of this battle, if the command is successful.
 
       </Description>
@@ -1265,7 +1265,7 @@
       </Arguments>
       <Description>
       Sent by the server to all registered users,
-      when a new battle has been opened. ( Compatibility-Flag need: 'eb' )
+      when a new battle has been opened. ( Compatibility-Flag need: 'cl' )
       A series of instances of this command are sent to user when he logs in
       (1 command for each battle).
       </Description>
