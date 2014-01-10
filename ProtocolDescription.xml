@@ -1192,7 +1192,7 @@
         </Argument>
         <Argument Name="port" Optional="no" Sentence="no"/>
         <Argument Name="maxPlayers" Optional="no" Sentence="no"/>
-        <Argument Name="hashCode" Optional="no" Sentence="no">
+        <Argument Name="gameHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
         <Argument Name="rank" Optional="no" Sentence="no"/>
