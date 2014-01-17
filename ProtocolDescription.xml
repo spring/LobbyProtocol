@@ -561,7 +561,7 @@
         <Argument Name="lobby name and version" Optional="no" Sentence="yes"/>
         <Argument Name="userID" Optional="yes" Sentence="no">
         This is a unique user identification number provided by the client-side software.
-        It should be an unsigned integer encoded in hexadecimal form (see examples).
+        It should be an unsigned 32 bit integer
         Note that this parameter is optional - by default it is not used/set.
         the server will send an <clink name="ACQUIREUSERID"/> command
         to tell the client that he must provide a user ID, if needed.
@@ -595,8 +595,8 @@
       <Examples>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 192.168.1.100 TASClient 0.30</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>FA23BB4A</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>0<b>[TAB]</b>ab</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>123456</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
       </Examples>
     </Command>
 
@@ -2204,7 +2204,7 @@
       When a client receives this command,
       he should immediately respond with a <clink name="USERID"/> command.
       If the client does not have a user ID associated yet,
-      he should generate some random ID (unsigned 32 bit integer),
+      he should generate some random ID (unsigned 32 bit integer)
       and save it permanently as his user ID.
       He will then provide this user ID each time he logs on to the server
       via the <clink name="LOGIN"/> command.
@@ -2214,14 +2214,14 @@
     <Command Name="USERID" Source="client">
       <Arguments>
         <Argument Name="userID" Optional="no" Sentence="no">
-        Must be an unsigned a 32 bit integer, in a hexadecimal form.
+        Must be an unsigned a unsigned 32 bit integer
         </Argument>
       </Arguments>
       <Description>
       Sent as response to a <clink name="ACQUIREUSERID"/> command.
       </Description>
       <Examples>
-        <Example>USERID FA23BB4A</Example>
+        <Example>USERID 123456</Example>
       </Examples>
     </Command>
  
