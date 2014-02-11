@@ -338,7 +338,7 @@
         <clink name="FORCEJOINBATTLE:server"/></li>
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
       <li><b>sd</b>: SAYDATA* commands</li>
-      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE,
+      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE, removed FORGEREVERSEMSG, added CHANGEEMAIL
        added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
