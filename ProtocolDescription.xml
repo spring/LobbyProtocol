@@ -14,10 +14,11 @@
 
   <h3>Introduction</h3>
   <p>
-  This is a simple text protocol in a "human readable form". I decided for text protocol since
+  This is a simple text protocol in a "human readable form". Text protocol was chosen since
   it's easier to debug and implement on the client side. It does require some more overhead,
-  but since server and clients do not communicate much anyway, this is not an issue. What
-  really eats the bandwidth is the game itself, not lobby.
+  but since server and clients do not communicate much anyway, this is not an issue.
+  Because its text only, all messages sent and received have to be encoded in utf-8, no binary data is allowed.
+  To send binary data it could be encoded/decoded with base64.
   </p>
 
   <h3>Nomenclature</h3>
