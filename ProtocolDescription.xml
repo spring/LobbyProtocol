@@ -343,6 +343,7 @@
        added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
+      <li><b>p</b>: <clink name="AGREEMENT:server"/>The agreement is in plaintext format (deprecated rtf)</li>
     </ul>
     </p>
     </li>
@@ -657,7 +658,7 @@
     <Command Name="AGREEMENT" Source="server">
       <Arguments>
         <Argument Name="agreement" Optional="no" Sentence="yes">
-        The user agreement is sent in "Rich Text" format (.rtf file streamed via socket).
+        The user agreement is sent in "Text" format (.txt file streamed via socket).
         </Argument>
       </Arguments>
       <Description>
