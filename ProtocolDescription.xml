@@ -2462,7 +2462,7 @@
 
     <Command Name="NOCHANNELTOPIC" Source="server">
       <Arguments>
-        <Argument Name="channel" Optional="no" Sentence="no">
+        <Argument Name="chanName" Optional="no" Sentence="no">
           The Channel name which the client joined
         </Argument>
       </Arguments>
