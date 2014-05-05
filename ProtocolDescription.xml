@@ -339,8 +339,12 @@
         <clink name="FORCEJOINBATTLE:server"/></li>
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
       <li><b>sd</b>: SAYDATA* commands</li>
-      <li><b>cl</b>: removed REQUESTUPDATEFILE, removed OFFERFILE, removed FORGEREVERSEMSG, added CHANGEEMAIL
-       added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/>
+      <li><b>cl</b>:
+         <ul>
+         <li>added CHANGEEMAIL</li>
+         <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
+         </ul>
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/>The agreement is in plaintext format (deprecated rtf)</li>
@@ -564,11 +568,6 @@
         <Argument Name="userID" Optional="yes" Sentence="no">
         This is a unique user identification number provided by the client-side software.
         It should be an unsigned 32 bit integer
-        Note that this parameter is optional - by default it is not used/set.
-        the server will send an <clink name="ACQUIREUSERID"/> command
-        to tell the client that he must provide a user ID, if needed.
-        However, if the lobby client program was a using user ID before,
-        it should send it along with this command.
         </Argument>
         <Argument Name="compFlags" Optional="yes" Sentence="yes">
         When connecting, the lobby client can tell the lobby server
@@ -2203,32 +2202,6 @@
       </Description>
     </Command>
 
-    <Command Name="ACQUIREUSERID" Source="server">
-      <Description>
-      When a client receives this command,
-      he should immediately respond with a <clink name="USERID"/> command.
-      If the client does not have a user ID associated yet,
-      he should generate some random ID (unsigned 32 bit integer)
-      and save it permanently as his user ID.
-      He will then provide this user ID each time he logs on to the server
-      via the <clink name="LOGIN"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="USERID" Source="client">
-      <Arguments>
-        <Argument Name="userID" Optional="no" Sentence="no">
-        Must be an unsigned a unsigned 32 bit integer
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent as response to a <clink name="ACQUIREUSERID"/> command.
-      </Description>
-      <Examples>
-        <Example>USERID 123456</Example>
-      </Examples>
-    </Command>
- 
     <Command Name="GETINGAMETIME" Source="client">
       <Description>
       The server replies with a <clink name="SERVERMSG:server"/> indicating the user's ingame time in minutes.
