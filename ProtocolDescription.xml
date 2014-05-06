@@ -347,7 +347,7 @@
          </ul>
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
-      <li><b>p</b>: <clink name="AGREEMENT:server"/>The agreement is in plaintext format (deprecated rtf)</li>
+      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
     </ul>
     </p>
     </li>
