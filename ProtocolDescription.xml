@@ -553,6 +553,9 @@
           <li><i>7778</i> WebLobby (web based lobby client), running at linux</li>
           <li><i>7779</i> WebLobby (web based lobby client), running mac</li>
           <li><i>-1525630178</i> MUSLCE (Android lobby client)</li>
+          <li><i>4607052</i> flobby Linux (FLL)</li>
+          <li><i>4607063</i> flobby Windows (FLW)</li>
+          <li><i>4607053</i> flobby Mac (FLM)</li>
         </ul>
         This functionality will likely be deprecated
         once there is properties suppport.
