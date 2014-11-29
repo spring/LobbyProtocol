@@ -2603,12 +2603,13 @@
         properly) will be the FIRST message encrypted with the new key.
         <br/><br/>
         The format of AES(-256) encrypted messages recognized and transmitted
-        by the server is
+        by the server during a secure session is
         <br/><br/>
           MARKER_BYTE + BASE64(ENCRYPT_AES(TIME + DATA, KEY)) + PARTIT_BYTE
         <br/><br/>
         where
         <ul>
+          <li>ENCRYPT_AES is AES256 operated in CBC mode with a 16-byte IV</li>
           <li>MARKER_BYTE is the literal byte-value (character) 0x01</li>
           <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li>
           <li>TIME is the four-byte (LE) representation of a strictly increasing int32</li>
@@ -2628,8 +2629,8 @@
           a client's current secure session (NOTE: no longer supported) if one
           was already established.
           <br/><br/>
-          NOTE: the server uses SHA256(DECRYPT(DECODE(session_key))) as the actual
-          key to ensure it always has the proper length in bytes.
+          NOTE: the server will use SHA256(DECRYPT_RSA(DECODE(session_key))) as
+          its actual key to ensure it always has the proper length of 32 bytes.
         </Argument>
       </Arguments>
       <Examples>
@@ -2732,9 +2733,9 @@
           INITSESS. SHA256 hash of the new session-key in case of ACCEPTED or
           REJECTED.
           <br/><br/>
-          NOTE: the server uses SHA256(DECRYPT(DECODE(session_key))) as its actual
-          key, so digests are created based on this input value, not the "raw" key.
-          Digests are base64-encoded for transport.
+          NOTE: since the server uses SHA256(DECRYPT_RSA(DECODE(session_key))) as
+          its actual key, digests are created based on this input value rather than
+          on the "raw" key. Digests are base64-encoded for transport.
         </Argument>
         <Argument Name="extra_data" Optional="yes" Sentence="no">
           If key_status is REJECTED, this will contain either the number of missing
