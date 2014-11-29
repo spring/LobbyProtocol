@@ -362,6 +362,15 @@
 
   <Version Name="0.36">
   <ul>
+    <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
+    <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
+    <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
+    <li>Crypto: added the <clink name="ACKSHAREDKEY:client"/> client command.</li>
+
+    <li>Crypto: added the <clink name="PUBLICKEY:server"/> server command.</li>
+    <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
+    <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
+
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
@@ -375,6 +384,13 @@
     </p>
     </li>
   </ul>
+    The protocol additions marked "Crypto:" add secure-session capability by allowing
+    client and server to exchange AES(-256) encryption keys. Note that the server can
+    choose to enforce secure authentication (the <clink name="LOGIN:client"/> and
+    <clink name="REGISTER:client"/> commands) only, blanket secure communication (all
+    commands including authentication), or leave the decision to use encrypted sessions
+    up to clients themselves. For the format specification of encrypted messages, see
+    <clink name="SETSHAREDKEY:client"/>.
   </Version>
 
   </Versions>
@@ -450,7 +466,10 @@
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="password" Optional="no" Sentence="no">
-        Must be sent in encoded form (MD5 hash in base-64 form).
+          The user's password string. If a client uses a secure session
+          (which means the command itself shall be encrypted, including
+          its arguments), it should send BASE64(password), otherwise it
+          should send BASE64(MD5(password)).
         </Argument>
         <Argument Name="email" Optional="yes" Sentence="no">
           A valid email address. Case will not be considered.
@@ -540,10 +559,14 @@
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
         <Argument Name="password" Optional="no" Sentence="no">
-        Should be sent in encoded form (MD5 hash in base-64 form).
-        Note that when the server is running in LAN mode,
-        you can specify any username and password
-        (the password will be ignored, but you must send some string anyway - you mustn't ommit it!)
+          The user's password string. If a client uses a secure session
+          (which means the command itself shall be encrypted, including
+          its arguments), it should send BASE64(password), otherwise it
+          should send BASE64(MD5(password)).
+          <br/>
+          Note that when the server is running in LAN mode, you can specify
+          any username and password (the password will be ignored, but you
+          must send some string anyway - you mustn't ommit it!)
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
         An integer denoting the speed of the client's processor in MHz
@@ -2529,6 +2552,201 @@
       Sent by the server after it has finished sending the ignore list for a client.
       Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
       </Description>
+    </Command>
+
+
+
+    <Command Name="GETPUBLICKEY" Source="client">
+      <Description>
+        Requests the server's public RSA key. Note that this is only provided
+        for convenience; clients should preferably obtain the key over HTTPS
+        from <url>https://github.com/spring/LOCATION_TO_BE_DECIDED/</url>.
+        It is also possible (but not recommended, though key revocations are unlikely)
+        to hardcode the key directly within the client application. Can only be sent
+        prior to establishing a secure session, otherwise will not be processed.
+      </Description>
+      <Examples>
+        <Example>GETPUBLICKEY</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="GETSIGNEDMSG" Source="client">
+      <Description>
+        Requests the server to cryptographically sign a message, allowing a
+        client to verify its identity. Can only be sent prior to establishing
+        a secure session, otherwise will not be processed.
+      </Description>
+      <Arguments>
+        <Argument Name="message_to_sign" Optional="yes" Sentence="no">
+          An arbitrary base64-encoded string which the server should sign with
+          its private RSA key. If left empty, the server will sign its current
+          <clink name="MOTD:server"/> instead.
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>GETSIGNEDMSG ""</Example>
+        <Example>GETSIGNEDMSG SGVsbG8gV29ybGQ=</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="SETSHAREDKEY" Source="client">
+      <Description>
+        Instructs the server to set a session-key. Initially sent in plaintext,
+        but at any point after establishing a secure session a client may send
+        this command again (in encrypted form!) with a different RSA-encrypted
+        key value.
+        <br/><br/>
+        After sending this command, a client should wait until it receives
+        <clink name="SHAREDKEY:server"/> with <b>key_status</b> ACCEPTED and
+        has verified the key digest before sending any other data. It should
+        then send <clink name="ACKSHAREDKEY:client"/>, which (if implemented
+        properly) will be the FIRST message encrypted with the new key.
+        <br/><br/>
+        The format of AES(-256) encrypted messages recognized and transmitted
+        by the server is
+        <br/><br/>
+          MARKER_BYTE + BASE64(ENCRYPT_AES(TIME + DATA, KEY)) + PARTIT_BYTE
+        <br/><br/>
+        where
+        <ul>
+          <li>MARKER_BYTE is the literal byte-value (character) 0x01</li>
+          <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li>
+          <li>TIME is the four-byte (LE) representation of a strictly increasing int32</li>
+          <li>DATA is any command string, or a batch of commands separated by newlines</li>
+        </ul>
+        For example, DATA might be "LOGIN user pass\nJOIN main\n" and TIME (a
+        counter that should be increased for each encrypted message) might be
+        0xfe000000 indicating that DATA is the 254th secure message sent by the
+        client this session. Sending a message during a secure session that does
+        not conform to this format will cause it to be skipped, or decrypted to
+        garbage and then dropped.
+      </Description>
+      <Arguments>
+        <Argument Name="session_key" Optional="yes" Sentence="no">
+          The new session-key, encrypted with the server's public RSA key and
+          base64-encoded for transport. If left empty, the server will disable
+          a client's current secure session (NOTE: no longer supported) if one
+          was already established.
+          <br/><br/>
+          NOTE: the server uses SHA256(DECRYPT(DECODE(session_key))) as the actual
+          key to ensure it always has the proper length in bytes.
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>SETSHAREDKEY U0VDUkVUIQ==</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="ACKSHAREDKEY" Source="client">
+      <Description>
+        Instructs the server that its last <clink name="SHAREDKEY:server"/>
+        response was received and contained the correct session-key digest.
+        If the key digest from <clink name="SHAREDKEY:server"/> does *not*
+        match the client's but the key status is set to ACCEPTED, the client
+        should become EXTREMELY suspicious and think twice about issuing this
+        command. Can only be sent after having received SHAREDKEY ACCEPTED,
+		otherwise will not be processed.
+      </Description>
+      <Examples>
+        <Example>ACKSHAREDKEY</Example>
+      </Examples>
+    </Command>
+
+
+    <Command Name="PUBLICKEY" Source="server">
+      <Description>
+      Sent by the server in response to <clink name="GETPUBLICKEY:client"/>.
+      Transfers the server's public RSA key in base64-encoded PEM format, as
+      well as two status flags indicating requirements for secure sessions.
+      </Description>
+      <Arguments>
+        <Argument Name="server_public_key" Optional="no" Sentence="no">
+          The RSA key with which a client should encrypt its chosen AES(-256)
+          session-key when it sends the <clink name="SETSHAREDKEY:client"/>
+          command.
+        </Argument>
+        <Argument Name="force_secure_auths" Optional="no" Sentence="no">
+          Whether the server expects the <clink name="LOGIN:client"/> and
+          <clink name="REGISTER:client"/> client commands to be sent encrypted.
+        </Argument>
+        <Argument Name="force_secure_comms" Optional="no" Sentence="no">
+          Whether the server expects ALL client commands (including
+          <clink name="LOGIN:client"/> and <clink name="REGISTER:client"/>)
+          to be sent encrypted. When true, a client can not disable
+          a secure session after establishing it.
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>PUBLICKEY QkVHSU4gUFVCTElDIEtFWS5FTkQgUFVCTElDIEtFWQ== 1 0</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="SIGNEDMSG" Source="server">
+      <Description>
+        Sent by the server in response to <clink name="GETSIGNEDMSG:client"/>.
+      </Description>
+      <Arguments>
+        <Argument Name="message_signature" Optional="no" Sentence="no">
+          A base64-encoded long (in the unlimited-precision sense) integer
+          representing the RSA cryptographic signature of the message.
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>SIGNEDMSG MTIzNDU2Nzg5MA==</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="SHAREDKEY" Source="server">
+      <Description>
+        Sent by the server in response to <clink name="SETSHAREDKEY:client"/>.
+      </Description>
+      <Arguments>
+        <Argument Name="key_status" Optional="no" Sentence="no">
+          Can be "ENFORCED", "DISABLED", "REJECTED", "ACCEPTED", or "INITSESS".
+          <br/><br/>
+          ENFORCED
+            means disabling a secure session is not permitted by the server.
+            Depends on the <b>force_secure_comms</b> parameter included in
+            the <clink name="PUBLICKEY:server"/> response.
+          <br/><br/>
+          DISABLED
+            indicates the current secure session was successfully disabled.
+            This is the LAST encrypted server response a client will receive.
+            No longer supported: any attempt to disable a secure session will
+            generate an ENFORCED reply.
+            <br/><br/>
+          REJECTED
+            means the session-key was considered invalid.
+            <br/><br/>
+          ACCEPTED
+            indicates the session-key was accepted and will be used to decrypt all
+            subsequent client commands including <clink name="ACKSHAREDKEY:client"/>.
+            <br/><br/>
+          INITSESS
+            is only sent when the client first establishes a secure session. This
+            is the LAST unencrypted server response a client will receive and is
+            always followed immediately by ACCEPTED (encrypted with the new key).
+        </Argument>
+        <Argument Name="key_digest" Optional="no" Sentence="no">
+          SHA256 hash of the old session-key in case of ENFORCED, DISABLED, or
+          INITSESS. SHA256 hash of the new session-key in case of ACCEPTED or
+          REJECTED.
+          <br/><br/>
+          NOTE: the server uses SHA256(DECRYPT(DECODE(session_key))) as its actual
+          key, so digests are created based on this input value, not the "raw" key.
+          Digests are base64-encoded for transport.
+        </Argument>
+        <Argument Name="extra_data" Optional="yes" Sentence="no">
+          If key_status is REJECTED, this will contain either the number of missing
+          key-bytes (if the raw unhashed key-length was considered too small) or an
+          exception text (if decryption of the session-key failed for whatever reason).
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>SHAREDKEY INITSESS 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</Example>
+        <Example>SHAREDKEY ACCEPTED 49p0UFEzDbg8YNF3W+0hO90j1ohKLOLQWCA4xU7IwRM=</Example>
+        <Example>SHAREDKEY REJECTED yfxdBikidP2YvLV4gmV79x3h7aTfkCxRnZFfxYWxAZA= 19</Example>
+      </Examples>
     </Command>
   </CommandList>
 
