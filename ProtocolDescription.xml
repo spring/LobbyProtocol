@@ -2605,13 +2605,16 @@
         The format of AES(-256) encrypted messages recognized and transmitted
         by the server during a secure session is
         <br/><br/>
-          MARKER_BYTE + BASE64(ENCRYPT_AES(TIME + DATA, KEY)) + PARTIT_BYTE
+          MARKER_BYTE + BASE64(MSG) [+ MARKER_BYTE + BASE64(MAC)] + PARTIT_BYTE
         <br/><br/>
         where
         <ul>
-          <li>ENCRYPT_AES is AES256 operated in CBC mode with a 16-byte IV</li>
           <li>MARKER_BYTE is the literal byte-value (character) 0x01</li>
-          <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li>
+          <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li><br/>
+          <li>MSG is the output of ENCRYPT_AES(TIME + DATA, KEY)</li>
+          <li>MAC is the output of HMAC_SHA256(MSG, KEY)</li><br/>
+          <li>ENCRYPT_AES is AES256 operated in CBC mode with a 16-byte IV</li>
+          <li>HMAC_SHA256 is the cryptographic checksum function using SHA256</li><br/>
           <li>TIME is the four-byte (LE) representation of a strictly increasing int32</li>
           <li>DATA is any command string, or a batch of commands separated by newlines</li>
         </ul>
@@ -2620,7 +2623,9 @@
         0xfe000000 indicating that DATA is the 254th secure message sent by the
         client this session. Sending a message during a secure session that does
         not conform to this format will cause it to be skipped, or decrypted to
-        garbage and then dropped.
+        garbage and then dropped. MAC's are optional and only need to be added
+        if the server has set the corresponding flag (<b>use_msg_auth_codes</b>)
+        in <clink name="PUBLICKEY:server"/>.
       </Description>
       <Arguments>
         <Argument Name="session_key" Optional="yes" Sentence="no">
@@ -2658,7 +2663,8 @@
       <Description>
       Sent by the server in response to <clink name="GETPUBLICKEY:client"/>.
       Transfers the server's public RSA key in base64-encoded PEM format, as
-      well as two status flags indicating requirements for secure sessions.
+      well three boolean status flags (packed into a single 32-bit integer)
+      indicating requirements for secure sessions.
       </Description>
       <Arguments>
         <Argument Name="server_public_key" Optional="no" Sentence="no">
@@ -2666,15 +2672,27 @@
           session-key when it sends the <clink name="SETSHAREDKEY:client"/>
           command.
         </Argument>
-        <Argument Name="force_secure_auths" Optional="no" Sentence="no">
-          Whether the server expects the <clink name="LOGIN:client"/> and
-          <clink name="REGISTER:client"/> client commands to be sent encrypted.
-        </Argument>
-        <Argument Name="force_secure_comms" Optional="no" Sentence="no">
-          Whether the server expects ALL client commands (including
-          <clink name="LOGIN:client"/> and <clink name="REGISTER:client"/>)
-          to be sent encrypted. When true, a client can not disable
-          a secure session after establishing it.
+        <Argument Name="session_flag_bits" Optional="no" Sentence="no">
+          An integer packing three flags (<b>force_secure_auths</b>,
+          <b>force_secure_comms</b>, and <b>use_msg_auth_codes</b>) that
+          clients must inspect before establishing a secure session.
+          <br/><br/>
+          <b>force_secure_auths</b>:
+            Whether the server expects the <clink name="LOGIN:client"/> and
+            <clink name="REGISTER:client"/> client commands to be sent encrypted.
+            Encoded in the first bit of <b>session_flag_bits</b>.
+          <br/><br/>
+          <b>force_secure_comms</b>:
+            Whether the server expects ALL client commands (including
+            <clink name="LOGIN:client"/> and <clink name="REGISTER:client"/>)
+            to be sent encrypted. When true, a client can not disable
+            a secure session after establishing it. Encoded in the second
+            bit of <b>session_flag_bits</b>.
+          <br/><br/>
+          <b>use_msg_auth_codes</b>:
+            Whether the server expects encrypted data to include MAC's,
+            or message authentication codes. Encoded in the third bit of
+            <b>session_flag_bits</b>.
         </Argument>
       </Arguments>
       <Examples>
