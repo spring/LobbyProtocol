@@ -1733,7 +1733,7 @@
       Note that the client should close the battle internally,
       since he is no longer a part of it
       (or he can do that once he receives
-      the <clink name="LEAVEBATTLE"/> command containing his user name).
+      the <clink name="LEFTBATTLE:server"/> command containing his user name).
       </Description>
     </Command>
 
