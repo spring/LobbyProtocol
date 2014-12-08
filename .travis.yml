@@ -1,0 +1,9 @@
+language: cpp
+compiler:
+  - gcc
+before_script:
+  - sudo apt-get install cmake xsltproc --yes
+script:
+  - cmake .
+  - make
+
