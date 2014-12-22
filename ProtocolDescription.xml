@@ -2208,6 +2208,9 @@
       <Description>
       The server replies with a <clink name="SERVERMSG:server"/>,
       indicating the user's ingame time in minutes.
+      It is understood as the acumulated time the user has spent in-game,
+      be it as a player or as a spectator, since recording of history,
+      not just for the current or last game.
       </Description>
    </Command>
 
