@@ -352,7 +352,11 @@
         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
         </ul>
       </li>
-      <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
+      <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
+        and change the time resolution of the changedTime argument in
+        <clink name="CHANNELTOPIC:server"/>,
+        which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
+        while before it was the same in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
     </ul>
     </li>
