@@ -301,7 +301,7 @@
 
   <Versions>
 
-  <Version Name="0.37">
+  <Version Name="0.37-SNAPSHOT">
   <ul>
     <li>Added basic match-making system support,
       see the <i>Match-Making</i> section in the beginning of this document.</li>
