@@ -543,8 +543,10 @@
         <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Will change or, in case there was none previously associated, set the email associated with a user's account.
-      The optional userName may only differ from the sender name iff the sender has admin or moderator status.
+      Will change or, in case there was none previously associated,
+      set the E-Mail address associated with a user's account.
+      The optional userName may only differ from the sender name
+      iff the sender has at least moderator status.
       </Description>
       <Response>
       No formal response is required,
@@ -2201,7 +2203,8 @@
 
     <Command Name="GETINGAMETIME" Source="client">
       <Description>
-      The server replies with a <clink name="SERVERMSG:server"/> indicating the user's ingame time in minutes.
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's ingame time in minutes.
       </Description>
    </Command>
 
@@ -2417,17 +2420,20 @@
     <Command Name="RECOVERACCOUNT" Source="client">
       <Arguments>
         <Argument Name="email" Optional="no" Sentence="no">
-          The email address associated with a given username. Case will not be considered.
+          The email address associated with a given username.
+          Case will not be considered.
         </Argument>
         <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
         Sends an e-mail with account recovery information.
-        If one or more accounts with the given email address (and optional userName) exists, the server sends an email
-        to that address containing the associated username(s) and a means to reset the password(s). This
-        could either be a new temporary password or for example a one-time-token that authorizes setting up a
-        new password via some webinterface.
-        If no account is found matching the given search criterias, no error is returned.
+        If one or more accounts with the given email address (and optional userName) exists,
+        the server sends an email to that address,
+        containing the associated username(s)
+        and a means to reset the password(s).
+        This could either be a new temporary password
+        or for example a one-time-token that authorizes setting up a new password via some web interface.
+        If no account matching the given search criterias is found, no error is returned.
       </Description>
     </Command>
 
