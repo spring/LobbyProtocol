@@ -550,6 +550,7 @@
       set the E-Mail address associated with a user's account.
       The optional userName may only differ from the sender name
       iff the sender has at least moderator status.
+      Multiple accounts may use the same E-Mail address.
       </Description>
       <Response>
       No formal response is required,
