@@ -2710,7 +2710,7 @@
         </Argument>
       </Arguments>
       <Examples>
-        <Example>PUBLICKEY QkVHSU4gUFVCTElDIEtFWS5FTkQgUFVCTElDIEtFWQ== 1 0</Example>
+        <Example>PUBLICKEY QkVHSU4gUFVCTElDIEtFWS5FTkQgUFVCTElDIEtFWQ== 7</Example>
       </Examples>
     </Command>
 
