@@ -354,23 +354,28 @@
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
+      <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
+      <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
+      <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
+      <li>Crypto: added the <clink name="ACKSHAREDKEY:client"/> client command.</li>
+      <li>Crypto: added the <clink name="PUBLICKEY:server"/> server command.</li>
+      <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
+      <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
     </ul>
     </p>
     </li>
   </ul>
+    The protocol additions marked "Crypto:" add secure-session capability by allowing
+    client and server to exchange AES(-256) encryption keys. Note that the server can
+    choose to enforce secure authentication (the <clink name="LOGIN:client"/> and
+    <clink name="REGISTER:client"/> commands) only, blanket secure communication (all
+    commands including authentication), or leave the decision to use encrypted sessions
+    up to clients themselves. For the format specification of encrypted messages, see
+    <clink name="SETSHAREDKEY:client"/>.
   </Version>
 
   <Version Name="0.36">
   <ul>
-    <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
-    <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="ACKSHAREDKEY:client"/> client command.</li>
-
-    <li>Crypto: added the <clink name="PUBLICKEY:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
-
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
@@ -384,13 +389,6 @@
     </p>
     </li>
   </ul>
-    The protocol additions marked "Crypto:" add secure-session capability by allowing
-    client and server to exchange AES(-256) encryption keys. Note that the server can
-    choose to enforce secure authentication (the <clink name="LOGIN:client"/> and
-    <clink name="REGISTER:client"/> commands) only, blanket secure communication (all
-    commands including authentication), or leave the decision to use encrypted sessions
-    up to clients themselves. For the format specification of encrypted messages, see
-    <clink name="SETSHAREDKEY:client"/>.
   </Version>
 
   </Versions>
