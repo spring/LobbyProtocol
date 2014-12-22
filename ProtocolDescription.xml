@@ -346,11 +346,11 @@
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
       <li><b>sd</b>: SAYDATA* commands</li>
       <li><b>cl</b>:
-         <ul>
-         <li>added CHANGEEMAIL</li>
-         <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
-         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
-         </ul>
+        <ul>
+        <li>added CHANGEEMAIL</li>
+        <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+        <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
+        </ul>
       </li>
       <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
