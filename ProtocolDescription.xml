@@ -301,7 +301,7 @@
 
   <Versions>
 
-  <Version Name="0.37">
+  <Version Name="0.37-SNAPSHOT">
   <ul>
     <li>Added basic match-making system support,
       see the <i>Match-Making</i> section in the beginning of this document.</li>
@@ -310,24 +310,6 @@
       section in the beginning of this document.</li>
     <li>An email address can now be associated with existing and set while registering an user account,
       thereby enabling unassisted account recovery</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
-    <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
-    <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
-    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
-    <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
-    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
-    <li>Added the <clink name="EXIT:client"/> client command.</li>
-    <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>
       <i>Compatibility-Flags</i>
@@ -346,13 +328,17 @@
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
       <li><b>sd</b>: SAYDATA* commands</li>
       <li><b>cl</b>:
-         <ul>
-         <li>added CHANGEEMAIL</li>
-         <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
-         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
-         </ul>
+        <ul>
+        <li>added CHANGEEMAIL</li>
+        <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+        <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
+        </ul>
       </li>
-      <li><b>et</b>: <clink name="NOCHANNELTOPIC:server"/> command, time of CHANNELTOPIC returns unix time, without it returns in milliseconds</li>
+      <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
+        and change the time resolution of the changedTime argument in
+        <clink name="CHANNELTOPIC:server"/>,
+        which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
+        while before it was the same in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
     </ul>
     </li>
@@ -375,6 +361,24 @@
 
   <Version Name="0.36">
   <ul>
+    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
+    <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
+    <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
+    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
+    <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
+    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
+    <li>Added the <clink name="EXIT:client"/> client command.</li>
+    <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
@@ -539,12 +543,18 @@
 
     <Command Name="CHANGEEMAIL" Source="client">
       <Arguments>
-        <Argument Name="newEmail" Optional="no" Sentence="no"/>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address associated with a given username.
+          Case is ignored.
+        </Argument>
         <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Will change or, in case there was none previously associated, set the email associated with a user's account.
-      The optional userName may only differ from the sender name iff the sender has admin or moderator status.
+      Will change or, in case there was none previously associated,
+      set the E-Mail address associated with a user's account.
+      The optional userName may only differ from the sender name
+      iff the sender has at least moderator status.
+      Multiple accounts may use the same E-Mail address.
       </Description>
       <Response>
       No formal response is required,
@@ -2201,7 +2211,11 @@
 
     <Command Name="GETINGAMETIME" Source="client">
       <Description>
-      The server replies with a <clink name="SERVERMSG:server"/> indicating the user's ingame time in minutes.
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's ingame time in minutes.
+      It is understood as the acumulated time the user has spent in-game,
+      be it as a player or as a spectator, since recording of history,
+      not just for the current or last game.
       </Description>
    </Command>
 
@@ -2417,17 +2431,20 @@
     <Command Name="RECOVERACCOUNT" Source="client">
       <Arguments>
         <Argument Name="email" Optional="no" Sentence="no">
-          The email address associated with a given username. Case will not be considered.
+          The email address associated with a given username.
+          Case will not be considered.
         </Argument>
         <Argument Name="userName" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
         Sends an e-mail with account recovery information.
-        If one or more accounts with the given email address (and optional userName) exists, the server sends an email
-        to that address containing the associated username(s) and a means to reset the password(s). This
-        could either be a new temporary password or for example a one-time-token that authorizes setting up a
-        new password via some webinterface.
-        If no account is found matching the given search criterias, no error is returned.
+        If one or more accounts with the given email address (and optional userName) exists,
+        the server sends an email to that address,
+        containing the associated username(s)
+        and a means to reset the password(s).
+        This could either be a new temporary password
+        or for example a one-time-token that authorizes setting up a new password via some web interface.
+        If no account matching the given search criterias is found, no error is returned.
       </Description>
     </Command>
 
