@@ -310,24 +310,6 @@
       section in the beginning of this document.</li>
     <li>An email address can now be associated with existing and set while registering an user account,
       thereby enabling unassisted account recovery</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
-    <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
-    <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
-    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
-    <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
-    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
-    <li>Added the <clink name="EXIT:client"/> client command.</li>
-    <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>
       <i>Compatibility-Flags</i>
@@ -379,6 +361,24 @@
 
   <Version Name="0.36">
   <ul>
+    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
+    <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
+    <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
+    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
+    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
+    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
+    <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
+    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
+    <li>Added the <clink name="EXIT:client"/> client command.</li>
+    <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
