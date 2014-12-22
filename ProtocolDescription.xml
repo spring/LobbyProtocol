@@ -297,6 +297,13 @@
       The main benefit of using named arguments is that those commands using it can be updated without affecting old lobbies and usually without the use of compatibility flags.
   </p>
 
+  <i>Compatibility-Flags</i>
+  <p>
+      This list explains the current compatibility flags a client may send
+      with the <clink name="LOGIN:client"/> command.
+      This list will be emptied whenever a new protocol version gets released.
+  </p>
+
   </Intro>
 
   <Versions>
@@ -330,12 +337,6 @@
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>
-    <i>Compatibility-Flags</i>
-    <p>
-    This list explains the current compatibility flags a client may send
-    with the <clink name="LOGIN:client"/> command.
-    This list will be emptied whenever a new protocol version gets released.
-    They denote that the client supports:
     <ul>
       <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
       <li><b>b</b>: the battle authorization system
@@ -362,7 +363,6 @@
       <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
       <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
     </ul>
-    </p>
     </li>
   </ul>
     The protocol additions marked "Crypto:" add secure-session capability by allowing
