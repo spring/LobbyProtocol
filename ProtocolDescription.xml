@@ -342,6 +342,14 @@
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
     </ul>
     </li>
+    <li>Added the <clink name="IGNORE:client"/> client command.</li>
+    <li>Added the <clink name="IGNORE:server"/> server command.</li>
+    <li>Added the <clink name="UNIGNORE:client"/> client command.</li>
+    <li>Added the <clink name="UNIGNORE:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELIST:client"/> client command.</li>
+    <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
     <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
     <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
     <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
