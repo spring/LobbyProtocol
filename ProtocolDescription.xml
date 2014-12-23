@@ -2463,15 +2463,15 @@
     <Command Name="IGNORE" Source="client">
       <Arguments>
         <Argument Name="userName=value" Optional="no" Sentence="no">
-            The username of the user to be ignored.
+          The username of the user to be ignored.
         </Argument>
         <Argument Name="reason=value" Optional="yes" Sentence="yes">
-            Reason for the ignore.
+          Reason for the ignore.
         </Argument>
       </Arguments>
       <Description>
-          Tells the server to add the user to the client's ignore list. Doing this will prevent any SAID*, SAY* and RING commands to be received from the ignored user.
-      This command uses named arguments, see "Named Arguments" chapter of the Intro section.
+        Tells the server to add the user to the client's ignore list. Doing this will prevent any SAID*, SAY* and RING commands to be received from the ignored user.
+        This command uses named arguments, see "Named Arguments" chapter of the Intro section.
      </Description>
       <Examples>
         <Example>IGNORE userName=joe&#60;TAB&#62;reason=Really annoying, keeps pestering me to play DSD.</Example>
@@ -2482,50 +2482,51 @@
     <Command Name="IGNORE" Source="server">
       <Arguments>
         <Argument Name="userName=value" Optional="no" Sentence="no">
-            The username of the ignored user.
+          The username of the ignored user.
         </Argument>
         <Argument Name="reason=value" Optional="yes" Sentence="yes">
-            Reason for the ignore.
+          Reason for the ignore.
         </Argument>
       </Arguments>
       <Description>
-          Tells the client that the user has been ignored (usually as a result of the IGNORE command sent by the client, but other sources are also possible).
-          Also see the <clink name="IGNORE:client"/> command.
-          This command uses named arguments, see "Named Arguments" chapter of the Intro section.
+        Tells the client that the user has been ignored (usually as a result of the IGNORE command sent by the client, but other sources are also possible).
+        Also see the <clink name="IGNORE:client"/> command.
+        This command uses named arguments, see "Named Arguments" chapter of the Intro section.
       </Description>
     </Command>
+
     <Command Name="UNIGNORE" Source="client">
       <Arguments>
         <Argument Name="userName=value" Optional="no" Sentence="no">
-            The username of the user to be unignored.
+          The username of the user to be unignored.
         </Argument>
       </Arguments>
       <Description>
-          Tells the server to remove the user to the client's ignore list.
-          Also see the <clink name="IGNORE:client"/> command.
-          This command uses named arguments, see "Named Arguments" chapter of the Intro section.
+        Tells the server to remove the user to the client's ignore list.
+        Also see the <clink name="IGNORE:client"/> command.
+        This command uses named arguments, see "Named Arguments" chapter of the Intro section.
       </Description>
       <Examples>
-          <Example>UNIGNORE userName=joe</Example>
+        <Example>UNIGNORE userName=joe</Example>
       </Examples>
     </Command>
 
     <Command Name="UNIGNORE" Source="server">
       <Arguments>
         <Argument Name="userName=value" Optional="no" Sentence="no">
-            The username of the unignored user.
+          The username of the unignored user.
         </Argument>
       </Arguments>
       <Description>
-          Tells the client that the user has been unignored (usually as a result of the UNIGNORE command sent by the client, but other sources are also possible).
-          Also see the <clink name="UNIGNORE:client"/> command.
-          This command uses named arguments, see "Named Arguments" chapter of the Intro section.
+        Tells the client that the user has been unignored (usually as a result of the UNIGNORE command sent by the client, but other sources are also possible).
+        Also see the <clink name="UNIGNORE:client"/> command.
+        This command uses named arguments, see "Named Arguments" chapter of the Intro section.
       </Description>
     </Command>
 
     <Command Name="IGNORELIST" Source="client">
       <Description>
-      Sent by a client when requesting its ignore list.
+        Sent by a client when requesting its ignore list.
       </Description>
       <Examples>
         <Example>IGNORELIST</Example>
@@ -2534,26 +2535,26 @@
 
     <Command Name="IGNORELISTBEGIN" Source="server">
       <Description>
-      Sent by the server when sending the ignore list to the client.
+        Sent by the server when sending the ignore list to the client.
       </Description>
       <Response>
-      0 or more <clink name="IGNORELIST:server"/> commands
-      and finally a <clink name="IGNORELISTEND"/> command.
+        0 or more <clink name="IGNORELIST:server"/> commands
+        and finally a <clink name="IGNORELISTEND"/> command.
       </Response>
     </Command>
 
     <Command Name="IGNORELIST" Source="server">
       <Arguments>
         <Argument Name="userName=value" Optional="no" Sentence="no">
-            The username of the user to be ignored.
+          The username of the user to be ignored.
         </Argument>
         <Argument Name="reason=value" Optional="yes" Sentence="yes">
-            Reason for the ignore.
+          Reason for the ignore.
         </Argument>
       </Arguments>
       <Description>
-          Multiple commands of this kind may be sent after a <clink name="IGNORELISTBEGIN"/> command (or none, if the ignore list is empty).
-          This command uses named arguments, see "Named Arguments" chapter of the Intro section.
+        Multiple commands of this kind may be sent after a <clink name="IGNORELISTBEGIN"/> command (or none, if the ignore list is empty).
+        This command uses named arguments, see "Named Arguments" chapter of the Intro section.
       </Description>
       <Examples>
         <Example>IGNORE userName=joe&#60;TAB&#62;reason=Really annoying, keeps pestering me to play DSD.</Example>
@@ -2563,12 +2564,10 @@
 
     <Command Name="IGNORELISTEND" Source="server">
       <Description>
-      Sent by the server after it has finished sending the ignore list for a client.
-      Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
+        Sent by the server after it has finished sending the ignore list for a client.
+        Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
       </Description>
     </Command>
-
-
 
     <Command Name="GETPUBLICKEY" Source="client">
       <Description>
@@ -2665,7 +2664,7 @@
         match the client's but the key status is set to ACCEPTED, the client
         should become EXTREMELY suspicious and think twice about issuing this
         command. Can only be sent after having received SHAREDKEY ACCEPTED,
-		otherwise will not be processed.
+        otherwise will not be processed.
       </Description>
       <Examples>
         <Example>ACKSHAREDKEY</Example>
