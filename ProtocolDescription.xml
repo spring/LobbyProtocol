@@ -584,25 +584,7 @@
           must send some string anyway - you mustn't ommit it!)
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
-        An integer denoting the speed of the client's processor in MHz
-        (or the value of the x+ tag if it is an AMD CPU).
-        The client should leave this value at 0 if it can not figure out its CPU speed.
-        <b>HACK:</b> Some lobby clients will report a <i>special value</i> instead of the processor frequency.
-        This may be used by other lobby clients to display a specific icon or determine capabilities of a host.
-        Known CPU identifiers are listed below:
-        <ul>
-          <li><i>6666</i> Springie (autohost) or Zero-K lobby client</li>
-          <li><i>6667</i> Springie with match-maker enabled</li>
-          <li><i>7777</i> WebLobby (web based lobby client), running at windows</li>
-          <li><i>7778</i> WebLobby (web based lobby client), running at linux</li>
-          <li><i>7779</i> WebLobby (web based lobby client), running mac</li>
-          <li><i>-1525630178</i> MUSLCE (Android lobby client)</li>
-          <li><i>4607052</i> flobby Linux (FLL)</li>
-          <li><i>4607063</i> flobby Windows (FLW)</li>
-          <li><i>4607053</i> flobby Mac (FLM)</li>
-        </ul>
-        This functionality will likely be deprecated
-        once there is properties suppport.
+        deprecated, set it to 0
         </Argument>
         <Argument Name="localIP" Optional="no" Sentence="no">
         The client should supply his local IP (e.g. 192.168.x.y, or whatever it uses)
@@ -852,7 +834,7 @@
         See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
-        See the <clink name="LOGIN"/> command for CPU field.
+        deprecated, see the <clink name="LOGIN"/> command.
         </Argument>
         <Argument Name="accountID" Optional="yes" Sentence="no">
         Unique ID bound to the account (can be used to track renammed accounts).
