@@ -2770,6 +2770,33 @@
         <Example>SHAREDKEY REJECTED yfxdBikidP2YvLV4gmV79x3h7aTfkCxRnZFfxYWxAZA= 19</Example>
       </Examples>
     </Command>
+    <Command Name="SUBSCRIBE" Source="client">
+      <Description>
+        Sent by the client to subscribe to a channel
+      </Description>
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
+          Name of the channel
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>SUBSCRIBE chanName=sy</Example>
+      </Examples>
+    </Command>
+    <Command Name="UNSUBSCRIBE" Source="client">
+      <Description>
+        Sent by the client to subscribe to a channel
+      </Description>
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
+          Name of the channel to unsubscribe
+        </Argument>
+      </Arguments>
+      <Examples>
+        <Example>UNSUBSCRIBE chanName=sy</Example>
+      </Examples>
+    </Command>
+
   </CommandList>
 
 </ProtocolDescription>
