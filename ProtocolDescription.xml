@@ -51,9 +51,9 @@
   Lines sent and received may be of any length. It has been tested with 600 KB
   long strings and it worked in both directions. Nevertheless, commands like
   "CLIENTS" still try to divide data into several lines, just to make sure the
-  client will receive them. Since the Delphi lobby client (TASClient) now
-  supports lines of any length, dividing data into several lines is not needed
-  anymore. Though, we keep it just in case, to be compatible with other clients
+  client will receive them. Since all client should support lines of any length,
+  dividing data into several lines is not needed anymore.
+  Though, we keep it just in case, to be compatible with other clients
   which may emerge in the future. I do not divide data when sending info on
   battles and clients in battles. This lines may get long, but not longer than a
   couple of hundred bytes (they should always be under 1 KB in length).
@@ -625,10 +625,10 @@
       Also see <clink name="LOGININFOEND"/> command.
       </Description>
       <Examples>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 192.168.1.100 TASClient 0.30</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>123456</Example>
-        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * TASClient 0.30<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 192.168.1.100 SpringLobby 0.264</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>123456</Example>
+        <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
       </Examples>
     </Command>
 
