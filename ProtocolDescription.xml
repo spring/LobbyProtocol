@@ -101,15 +101,17 @@
   for example SpringLS or ueberserver.
   </p>
   <p>
+  Comands have their arguments listed below, in order.
+  Commands can also support named arguments, which are written as name=value pairs separated by tab characters (\t). Arguments can be written in any order and are case sensitive, e.g. username != userName.
+  The main benefit of using named arguments is that those commands using it can be updated without affecting old lobbies and usually without the use of compatibility flags.
+  </p>
+  <p>
   A Client may participate in only one battle at the same time. If he is hosting
   a battle, he may not participate in other battles at the same time. The server
   checks for that automatically.
   </p>
-  <p>
-  Team colors are currently set by players, perhaps it would be better if only
-  the host would be able to change them?
-  </p>
-  <h4>Messages IDs</h4>
+
+  <h4>Message IDs</h4>
   <p>
   As of version 0.33, the command syntax has been slightly changed.
   Messages may now contain IDs:
@@ -127,10 +129,11 @@
   </p>
 
 
+ 
+
   <p>
   <h3>Sub-systems</h3>
   </p>
-
   <h4>Syncing</h4>
   <p>
   To be in sync means, to have the same versions of all the content
@@ -142,6 +145,27 @@
   unitsync documentation for details.
   </p>
 
+  <h4>Email Verification</h4>
+  <p>
+  If a valid 'server_email_account.txt' exists (in the same directory as server.py), then uberserver will carry out email verification. 
+  </p>
+  <p>
+  In order to verify an email address: the server sends a four digit verification code to an email address, the user/lobby must send this code back.
+  Each verification code is valid for 24h, and allows max 3 attempts at verification
+  Requests to have the code resent, at most three times, are carried out using <clink name="RESENDVERIFICATION:client"/>.
+  Currently (as of v0.38) the same email address can be used to verify multiple accounts. 
+  This is planned to change, in future.
+  </p>
+  <p>
+  If verification is enabled, then it is required for registering a new account and for changing your email address.
+  In this case, both <clink name="REGISTRATIONACCEPTED:server"/> and <clink name="CHANGEEMAILREQUEST:server"/> cause a verification code to be created, and sent.
+  The verification code is expected back in <clink name="CONFIRMAGREEMENT"/> and <clink name="CHANGEEMAIL"/> respectively.
+  </p>
+  <p>
+  If verification is not enabled, you can leave all email address and verification code fields blank. 
+  No verification codes will be sent, and all verification attempts will automatically pass.
+  </p>
+
   <h4>Hole punching</h4>
   <p>
   <quote>
@@ -150,15 +174,26 @@
   who are both behind restrictive firewalls.
   </quote>
   <url>https://en.wikipedia.org/wiki/Hole_punching</url>
-
-  We use it for allowing clients to connect to the lobby server,
-  that would otherwise not be able to.
-
-  This will probably not work in LAN mode, especially if combined with
-  players from the internet.
+  We use it to allow clients to connect to the lobby server, that would otherwise not be able to. 
+  It will probably not work in LAN mode, especially if combined with players from the internet.
   </p>
-  <h5>Non-host perspective</h5>
+   
+  <h4>Match-Making</h4>
   <p>
+  By match-making, we mean a somewhat abstract way of automating
+  the process of users finding to each other in battle rooms
+  to play a game of a type they like.
+  <br/>
+  Currently, we don't have match-making. 
+  We do have a <clink name="FORCEJOINBATTLE:client"/> command,
+  and a compatibility flag 'm', 
+  which might one day form the basis for a match-making system.
+  Contact a server admin if you are interested in developing this!
+   </p>
+ 
+  <h4>Battlerooms and UDP ports</h4>
+  <p>
+  <b> Non-host perspective: </b> 
   When joining a battle, a client should first acquire his UDP source port
   from the server before sending the <clink name="JOINBATTLE"/> command.
   Once he has done that and joined the battle,
@@ -189,8 +224,8 @@
   as it will have to connect to this port and not the original one
   (acquired through the <clink name="BATTLEOPENED"/> command).
   </p>
-  <h5>Host perspective</h5>
-  <p>
+    <p>
+  <b>Host perspective: </b>
   Before sending the <clink name="OPENBATTLE"/> command,
   the host should try to acquire his UDP source port from the server,
   just to make sure it can acquire it at all
@@ -227,97 +262,51 @@
   This is why the host has to acquire a new port each time it starts a battle.
   </p>
 
-  <h4>Match-Making</h4>
-  <p>
-  With match-making, we mean a somewhat abstract way of automating
-  the process of users finding to each other in battle rooms
-  to play a game of a type they like.
-
-  For us this means, more specifically,
-  that users get shuffled around hosts (usually autohosts) that support match-making,
-  according to preferences they set, by the hand of a central match planning strategy/algorithm.
-  Match-making enabled hosts have to be marked as such.
-  The current way of doing this is, to let them report a CPU frequency of 6667.
-  This way, each lobby client may choose to visually outline this host property
-  in a certain way or not at all.
-  A user may choose to take part in match-making by entering one of these hosts battle.
-  When a match-maker sends a request for a certain user to switch hosts
-  by sending a <clink name="FORCEJOINBATTLE:client"/> command to the server,
-  and the server subsequently sends a <clink name="FORCEJOINBATTLE:server"/>
-  to that addressed user,
-  the lobby client must comply by joining that hosts battle-room.
-  To opt-out of the match-making process,
-  a user has to leave the battle-room,
-  after then he may join a non-match-making enabled host.
-  If the <clink name="FORCEJOINBATTLE:client"/> request was illegitimate,
-  the server will send <clink name="FORCEJOINBATTLEFAILED:server"/>
-  to the command issuing user.
-  </p>
-
   <h5>Decoupling games from battle-rooms</h5>
   <p>
-  For better match-making, you may now use the commands
+  At some point we hope to implement 
   <clink name="CONNECTUSER:client"/> (client) and <clink name="CONNECTUSER:server"/> (server).
-  They allow to initiate games without creating a battle-room first.
-  That means in practise, that we can also initiate multiple games from a single chat-room.
-  </p>
-
-  <h5>Inter-lobby-client data exchange</h5>
-  <p>
-  For quasi direct communication between lobby clients,
-  in order to allow faster development cycles,
-  and to keep the lobby protocol from getting bloated unnecessarily,
-  a new set of commands was introduced.
-  They mirror most of the chat commands,
-  but instead of human, user2user chat interaction,
-  these are meant for programmatic, client2client or user2client communication.
-  The server just routes the messages to the intended receiving client(s).
-  They are meant to be used for stuff like standardized auto-host commands,
-  for example a common set of commands and arguments for voting.
-  Commands that may be used through this new communication channel
-  have to be discussed and approved by the lobby-dev meeting first,
-  and be documented in the <i>Inter-lobby-client data exchange protocol</i>.
-  When receiving messages through these new lobby protocol commands,
-  clients should generally not show them to the user as is,
-  but either ignore them,
-  or act according to the <i>Inter-lobby-client data exchange protocol</i>.
-  <ul>
-    <li><clink name="SAYDATA:client"/></li>
-    <li><clink name="SAIDDATA:server"/></li>
-    <li><clink name="SAYDATAPRIVATE:client"/></li>
-    <li><clink name="SAIDDATAPRIVATE:server"/></li>
-    <li><clink name="SAYDATABATTLE:client"/></li>
-    <li><clink name="SAIDDATABATTLE:server"/></li>
-  </ul>
-  </p>
-
-  <h5>Named arguments</h5>
-  <p>
-      Commands can also support named arguments, which are written as name=value pairs separated by tab characters (\t). Arguments can be written in any order and are case sensitive, e.g. username != userName.
-      The main benefit of using named arguments is that those commands using it can be updated without affecting old lobbies and usually without the use of compatibility flags.
+  These commands will allow to initiate games without creating/joining a battle-room.
   </p>
 
   </Intro>
 
   <Versions>
 
+ 
+ <Version Name="0.38-SNAPSHOT">  
+  <ul>
+	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
+    <li> All SAYDATA* commands from 0.37 were removed. </li>
+	<li> All matchmaking support except <clink name="FORCEJOINBATTLE"/> from 0.37 was removed.</li>
+    <li> To match email verification on uberserver, <clink name="RESENDVERIFICATION"/> and related denied/accept, were added.</li>
+          The <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> and related denied/accept commands were added(/updated).
+    <li> A new mod/admin interface, reworking existing commands was added. The new interface is
+          <clink name="BAN"/>,
+          <clink name="BANSPECIFIC"/>,
+          <clink name="BLACKLIST"/>,
+          <clink name="UNBAN"/>,
+          <clink name="UNBLACKLIST"/>,
+          <clink name="LISTBANS"/>,
+          <clink name="LISTBLACKLIST"/>.
+		  </li>
+    </ul>
+ 
+ </Version>
+
+	
   <Version Name="0.37-SNAPSHOT">
   <ul>
-    <li>Added basic match-making system support,
-      see the <i>Match-Making</i> section in the beginning of this document.</li>
-    <li>Added the SAYDATA* command set,
-      see the <i>Inter-lobby-client data exchange</i>
-      section in the beginning of this document.</li>
+    <li>Added basic match-making system support (edit: removed in 0.38).</li>
+    <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
     <li>An email address can now be associated with existing and set while registering an user account,
       thereby enabling unassisted account recovery</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>
-      <i>Compatibility-Flags</i>
-      <p>
+      <b>Compatibility-Flags: </b>
         This list explains the current compatibility flags a client may send
         with the <clink name="LOGIN:client"/> command.
         This list will be emptied whenever a new protocol version gets released.
-      </p>
     <ul>
       <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
       <li><b>b</b>: the battle authorization system
@@ -350,21 +339,8 @@
     <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
     <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
     <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
-    <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
-    <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="ACKSHAREDKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="PUBLICKEY:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
+    <li>Added crypto commands for secure connections (edit: removed in 0.38).</li>
   </ul>
-    The protocol additions marked "Crypto:" add secure-session capability by allowing
-    client and server to exchange AES(-256) encryption keys. Note that the server can
-    choose to enforce secure authentication (the <clink name="LOGIN:client"/> and
-    <clink name="REGISTER:client"/> commands) only, blanket secure communication (all
-    commands including authentication), or leave the decision to use encrypted sessions
-    up to clients themselves. For the format specification of encrypted messages, see
-    <clink name="SETSHAREDKEY:client"/>.
   </Version>
 
   <Version Name="0.36">
