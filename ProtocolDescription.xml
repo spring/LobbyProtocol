@@ -128,9 +128,6 @@
   Negative values are reserved for internal handling logic of the server / lobby clients.
   </p>
 
-
- 
-
   <p>
   <h3>Sub-systems</h3>
   </p>
@@ -183,7 +180,8 @@
   By match-making, we mean a somewhat abstract way of automating
   the process of users finding to each other in battle rooms
   to play a game of a type they like.
-  <br/>
+  </p>
+  <p>
   Currently, we don't have match-making. 
   We do have a <clink name="FORCEJOINBATTLE:client"/> command,
   and a compatibility flag 'm', 
@@ -264,8 +262,8 @@
 
   <h5>Decoupling games from battle-rooms</h5>
   <p>
-  At some point we hope to implement 
-  <clink name="CONNECTUSER:client"/> (client) and <clink name="CONNECTUSER:server"/> (server).
+  At some point we hope to implement the  
+  <clink name="CONNECTUSER:client"/> command set. Thise are currently the only unimplemented commands documented below.
   These commands will allow to initiate games without creating/joining a battle-room.
   </p>
 

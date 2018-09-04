@@ -19,6 +19,13 @@
     http://www.codestyle.org/css/font-family/
  -->
 
+<xsl:template match="h3">
+  <h3><xsl:apply-templates/></h3>
+</xsl:template> 
+<xsl:template match="h4">
+  <h4><xsl:apply-templates/></h4>
+</xsl:template> 
+ 
 <xsl:template match="ProtocolDescription">
   <html>
   <head>
@@ -53,7 +60,7 @@
         <li>Number of server commands: <xsl:value-of select="count(//Command[@Source='server'])"/></li>
         </ul>
         </p>
-      </td></tr>
+	  </td></tr>
     </table>
 
     <xsl:if test="./Versions">
