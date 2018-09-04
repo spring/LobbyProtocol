@@ -25,6 +25,9 @@
 <xsl:template match="h4">
   <h4><xsl:apply-templates/></h4>
 </xsl:template> 
+<xsl:template match="code">
+  <code><xsl:apply-templates/></code>
+</xsl:template> 
  
 <xsl:template match="ProtocolDescription">
   <html>
@@ -41,28 +44,35 @@
       margin-bottom: 0.25em;
       border-bottom: 1px solid navy
       }
-
+      h1 {color: navy;}
+      h2 {color: navy;}
+      h4 {color: navy;}
     </style>
 
   </head>
   <body>
     <h1>Spring lobby protocol description</h1>
 
-    <h2>Introduction</h2>
     <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
       <tr><td>
         <xsl:apply-templates select="Intro"/>
-        <p>
-        Some statistics on this document:<br />
+	  </td></tr>
+    </table>
+
+    <h2> Statistics </h2>
+    <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
+      <tr><td>
+		<p>
+		Some statistics on this document:<br />
         <ul>
         <li>Number of commands described: <xsl:value-of select="count(//Command)"/></li>
         <li>Number of client commands: <xsl:value-of select="count(//Command[@Source='client'])"/></li>
         <li>Number of server commands: <xsl:value-of select="count(//Command[@Source='server'])"/></li>
         </ul>
-        </p>
+		</p>
 	  </td></tr>
     </table>
-
+	
     <xsl:if test="./Versions">
       <h2>Recent changes</h2>
       <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>

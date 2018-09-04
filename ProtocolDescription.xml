@@ -4,21 +4,21 @@
 <!-- transform this xml into html (so you can view it in a browser): -->
 <?xml-stylesheet type="text/xsl" href="ProtocolDescription_xml2html.xsl"?>
 
+
+<!-- 
+NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyProtocol/ 
+-->
+
+
 <ProtocolDescription>
 
   <Intro>
-  <p>
-  <i>NOTE: This document is available in a HTML form at the following address:
-  <url>http://springrts.com/dl/LobbyProtocol/</url></i>
-  </p>
 
   <h3>Introduction</h3>
   <p>
-  This is a simple text protocol in a "human readable form". Text protocol was chosen since
+  This is a simple text protocol in a "human readable form". Text protocol was chosen because
   it's easier to debug and implement on the client side. It does require some more overhead,
   but since server and clients do not communicate much anyway, this is not an issue.
-  Because its text only, all messages sent and received have to be encoded in utf-8, no binary data is allowed.
-  To send binary data it could be encoded/decoded with base64.
   </p>
 
   <h3>Nomenclature</h3>
@@ -28,158 +28,126 @@
   that means a client that is logged-in.
   The two terms are used uncleanly though, so you may best think of them as equal.
   </p>
-  <h4>Legend</h4>
+
+  <h4>Formating rules: lines, words and sentences</h4>
   <p>
-  <ul>
-    <li>{} = sentence = several words (at least one!) separated by space characters</li>
-    <li>{} {} ... = two or more sentences. They are separated by TAB characters.</li>
-    <li>words are always separated by space characters.</li>
-    <li>| = separates choices ("OR")</li>
-    <li>[] = denotes an optional argument</li>
-  </ul>
+  All communication must be encoded in utf-8 (no binary data is allowed).
+  </p>
+  <p>
+  A <i>line</i> typically consists of a single protocol command, plus its arguments, communicated as a single string.
+  Lines may be of any length; 600 KB long strings have been verified to worked in both directions. 
+  Nevertheless, some commands (like <clink name="CLIENTS"/>) do divide the data they send into several lines, because it's clearer that way (and, historically it was necessary). 
+  A natural implementation of the protocol will result in almost all lines being under 1 KB in length.
+  </p>
+  <p>
+  The arguments of a protocol command come in two types: <i>words</i> and <i>sentences</i>. 
+  Word arguments are sequences of non-whitespace characters, and separated from each other by whitespaces.
+  Sentence arguments are sequences of words (separated by whitespaces), 
+  which are considered as a single argument; sentences must be separated from other arguments by tab characters (<code>\t</code>).
+  </p>
+  <p>
+  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 4 or 8 whitespaces are used for this, but it's your choice.
+  If you do not, your sentence arg will not be parsed correctly by the server.)
   </p>
 
-  <h3>Protocol low-level format rules</h3>
+  <h4>Legend</h4>
   <p>
-  Single word arguments are separated by spaces,
-  "sentences" (a sentence is a series of words separated by spaces, denoting a single argument)
-  are separated by TABs.
-  Make sure to replace all TABs in your sentences with spaces (2 or 8 usually)!
-  If you do not, your command is invalid, and will not be read correctly by the server.
+  The following notation is used within the arguments of a command.
+  A given argument should be assumed to be a word, unless {} is present, in which case it is a sentence.
+  <ul>
+    <li>{} = a sentence. (Must be separated from other args by tab characters.)</li>
+    <li>{} {} ... = two or more sentences. (They must be separated by TAB characters.)</li>
+    <li>| = separates choices ("OR")</li>
+    <li>[] = an optional argument</li>
+  </ul>
   </p>
+  
+  <h4>Argument order</h4>
   <p>
-  Lines sent and received may be of any length. It has been tested with 600 KB
-  long strings and it worked in both directions. Nevertheless, commands like
-  "CLIENTS" still try to divide data into several lines, just to make sure the
-  client will receive them. Since all client should support lines of any length,
-  dividing data into several lines is not needed anymore.
-  Though, we keep it just in case, to be compatible with other clients
-  which may emerge in the future. I do not divide data when sending info on
-  battles and clients in battles. This lines may get long, but not longer than a
-  couple of hundred bytes (they should always be under 1 KB in length).
+  All commands, except for some developer/admin specific commands, are listed below.
+  Their arguments are listed in order.
+  Some commands may also support <i>named arguments</i>, which are sent as <code>name=value</code> pairs, separated by tab characters. 
+  Named arguments can be written in any order and are case sensitive, e.g. username != userName.
+  The main benefit of named arguments is that they make backwards compatibility easier. 
   </p>
 
   <h3>Protocol rules</h3>
+  <h4> Keep-alive signals</h4>
   <p>
-  A client must maintain a constant connection with the server.
-  That is if no data is to be transfered,
-  the client must send <clink name="PING"/> commands to the server on regular intervals.
-  This ensures that the server can properly detect any network timeouts/disconnects.
-  The server will automatically disconnect a client
-  if no data has been received from it within a certain time period.
-  A client should send some data at least after half that interval passed.
+  A client must maintain a 'constant' connection with the server, to ensure that network timeouts and disconnects can be detected.
+  If no data is being transfered, the client must send <clink name="PING"/> commands to the server at regular intervals -- every 30 seconds is recommended.
+  The server will reply with a <clink name="PONG"/> command.
+  If no data or ping command has been sent for 60 seconds, the server will assume a network timeout and disconnect the client.
+  Similarly, if the client does not hear back within 30 seconds of a ping, it should assume the server has gone down.
   </p>
+  <h4>Zero status assumption</h4>
   <p>
-  Clients may find out whether a battle is in progress or not
-  by monitoring the battle-founder's status.
-  If his status changes to "in game", the battle's status is also "in game".
+  When a client joins the server, the client will be notified about statuses of users only for cases where this status is non-zero.
+  A client's status and battle status should be assumed to be 0, if not specified otherwise by the server.
+  (This saves on bandwidth, not that we really need to...)
   </p>
+  
+  <h4> Status change updates </h4>
   <p>
-  A client's status and battle status are assumed to be 0 if not specified otherwise.
-  Each client should assume that every other client's status and battle statuses are 0
-  if not stated otherwise by the server.
-  So when a client joins the server, he is notified about statuses of those users only,
-  who have status or battle status different from 0.
-  This way we also save some bandwidth
-  (although that is not really an issue here.
-  If we were worried about this protocol taking up too much bandwidth,
-  we would not use a text protocol, would we?).
-  </p>
-  <p>
-  Most of the commands that notify about some changes are forwarded to the source of the change too.
+  Most of the commands that notify about some changes are forwarded to the source of the change.
   For example: When a client sends a <clink name="MYBATTLESTATUS"/> command,
   the server sends a <clink name="CLIENTBATTLESTATUS"/> command to all users in the battle,
   including the client who sent the <clink name="MYBATTLESTATUS"/> command.
-  This is a good practice, because this way the client can synchronize
-  his local status with the server's, after the server has actually updated
-  his status (it also serves as confirmation mechanism).
+  This allows the client to synchronize their local status with the server's, 
+  after the server has verified that the status change is valid; therefore, it also serves as confirmation mechanism.
   </p>
-  <p>
-  All commands except for some admin specific commands are listed here.
-  For more details on a specific command,
-  you may have a look at a lobby servers source code,
-  for example SpringLS or ueberserver.
-  </p>
-  <p>
-  Comands have their arguments listed below, in order.
-  Commands can also support named arguments, which are written as name=value pairs separated by tab characters (\t). Arguments can be written in any order and are case sensitive, e.g. username != userName.
-  The main benefit of using named arguments is that those commands using it can be updated without affecting old lobbies and usually without the use of compatibility flags.
-  </p>
-  <p>
-  A Client may participate in only one battle at the same time. If he is hosting
-  a battle, he may not participate in other battles at the same time. The server
-  checks for that automatically.
-  </p>
-
+  
   <h4>Message IDs</h4>
   <p>
-  As of version 0.33, the command syntax has been slightly changed.
-  Messages may now contain IDs:
-  Any message may be prefixed with a message ID.
+  Any message can be prefixed with a message ID.
   For example:
-  "#123 SAY main hello!" <br/>
-  Server will use this ID with a reply, for example:
-  "#123 SAID main Betalord hello!" <br/>
+  <code>
+  '#123 SAY main hello world!'
+  </code>
+  is a valid <clink name="SAY"/> command with message ID 123. The server will use this ID in any message sent as a reply, for example:
+  <code>
+  '#123 SAID main Betalord hello world!'
+  </code>
+  would communicate the greeting on to other clients with a <clink name="SAID"/> command.
+  </p>
+  <p>
   The message ID has only one function: to ease tracking server responses for the client.
-  Using message IDs means that the client can also use synchronous communication (with certain commands),
-  which makes it easier to implement commands that require multiple responses in both directions.
-  <br/>
-  Note that IDs should be non-negative values, in a 31-bit range (0..2147483647).
-  Negative values are reserved for internal handling logic of the server / lobby clients.
+  They makes it easier to implement commands that require multiple responses in both directions.
+  You can also use them with <clink name="PING"/>/<clink name="PONG"/> to measure your round trip time.
+  </p>
+  <p>
+  Message IDs should be non-negative values, within 31-bit range (so, 0 up to 2147483647).
+  Negative values are reserved by the server for internal use.
   </p>
 
   <p>
   <h3>Sub-systems</h3>
   </p>
-  <h4>Syncing</h4>
-  <p>
-  To be in sync means, to have the same versions of all the content
-  required to play a game.
-  It works by clients comparing host's hash code with their own. If the two
-  codes match, client should update his battle status and this way telling other
-  clients in the battle that he is synced (or unsynced otherwise). The hash code
-  comes from hashing the mod's file and probably all the dependences too. See
-  unitsync documentation for details.
-  </p>
 
   <h4>Email Verification</h4>
   <p>
-  If a valid 'server_email_account.txt' exists (in the same directory as server.py), then uberserver will carry out email verification. 
+  If a valid 'server_email_account.txt' exists (in the same directory as <code>server.py</code>), then Uberserver will carry out email verification. 
+  In order to verify an email address: the server sends a four digit verification code to an email address, the user/lobby must send this code back to the server.
+  Each verification code is valid for 24h, and allows max 3 attempts at verification.
+  Currently, the same email address can be used to verify multiple accounts, but this may change in future.
   </p>
   <p>
-  In order to verify an email address: the server sends a four digit verification code to an email address, the user/lobby must send this code back.
-  Each verification code is valid for 24h, and allows max 3 attempts at verification
-  Requests to have the code resent, at most three times, are carried out using <clink name="RESENDVERIFICATION:client"/>.
-  Currently (as of v0.38) the same email address can be used to verify multiple accounts. 
-  This is planned to change, in future.
-  </p>
-  <p>
-  If verification is enabled, then it is required for registering a new account and for changing your email address.
+  If email verification is enabled, then it is required for registering a new account and for changing email address.
   In this case, both <clink name="REGISTRATIONACCEPTED:server"/> and <clink name="CHANGEEMAILREQUEST:server"/> cause a verification code to be created, and sent.
   The verification code is expected back in <clink name="CONFIRMAGREEMENT"/> and <clink name="CHANGEEMAIL"/> respectively.
+  It can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
   </p>
   <p>
-  If verification is not enabled, you can leave all email address and verification code fields blank. 
-  No verification codes will be sent, and all verification attempts will automatically pass.
+  Lobby clients should (always) assume that verification is enabled.
+  However, if verification is not enabled, then all email address and verification code fields can be left blank (or fed arbitrary data). 
+  In this case, no verification codes will be sent, and all verification attempts will automatically pass.
   </p>
 
-  <h4>Hole punching</h4>
-  <p>
-  <quote>
-  Hole punching is a computer networking technique
-  for establishing communications between two parties in separate organizations
-  who are both behind restrictive firewalls.
-  </quote>
-  <url>https://en.wikipedia.org/wiki/Hole_punching</url>
-  We use it to allow clients to connect to the lobby server, that would otherwise not be able to. 
-  It will probably not work in LAN mode, especially if combined with players from the internet.
-  </p>
-   
   <h4>Match-Making</h4>
   <p>
   By match-making, we mean a somewhat abstract way of automating
-  the process of users finding to each other in battle rooms
-  to play a game of a type they like.
+  the process of users finding each other in battle rooms
+  and then starting a game of a type that they like.
   </p>
   <p>
   Currently, we don't have match-making. 
@@ -187,9 +155,45 @@
   and a compatibility flag 'm', 
   which might one day form the basis for a match-making system.
   Contact a server admin if you are interested in developing this!
-   </p>
- 
-  <h4>Battlerooms and UDP ports</h4>
+  </p>
+
+  <h4>Syncing</h4>
+  <p>
+  To be in <i>sync</i> means to have the same versions of all the content
+  required to play a particular game (including the map, engine, dependencies, etc).
+  See <clink name="JOINBATTLE:server"/> or the unitsync documentation for details.
+  </p>
+
+  <h4>Hole punching</h4>
+  <p>
+  <quote>
+  Hole punching is a networking technique
+  for establishing communications between two parties in separate organizations
+  who are both behind restrictive firewalls.
+  </quote>
+  <url>https://en.wikipedia.org/wiki/Hole_punching</url>
+  We use it to allow clients to connect to the lobby server, that would otherwise not be able to. 
+  See the commands
+  <clink name="TASSERVER"/>,
+  <clink name="OPENBATTLE"/>,
+  <clink name="UDPSOURCEPORT"/>,
+  <clink name="CLIENTIPPORT"/>,
+  <clink name="HOSTPORT"/>.
+  <!--It will probably not work in LAN mode, especially if combined with players from the internet.-->
+  </p>
+   
+  <h4>Decoupling games from battle-rooms</h4>
+  <p>
+  At some point we hope to implement the  
+  <clink name="CONNECTUSER:client"/> command set. There are the only commands documented below that are currently unimplemented.
+  These commands will allow to initiate games without creating/joining a battle-room.
+  </p>
+
+
+  <h3>Notes on joining battles </h3>
+  <p>
+  <i> Todo: make these notes clearer and shorter! </i>
+  </p>
   <p>
   <b> Non-host perspective: </b> 
   When joining a battle, a client should first acquire his UDP source port
@@ -260,19 +264,19 @@
   This is why the host has to acquire a new port each time it starts a battle.
   </p>
 
-  <h5>Decoupling games from battle-rooms</h5>
+  <h3> Further information </h3>
   <p>
-  At some point we hope to implement the  
-  <clink name="CONNECTUSER:client"/> command set. Thise are currently the only unimplemented commands documented below.
-  These commands will allow to initiate games without creating/joining a battle-room.
+  If this document doesn't provide what you are looking for, 
+  you may have a look at the Uberserver source code, in <code>protocol.py</code>, 
+  or ask for help in the <code>#sy</code> channel of the SpringRTS lobbyserver.
   </p>
-
+   
   </Intro>
 
   <Versions>
 
  
- <Version Name="0.xx-SNAPSHOT">  
+ <Version Name="0.xx">  
   <ul>
     <li> Uberserver now supports email verification. See above. 
 	<ul>
@@ -302,19 +306,12 @@
  </Version>
 
 	
-  <Version Name="0.37-SNAPSHOT">
+  <Version Name="0.37">
   <ul>
 	<li>Added the <clink name="FORCEJOINBATTLE"/> command.</li>
     <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
-    <li>Added the <clink name="IGNORE:client"/> client command.</li>
-    <li>Added the <clink name="IGNORE:server"/> server command.</li>
-    <li>Added the <clink name="UNIGNORE:client"/> client command.</li>
-    <li>Added the <clink name="UNIGNORE:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:client"/> client command.</li>
-    <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
+    <li>Added the <clink name="IGNORE"/> command set.</li>
     <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
   </ul>
   <ul>
@@ -351,9 +348,7 @@
 
   <Version Name="0.36">
   <ul>
-    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
+    <li>Added the <clink name="FORCEJOINBATTLE"/> command set.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
     <li>Added the <clink name="CONNECTUSER:client"/> command set (unimplemented).</li>
@@ -380,31 +375,29 @@
 
     <Command Name="PING" Source="client">
       <Description>
-      This command must be used by the lobby clients to maintain their connection to the server. 
-	  It serves 2 purposes: to notify the server that the client is still alive, and to check if server is still available. 
-	  The server will assume a client has timed-out if it does not receive any data from the client from it for one minute. 
-	  Similarly, a lobby client should consider the server became unavailable if it does not receive any data from it for one minute. 
-	  So, it is recommended to send this command to the server once every 30 seconds. 
-	  So, if no data has been received from server for 30 seconds, it is recommended to use this command to detect if server has become unavailable.
-      </Description>
+      Requests a <clink name="PONG"/> back from the server. 
+	  <br/><br/>
+	  It is recommended to send <clink name="PING"/> once every 30 seconds, if no other data is being sent to the server. For details, see the notes above on keep-alive signals. 
+	  </Description>
       <Response>
-      See <clink name="PONG"/>.
+      The server will reply with <clink name="PONG"/>.
       </Response>
     </Command>
 
     <Command Name="PONG" Source="server">
       <Description>
-      Used as a response to a <clink name="PING"/> command.
-      You can determine how long the reply took
-      by using a message ID with the <clink name="PING"/> command.
+      Sent as the response to a <clink name="PING"/> command.
       </Description>
+      <Response>
+      None.
+      </Response>
     </Command>
 
 <!--- tls -->	
 	
 	<Command Name="STLS" Source="client">
       <Description>
-        Initiate a TLS connection to the server. Someone who knows more about this should document it!
+        Initiate a TLS connection to the server. <i>Someone who knows more about this should document it!</i>
 	  </Description>
     </Command>
 
@@ -853,7 +846,7 @@
 
     <Command Name="BANSPECIFIC" Source="client">
       <Arguments>
-        <Argument Name="username/ip/email" Optional="no" Sentence="no">
+        <Argument Name="username|ip|email" Optional="no" Sentence="no">
           The target of the ban. 
         </Argument>
         <Argument Name="duration" Optional="no" Sentence="no">
@@ -878,7 +871,7 @@
 
     <Command Name="UNBAN" Source="client">
       <Arguments>
-        <Argument Name="username/ip/email" Optional="no" Sentence="no"/>
+        <Argument Name="username|ip|email" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
 		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
@@ -944,8 +937,6 @@
       <Description>
       Sent as a response to a client's UDP packet
       (used with "hole punching" NAT traversal technique).
-      For more info,
-      see the <i>Hole punching</i> section in the beginnig of this document.
       </Description>
       <Examples>
         <Example>UDPSOURCEPORT 52361</Example>
@@ -1580,6 +1571,9 @@
       The server will also send a series of
       <clink name="CLIENTBATTLESTATUS"/> commands after this command,
       so that the user will get the battle statuses of all the clients in the battle.
+	  <br/><br/>
+	  The hashCode is a value computed using the current map, game, and other dependencies, of the battle.
+	  It is used to check that the client has correct non-corrupt downloads of the required content.
       </Description>
     </Command>
 
