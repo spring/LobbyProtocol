@@ -274,11 +274,10 @@
   <Versions>
 
  
- <Version Name="0.38-SNAPSHOT">  
+ <Version Name="0.xx-SNAPSHOT">  
   <ul>
 	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
     <li> All SAYDATA* commands from 0.37 were removed. </li>
-	<li> All matchmaking support except <clink name="FORCEJOINBATTLE"/> from 0.37 was removed.</li>
     <li> To match email verification on uberserver, <clink name="RESENDVERIFICATION"/> and related denied/accept, were added.</li>
           The <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> and related denied/accept commands were added(/updated).
     <li> A new mod/admin interface, reworking existing commands was added. The new interface is
@@ -297,25 +296,33 @@
 	
   <Version Name="0.37-SNAPSHOT">
   <ul>
-    <li>Added basic match-making system support (edit: removed in 0.38).</li>
+	<li>Added the <clink name="FORCEJOINBATTLE"/> command.</li>
     <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
-    <li>An email address can now be associated with existing and set while registering an user account,
-      thereby enabling unassisted account recovery</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
-    <li>
-      <b>Compatibility-Flags: </b>
-        This list explains the current compatibility flags a client may send
+    <li>Added the <clink name="IGNORE:client"/> client command.</li>
+    <li>Added the <clink name="IGNORE:server"/> server command.</li>
+    <li>Added the <clink name="UNIGNORE:client"/> client command.</li>
+    <li>Added the <clink name="UNIGNORE:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELIST:client"/> client command.</li>
+    <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
+    <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
+    <li>Added crypto commands for secure connections (edit: removed in 0.38).</li>
+  </ul>
+  <ul>
+  <li>
+      <i>Compatibility-Flags: </i>
+        This list details the current compatibility flags a client may send
         with the <clink name="LOGIN:client"/> command.
         This list will be emptied whenever a new protocol version gets released.
-    <ul>
+    <p><ul>
       <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
-      <li><b>b</b>: the battle authorization system
-        (<clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>
-        and <clink name="JOINBATTLEDENY"/> commands)</li>
-      <li><b>m</b>: the basic match-making command
+      <li><b>b</b>: battle authorization 
+        <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
+      <li><b>m</b>: basic match-making 
         <clink name="FORCEJOINBATTLE:server"/></li>
-      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
-      <li><b>sd</b>: SAYDATA* commands</li>
+      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (note: currently unimplemented by server!)</li>
+      <li><b>sd</b>: SAYDATA* commands (note: no longer valid)</li>
       <li><b>cl</b>:
         <ul>
         <li>added CHANGEEMAIL</li>
@@ -329,18 +336,9 @@
         which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
         while before it was the same in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
-    </ul>
+    </ul></p>
     </li>
-    <li>Added the <clink name="IGNORE:client"/> client command.</li>
-    <li>Added the <clink name="IGNORE:server"/> server command.</li>
-    <li>Added the <clink name="UNIGNORE:client"/> client command.</li>
-    <li>Added the <clink name="UNIGNORE:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:client"/> client command.</li>
-    <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
-    <li>Added crypto commands for secure connections (edit: removed in 0.38).</li>
-  </ul>
+	</ul>
   </Version>
 
   <Version Name="0.36">
@@ -350,17 +348,9 @@
     <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
-    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
+    <li>Added the <clink name="CONNECTUSER:client"/> command set (unimplemented).</li>
+    <li>Added the SAYDATA* command set (edit: removed in 0.38) </li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
-    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>'scriptPassword' argument added: This change affects the following commands:
@@ -369,11 +359,9 @@
   <ul>
     <li>
     <i>Compatibility-Flags</i>
-    <p>
     <ul>
-      <li><b>sp</b>: the scriptPassword parameter, sent in the <clink name="JOINEDBATTLE"/>command</li>
+      <li><b>sp</b>: the scriptPassword parameter, sent in the <clink name="JOINEDBATTLE"/> command</li>
     </ul>
-    </p>
     </li>
   </ul>
   </Version>
