@@ -276,19 +276,29 @@
  
  <Version Name="0.xx-SNAPSHOT">  
   <ul>
-	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
-    <li> All SAYDATA* commands from 0.37 were removed. </li>
-    <li> To match email verification on uberserver, <clink name="RESENDVERIFICATION"/> and related denied/accept, were added.</li>
-          The <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> and related denied/accept commands were added(/updated).
-    <li> A new mod/admin interface, reworking existing commands was added. The new interface is
+    <li> Uberserver now supports email verification. See above. 
+	<ul>
+	  <li>Added/updated <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> command set. </li>
+	  <li>Added <clink name="RESENDVERIFICATION"/> and related denied/accept commands. </li>
+      <li> If email verification is enabled, 
+	  <ul> 
+	    <li> <clink name="REGISTER"/> requires an email arg</li>
+		<li> <clink name="CONFIRMAGREEMENT"/> requires a verification code arg</li>
+        <li> <clink name="CHANGEEMAIL"/> requires a verification code arg</li>
+	  </ul></li>
+	</ul></li>
+	  <li> Added new moderation interface, with new/updated commands. The new interface is
           <clink name="BAN"/>,
           <clink name="BANSPECIFIC"/>,
-          <clink name="BLACKLIST"/>,
           <clink name="UNBAN"/>,
+          <clink name="BLACKLIST"/>,
           <clink name="UNBLACKLIST"/>,
           <clink name="LISTBANS"/>,
           <clink name="LISTBLACKLIST"/>.
+          All other moderation commands (KICKBAN, BANIP, KICKUSER, BANLIST) were removed.
 		  </li>
+	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
+    <li> All SAYDATA* commands were removed. </li>
     </ul>
  
  </Version>
@@ -307,7 +317,7 @@
     <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
     <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
     <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
-    <li>Added crypto commands for secure connections (edit: removed in 0.38).</li>
+    <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
   </ul>
   <ul>
   <li>
@@ -325,8 +335,8 @@
       <li><b>sd</b>: SAYDATA* commands (note: no longer valid)</li>
       <li><b>cl</b>:
         <ul>
-        <li>added CHANGEEMAIL</li>
-        <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+        <li>added <clink name="CHANGEEMAIL"/></li>
+        <li>added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
         </ul>
       </li>
@@ -372,15 +382,12 @@
 
     <Command Name="PING" Source="client">
       <Description>
-      This command must be used by the lobby clients to maintain their connection to the server. It serves 2 purposes:
-      notify the server that the client is still alive, and check if server is still available. The server will assume
-      a client died if it does not receive any data from it for one minute. Similarly, a lobby client should consider
-      the server became unavailable if it does not receive any data from it for one minute. So, if nothing has been sent
-      to server for 30 seconds, it is recommended to send this command to reset the server side timeout. Similarly, if
-      no data has been received from server for 30 seconds, it is recommended to use this command to detect if server
-      has become unavailable.
-      Additionally, this command can be used to compute the round trip delay time to lobby server (in this case a
-      message ID should be used so the PONG response can be associated with the corresponding original PING request)
+      This command must be used by the lobby clients to maintain their connection to the server. 
+	  It serves 2 purposes: to notify the server that the client is still alive, and to check if server is still available. 
+	  The server will assume a client has timed-out if it does not receive any data from the client from it for one minute. 
+	  Similarly, a lobby client should consider the server became unavailable if it does not receive any data from it for one minute. 
+	  So, it is recommended to send this command to the server once every 30 seconds. 
+	  So, if no data has been received from server for 30 seconds, it is recommended to use this command to detect if server has become unavailable.
       </Description>
       <Response>
       See <clink name="PONG"/>.
@@ -394,6 +401,17 @@
       by using a message ID with the <clink name="PING"/> command.
       </Description>
     </Command>
+
+<!--- tls -->	
+	
+	<Command Name="STLS" Source="client">
+      <Description>
+        Initiate a TLS connection to the server. Someone who knows more about this should document it!
+	  </Description>
+    </Command>
+
+
+<!--- greeting -->	
 
     <Command Name="TASSERVER" Source="server">
       <Arguments>
@@ -435,6 +453,8 @@
       </Examples>
     </Command>
 
+<!--- registration -->	
+
     <Command Name="REGISTER" Source="client">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
@@ -453,11 +473,10 @@
       Note that the client mustn't already be logged in,
       or else the server will deny his request.
       If the server is running in LAN mode, this command will be ignored.
-      The optional email allows account recovery via <clink name="RECOVERACCOUNT"/>.
       </Description>
       <Response>
-      The server will respond with either a <clink name="REGISTRATIONDENIED"/>
-      or <clink name="REGISTRATIONACCEPTED"/> command.
+      <clink name="REGISTRATIONDENIED"/>
+      or <clink name="REGISTRATIONACCEPTED"/>.
       </Response>
       <Examples>
         <Example>REGISTER Johnny Gnmk1g3mcY6OWzJuM4rlMw==</Example>
@@ -469,71 +488,20 @@
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a client that has just sent a <clink name="REGISTER"/> command,
+      Sent in response to a <clink name="REGISTER"/> command,
       if registration has been refused.
       </Description>
     </Command>
 
     <Command Name="REGISTRATIONACCEPTED" Source="server">
       <Description>
-      Sent to a client who has just sent a <clink name="REGISTER"/> command,
+      Sent in response to a <clink name="REGISTER"/> command,
       if registration has been accepted.
       </Description>
     </Command>
 
-    <Command Name="RENAMEACCOUNT" Source="client">
-      <Arguments>
-        <Argument Name="newUsername" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will rename the current account name to newUsername.
-      The user has to be logged in for this to work.
-      After the server renames the account, it will disconnect the client.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-      <Examples>
-        <Example>RENAMEACCOUNT Johnny2</Example>
-      </Examples>
-    </Command>
+<!--- login -->	
 
-    <Command Name="CHANGEPASSWORD" Source="client">
-      <Arguments>
-        <Argument Name="oldPassword" Optional="no" Sentence="no"/>
-        <Argument Name="newPassword" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will change the password of the users's account.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-    </Command>
-
-    <Command Name="CHANGEEMAIL" Source="client">
-      <Arguments>
-        <Argument Name="newEmail" Optional="no" Sentence="no">
-          The email address associated with a given username.
-          Case is ignored.
-        </Argument>
-        <Argument Name="userName" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will change or, in case there was none previously associated,
-      set the E-Mail address associated with a user's account.
-      The optional userName may only differ from the sender name
-      iff the sender has at least moderator status.
-      Multiple accounts may use the same E-Mail address.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-    </Command>
-    
     <Command Name="LOGIN" Source="client">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
@@ -543,9 +511,8 @@
           its arguments), it should send BASE64(password), otherwise it
           should send BASE64(MD5(password)).
           <br/>
-          Note that when the server is running in LAN mode, you can specify
-          any username and password (the password will be ignored, but you
-          must send some string anyway - you mustn't ommit it!)
+          Note that when the server is running in LAN mode, 
+          any username and password will be accepted.
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
         deprecated, set it to 0
@@ -577,15 +544,13 @@
         </Argument>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to log on to the server.
-      The server may respond with a
-      <clink name="ACCEPTED"/> or <clink name="DENIED"/> command.
-      Note, that if the client has not yet confirmed the server agreement,
-      then server will send the agreement to the client upon receiving this command
-      (the LOGIN command will be ignored; the client should resend LOGIN
-      once the user has agreed to the agreement or disconnect from the server
-      if the user has rejected the agreement).
-      <br/>
+      Sent by a client asking to log on to the server.<br/><br/>
+      Note: if the client has not yet confirmed the user agreement,
+      then server will send the user agreement to the client as a response to this command.
+	  In this case the LOGIN will be (effectively) ignored.
+      The client should resend LOGIN once the user has agreed to the user agreement, 
+	  or should disconnect from the server if the user has rejected the agreement.
+      <br/><br/>
       Also see <clink name="LOGININFOEND"/> command.
       </Description>
       <Examples>
@@ -594,6 +559,10 @@
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>123456</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
       </Examples>
+	  <Response>
+	    If the client has previously accepted the user agreement: <clink name="ACCEPTED"/> or <clink name="DENIED"/>. <br/>
+		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>
+	  </Response>
     </Command>
 
     <Command Name="ACCEPTED" Source="server">
@@ -649,6 +618,8 @@
       </Examples>
     </Command>
 
+<!--- agreement -->	
+
     <Command Name="AGREEMENT" Source="server">
       <Arguments>
         <Argument Name="agreement" Optional="no" Sentence="yes">
@@ -658,9 +629,9 @@
       <Description>
       Sent by the server upon receiving a <clink name="LOGIN"/> command,
       if the client has not yet agreed to the server's "terms-of-use".
-      The server may send multiple AGREEMENT commands
-      (which corresponds to multiple new lines in the agreement text),
-      finishing it with an <clink name="AGREEMENTEND"/> command.
+      The server may send multiple AGREEMENT commands, 
+      each of corresponds to a new line in the agreement text,
+      finishing with an <clink name="AGREEMENTEND"/> command.
       The client should send <clink name="CONFIRMAGREEMENT"/>
       and then resend the <clink name="LOGIN"/> command,
       or disconnect from the server if he has chosen to refuse the agreement.
@@ -688,12 +659,19 @@
     </Command>
 
     <Command Name="CONFIRMAGREEMENT" Source="client">
+      <Arguments>
+        <Argument Name="verificationCode" Optional="yes" Sentence="no">
+        </Argument>
+      </Arguments>
       <Description>
-      Notifies the server that the user has confirmed the agreement.
-      Also see the <clink name="AGREEMENT"/> command.
-      </Description>
+        Confirm that the user agreed to the user agreement, and supply an email verification code (if necessary).
+	  </Description>
+      <Response>
+      <clink name="ACCEPTED"/>, if the verification was either accepted or was not needed. <br/>
+	  <clink name="DENIED"/>, if the verification code was not accepted.
+      </Response>
     </Command>
-
+	
     <Command Name="MOTD" Source="server">
       <Arguments>
         <Argument Name="message" Optional="no" Sentence="yes"/>
@@ -706,6 +684,260 @@
       <Examples>
       </Examples>
     </Command>
+
+		
+<!--- account management -->	
+
+    <Command Name="RENAMEACCOUNT" Source="client">
+      <Arguments>
+        <Argument Name="newUsername" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Will rename the current account name to newUsername.
+      The user has to be logged in for this to work.
+      After the server renames the account, it will disconnect the client.
+      </Description>
+      <Response>
+      No formal response is required,
+      although the server may reply with a <clink name="SERVERMSG"/> command.
+      </Response>
+      <Examples>
+        <Example>RENAMEACCOUNT Johnny2</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="CHANGEPASSWORD" Source="client">
+      <Arguments>
+        <Argument Name="oldPassword" Optional="no" Sentence="no"/>
+        <Argument Name="newPassword" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Will change the password of the users's account.
+      </Description>
+      <Response>
+      No formal response is required,
+      although the server may reply with a <clink name="SERVERMSG"/> command.
+      </Response>
+    </Command>
+	
+    <Command Name="CHANGEEMAILREQUEST" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wishes to change too.
+        </Argument>
+      </Arguments>
+      <Description>
+		Requests a verification code, to be sent to a new email address that the user wishes to associate to their account.
+		If email verification is disabled, the response will be <clink name="CHANGEEMAILREQUESTDENIED"/>.
+	  </Description>
+      <Response>
+		<clink name="CHANGEEMAILREQUESTDENIED"/> or <clink name="CHANGEEMAILREQUESTACCEPT"/>
+      </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILREQUESTACCEPT" Source="server">
+      <Description>
+	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
+	  </Description>
+      <Response>
+		None. The verification code should be used in <clink name="CHANGEEMAIL"/>.
+	  </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILREQUESTDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+	  <Description>
+	    Notifies that a verification code was not sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
+	  </Description>
+      <Response>
+		None.
+	  </Response>
+    </Command>
+	
+    <Command Name="CHANGEEMAIL" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wishes to change too. 
+        </Argument>
+        <Argument Name="verificationCode" Optional="yes" Sentence="no">
+		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPT"/>
+		</Argument>
+      </Arguments>
+      <Description>
+        Request to change the email address associated to the client.
+		If email verification is enabled, a verification code will be needed, obtained via <clink name="CHANGEEMAILREQUEST"/>
+	  </Description>
+      <Response>
+		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPT"/>
+      </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILACCEPT" Source="server">
+      <Description>
+	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAIL"/>.
+	  </Description>
+      <Response>
+		None. 
+	  </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+	    Notifies that the email address could not be changed, in response to <clink name="CHANGEEMAIL"/>.
+	  </Description>
+      <Response>
+		None.
+	  </Response>
+    </Command>	
+
+    <Command Name="RESENDVERIFICATION" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wished to change too, or register with, but has forgotten/lost/eaten or not recieved their verification code for. 
+        </Argument>
+      </Arguments>
+      <Description>
+        Request that an active verification code to be re-sent.
+	  </Description>
+      <Response>
+		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPT"/>
+      </Response>
+    </Command>
+
+    <Command Name="RESENDVERIFICATIONACCEPT" Source="server">
+      <Description>
+	    Notifies that a verification code was re-sent, in response to <clink name="RESENDVERIFICATION"/>.
+	  </Description>
+      <Response>
+		None. 
+	  </Response>
+    </Command>
+
+    <Command Name="RESENDVERIFICATIONDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+	    Notifies that a verification code was not re-sent, in response to <clink name="RESENDVERIFICATION"/>.
+	  </Description>
+      <Response>
+		None.
+	  </Response>
+    </Command>	
+
+<!--- moderation interface -->	
+
+    <Command Name="BAN" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no">
+          The target of the ban. 
+        </Argument>
+        <Argument Name="duration" Optional="no" Sentence="no">
+          In days, as a float. 
+        </Argument>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		The server will then add the corresponding user, AND their current ip, AND their current email address, to the server ban list.
+ 	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+	  </Response>
+      <Examples>
+        <Example>BANSPECIFIC [SMART]dude 1 sending private messages advertising viagra to everyone on the server </Example>
+      </Examples>
+    </Command>
+
+    <Command Name="BANSPECIFIC" Source="client">
+      <Arguments>
+        <Argument Name="username/ip/email" Optional="no" Sentence="no">
+          The target of the ban. 
+        </Argument>
+        <Argument Name="duration" Optional="no" Sentence="no">
+          In days, as a float. 
+        </Argument>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
+		The server will auto-recognize the input as one of these three forms (or reply with an error message).
+		The server will then add the given arg to the server ban list.
+ 	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+      <Examples>
+        <Example>BANSPECIFIC [BaD]UserGuy 1.5 smurfing like a pro </Example>
+        <Example>BANSPECIFIC 216.3.128.12 7 shooting wabbits out of sheason </Example>
+        <Example>BANSPECIFIC enormous_crocodile@hotmail.com 999 honking </Example>
+      </Examples>
+    </Command>
+
+    <Command Name="UNBAN" Source="client">
+      <Arguments>
+        <Argument Name="username/ip/email" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
+		The server will auto-recognize the input as one of these three forms (or reply with an error message).
+		All bans matching the given input will be removed.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>
+	
+    <Command Name="LISTBANS" Source="client">
+      <Description>
+	    Ask the server to reply with a stream of server messages, containing a human readable version of the server ban list.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+
+    <Command Name="BLACKLIST" Source="client">
+      <Arguments>
+        <Argument Name="domain" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+ 	    Add a domain to the blacklist; the server will deny verification attempts for email addresses ending in a blacklisted domain.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+      <Examples>
+        <Example>BLACKLIST hawtmail.com</Example>
+      </Examples>    </Command>	
+	
+    <Command Name="UNBLACKLIST" Source="client">
+      <Arguments>
+        <Argument Name="domain" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+ 	    Remove a domain from the blacklist.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+
+    <Command Name="LISTBLACKLIST" Source="client">
+      <Description>
+	    Ask the server to reply with a stream of server messages, containing a human readable version of the current blacklist.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+	
+<!--- wtf -->	
 
     <Command Name="UDPSOURCEPORT" Source="server">
       <Arguments>
@@ -982,6 +1214,18 @@
       <Description>
       Sent a by privileged user who is trying to change a channel's topic.
       Use "*" as topic if you wish to remove the topic.
+      </Description>
+    </Command>
+
+    <Command Name="NOCHANNELTOPIC" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no">
+          The Channel name which the client joined
+        </Argument>
+      </Arguments>
+      <Description>
+        This command informs the client that the channel it just joined has no topic set.
+        Also see the <clink name="JOIN:client"/> and <clink name="CHANNELTOPIC:server"/> command.
       </Description>
     </Command>
 
@@ -2130,39 +2374,6 @@
       </Examples>
     </Command>
 
-    <Command Name="TESTLOGIN" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="password" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Used to test if user-name and password are valid.
-      Currently, this command is restricted to users with admin access only.
-      It is meant to be used with some external server process
-      to identify a user via a web login form
-      and create a session cookie based on that.
-      </Description>
-      <Response>
-      Either <clink name="TESTLOGINACCEPT"/> or <clink name="TESTLOGINDENY"/>.
-      </Response>
-    </Command>
-
-    <Command Name="TESTLOGINACCEPT" Source="server">
-      <Description>
-      Used as a response to a <clink name="TESTLOGIN"/> command
-      in case the user-name/password pair is valid.
-      Use message ID to bind the response to a request.
-      </Description>
-    </Command>
-
-    <Command Name="TESTLOGINDENY" Source="server">
-      <Description>
-      Used as a response to a <clink name="TESTLOGIN"/> command
-      in case the user-name/password pair is not valid.
-      Use message ID to bind the response to a request.
-      </Description>
-    </Command>
-
     <Command Name="GETINGAMETIME" Source="client">
       <Description>
       The server replies with a <clink name="SERVERMSG:server"/>,
@@ -2251,6 +2462,7 @@
         <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
+	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
       The client may send this command if it is a battle host or lobby moderator.
       The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user,
       or <clink name="CONNECTUSERFAILED:server"/> to the client issuing this command.
@@ -2269,6 +2481,7 @@
         <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
        </Arguments>
       <Description>
+	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
       Instructs the client to connect spring to the given IP:port
       with the script password given in <clink name="CONNECTUSER:client"/>.
       See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
@@ -2281,136 +2494,9 @@
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
+	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
       Sent by the server to the user who just sent a <clink name="CONNECTUSER:client"/> request,
       in the case of it being rejected by the server.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATA" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a data message to a specific channel.
-      The client has to join the channel first,
-      to be allowed to use this command.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATA:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATA" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to all clients participating in a specific channel
-      when one of the clients sent a data message to it
-      (including the author of the message).
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATAPRIVATE" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a private data message to an other client.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATAPRIVATE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATAPRIVATE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Indicates that a user sent a private data message to the receiving client.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATABATTLE" Source="client">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a data message to all clients participating in a battle.
-      A 'battleID' argument is not required,
-      since every user can participate in only one battle at a time.
-      If the user is not participating in any battle,
-      receiption of this command is considered invalid
-      and will therefore be ignored.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATABATTLE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATABATTLE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to the participants of a battle when a client sent a data message to it,
-      using the <clink name="SAYDATABATTLE:client"/> command.
-      A 'battleID' is not required,
-      since every client knows which battle he is participating in,
-      since every client may participate in only one battle at a time.
-      If the client is not participating in any battle,
-      he should ignore this command or raise an error.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="RECOVERACCOUNT" Source="client">
-      <Arguments>
-        <Argument Name="email" Optional="no" Sentence="no">
-          The email address associated with a given username.
-          Case will not be considered.
-        </Argument>
-        <Argument Name="userName" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-        Sends an e-mail with account recovery information.
-        If one or more accounts with the given email address (and optional userName) exists,
-        the server sends an email to that address,
-        containing the associated username(s)
-        and a means to reset the password(s).
-        This could either be a new temporary password
-        or for example a one-time-token that authorizes setting up a new password via some web interface.
-        If no account matching the given search criterias is found, no error is returned.
-      </Description>
-    </Command>
-
-    <Command Name="NOCHANNELTOPIC" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no">
-          The Channel name which the client joined
-        </Argument>
-      </Arguments>
-      <Description>
-        This command informs the client that the channel it just joined has no topic set.
-        Also see the <clink name="JOIN:client"/> and <clink name="CHANNELTOPIC:server"/> command.
       </Description>
     </Command>
 
@@ -2523,217 +2609,6 @@
       </Description>
     </Command>
 
-    <Command Name="GETPUBLICKEY" Source="client">
-      <Description>
-        Requests the server's public RSA key. Note that this is only provided
-        for convenience; clients should preferably obtain the key over HTTPS
-        from <url>https://github.com/spring/LOCATION_TO_BE_DECIDED/</url>.
-        It is also possible (but not recommended, though key revocations are unlikely)
-        to hardcode the key directly within the client application. Can only be sent
-        prior to establishing a secure session, otherwise will not be processed.
-      </Description>
-      <Examples>
-        <Example>GETPUBLICKEY</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="GETSIGNEDMSG" Source="client">
-      <Description>
-        Requests the server to cryptographically sign a message, allowing a
-        client to verify its identity. Can only be sent prior to establishing
-        a secure session, otherwise will not be processed.
-      </Description>
-      <Arguments>
-        <Argument Name="message_to_sign" Optional="yes" Sentence="no">
-          An arbitrary base64-encoded string which the server should sign with
-          its private RSA key. If left empty, the server will sign its current
-          <clink name="MOTD:server"/> instead.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>GETSIGNEDMSG ""</Example>
-        <Example>GETSIGNEDMSG SGVsbG8gV29ybGQ=</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="SETSHAREDKEY" Source="client">
-      <Description>
-        Instructs the server to set a session-key. Initially sent in plaintext,
-        but at any point after establishing a secure session a client may send
-        this command again (in encrypted form!) with a different RSA-encrypted
-        key value.
-        <br/><br/>
-        After sending this command, a client should wait until it receives
-        <clink name="SHAREDKEY:server"/> with <b>key_status</b> ACCEPTED and
-        has verified the key digest before sending any other data. It should
-        then send <clink name="ACKSHAREDKEY:client"/>, which (if implemented
-        properly) will be the FIRST message encrypted with the new key.
-        <br/><br/>
-        The format of AES(-256) encrypted messages recognized and transmitted
-        by the server during a secure session is
-        <br/><br/>
-          MARKER_BYTE + BASE64(MSG) [+ MARKER_BYTE + BASE64(MAC)] + PARTIT_BYTE
-        <br/><br/>
-        where
-        <ul>
-          <li>MARKER_BYTE is the literal byte-value (character) 0x01</li>
-          <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li><br/>
-          <li>MSG is the output of ENCRYPT_AES(TIME + DATA, KEY)</li>
-          <li>MAC is the output of HMAC_SHA256(MSG, KEY)</li><br/>
-          <li>ENCRYPT_AES is AES256 operated in CBC mode with a 16-byte IV</li>
-          <li>HMAC_SHA256 is the cryptographic checksum function using SHA256</li><br/>
-          <li>TIME is the four-byte (LE) representation of a strictly increasing int32</li>
-          <li>DATA is any command string, or a batch of commands separated by newlines</li>
-        </ul>
-        For example, DATA might be "LOGIN user pass\nJOIN main\n" and TIME (a
-        counter that should be increased for each encrypted message) might be
-        0xfe000000 indicating that DATA is the 254th secure message sent by the
-        client this session. Sending a message during a secure session that does
-        not conform to this format will cause it to be skipped, or decrypted to
-        garbage and then dropped. MAC's are optional and only need to be added
-        if the server has set the corresponding flag (<b>use_msg_auth_codes</b>)
-        in <clink name="PUBLICKEY:server"/>.
-      </Description>
-      <Arguments>
-        <Argument Name="session_key" Optional="yes" Sentence="no">
-          The new session-key, encrypted with the server's public RSA key and
-          base64-encoded for transport. If left empty, the server will disable
-          a client's current secure session (NOTE: no longer supported) if one
-          was already established.
-          <br/><br/>
-          NOTE: the server will use SHA256(DECRYPT_RSA(DECODE(session_key))) as
-          its actual key to ensure it always has the proper length of 32 bytes.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SETSHAREDKEY U0VDUkVUIQ==</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="ACKSHAREDKEY" Source="client">
-      <Description>
-        Instructs the server that its last <clink name="SHAREDKEY:server"/>
-        response was received and contained the correct session-key digest.
-        If the key digest from <clink name="SHAREDKEY:server"/> does *not*
-        match the client's but the key status is set to ACCEPTED, the client
-        should become EXTREMELY suspicious and think twice about issuing this
-        command. Can only be sent after having received SHAREDKEY ACCEPTED,
-        otherwise will not be processed.
-      </Description>
-      <Examples>
-        <Example>ACKSHAREDKEY</Example>
-      </Examples>
-    </Command>
-
-
-    <Command Name="PUBLICKEY" Source="server">
-      <Description>
-      Sent by the server in response to <clink name="GETPUBLICKEY:client"/>.
-      Transfers the server's public RSA key in base64-encoded PEM format, as
-      well three boolean status flags (packed into a single 32-bit integer)
-      indicating requirements for secure sessions.
-      </Description>
-      <Arguments>
-        <Argument Name="server_public_key" Optional="no" Sentence="no">
-          The RSA key with which a client should encrypt its chosen AES(-256)
-          session-key when it sends the <clink name="SETSHAREDKEY:client"/>
-          command.
-        </Argument>
-        <Argument Name="session_flag_bits" Optional="no" Sentence="no">
-          An integer packing three flags (<b>force_secure_auths</b>,
-          <b>force_secure_comms</b>, and <b>use_msg_auth_codes</b>) that
-          clients must inspect before establishing a secure session.
-          <br/><br/>
-          <b>force_secure_auths</b>:
-            Whether the server expects the <clink name="LOGIN:client"/> and
-            <clink name="REGISTER:client"/> client commands to be sent encrypted.
-            Encoded in the first bit of <b>session_flag_bits</b>.
-          <br/><br/>
-          <b>force_secure_comms</b>:
-            Whether the server expects ALL client commands (including
-            <clink name="LOGIN:client"/> and <clink name="REGISTER:client"/>)
-            to be sent encrypted. When true, a client can not disable
-            a secure session after establishing it. Encoded in the second
-            bit of <b>session_flag_bits</b>.
-          <br/><br/>
-          <b>use_msg_auth_codes</b>:
-            Whether the server expects encrypted data to include MAC's,
-            or message authentication codes. Encoded in the third bit of
-            <b>session_flag_bits</b>.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>PUBLICKEY QkVHSU4gUFVCTElDIEtFWS5FTkQgUFVCTElDIEtFWQ== 7</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="SIGNEDMSG" Source="server">
-      <Description>
-        Sent by the server in response to <clink name="GETSIGNEDMSG:client"/>.
-      </Description>
-      <Arguments>
-        <Argument Name="message_signature" Optional="no" Sentence="no">
-          A base64-encoded long (in the unlimited-precision sense) integer
-          representing the RSA cryptographic signature of the message.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SIGNEDMSG MTIzNDU2Nzg5MA==</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="SHAREDKEY" Source="server">
-      <Description>
-        Sent by the server in response to <clink name="SETSHAREDKEY:client"/>.
-      </Description>
-      <Arguments>
-        <Argument Name="key_status" Optional="no" Sentence="no">
-          Can be "ENFORCED", "DISABLED", "REJECTED", "ACCEPTED", or "INITSESS".
-          <br/><br/>
-          ENFORCED
-            means disabling a secure session is not permitted by the server.
-            Depends on the <b>force_secure_comms</b> parameter included in
-            the <clink name="PUBLICKEY:server"/> response.
-          <br/><br/>
-          DISABLED
-            indicates the current secure session was successfully disabled.
-            This is the LAST encrypted server response a client will receive.
-            No longer supported: any attempt to disable a secure session will
-            generate an ENFORCED reply.
-            <br/><br/>
-          REJECTED
-            means the session-key was considered invalid.
-            <br/><br/>
-          ACCEPTED
-            indicates the session-key was accepted and will be used to decrypt all
-            subsequent client commands including <clink name="ACKSHAREDKEY:client"/>.
-            <br/><br/>
-          INITSESS
-            is only sent when the client first establishes a secure session. This
-            is the LAST unencrypted server response a client will receive and is
-            always followed immediately by ACCEPTED (encrypted with the new key).
-        </Argument>
-        <Argument Name="key_digest" Optional="no" Sentence="no">
-          SHA256 hash of the old session-key in case of ENFORCED, DISABLED, or
-          INITSESS. SHA256 hash of the new session-key in case of ACCEPTED or
-          REJECTED.
-          <br/><br/>
-          NOTE: since the server uses SHA256(DECRYPT_RSA(DECODE(session_key))) as
-          its actual key, digests are created based on this input value rather than
-          on the "raw" key. Digests are base64-encoded for transport.
-        </Argument>
-        <Argument Name="extra_data" Optional="yes" Sentence="no">
-          If key_status is REJECTED, this will contain either the number of missing
-          key-bytes (if the raw unhashed key-length was considered too small) or an
-          exception text (if decryption of the session-key failed for whatever reason).
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SHAREDKEY INITSESS 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</Example>
-        <Example>SHAREDKEY ACCEPTED 49p0UFEzDbg8YNF3W+0hO90j1ohKLOLQWCA4xU7IwRM=</Example>
-        <Example>SHAREDKEY REJECTED yfxdBikidP2YvLV4gmV79x3h7aTfkCxRnZFfxYWxAZA= 19</Example>
-      </Examples>
-    </Command>
     <Command Name="SUBSCRIBE" Source="client">
       <Description>
         Sent by the client to subscribe to a channel
