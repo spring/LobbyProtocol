@@ -190,7 +190,17 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   </p>
 
 
-  <h3>Notes on joining battles </h3>
+  <h3>Battles</h3>
+  <p>
+  A client may join at most one battleroom at any given time. 
+  This includes when the client is hosting the battle. The server automatically enforces this rule.
+  </p>
+  <p>
+  Clients should detect whether a battle is in progress or not by monitoring the hosts status.
+  For example, if the hosts status changes to "in game", then the battles is "in game".
+  </p>
+  
+  <h4> UDP ports and packets </h4>
   <p>
   <i> Todo: make these notes clearer and shorter! </i>
   </p>
