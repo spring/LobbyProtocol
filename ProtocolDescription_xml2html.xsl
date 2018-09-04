@@ -79,7 +79,7 @@
        <xsl:for-each select="Versions/Version">
         <tr><td>
            <a name="{@Name}"/> <!-- we need this to reference it with "a href" tag -->
-	   <h2>Version <xsl:value-of select="@Name"/></h2>
+	   <h3>Version <xsl:value-of select="@Name"/></h3>
            <xsl:if test="string(.)"><xsl:apply-templates select="." /></xsl:if>
         </td></tr>
        </xsl:for-each>
