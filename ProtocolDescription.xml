@@ -546,11 +546,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         </Argument>
       </Arguments>
       <Description>
-      Sent by a client asking to log on to the server.<br/><br/>
+      Sent by a client asking to log on to the server.
+	  <br/><br/>
       Note: if the client has not yet confirmed the user agreement,
-      then server will send the user agreement to the client as a response to this command.
-	  In this case the LOGIN will be (effectively) ignored.
-      The client should resend LOGIN once the user has agreed to the user agreement, 
+      then server will send the <clink name="AGREEMENT"/> to the client as a response to this command.
+	  In this case the response to <clink name="LOGIN"/> will be delayed until <clink name="CONFIRMAGREEMENT"/>.
+      The client should resend <clink name="LOGIN"/> once the user has agreed to the user agreement, 
 	  or should disconnect from the server if the user has rejected the agreement.
       <br/><br/>
       Also see <clink name="LOGININFOEND"/> command.
@@ -591,13 +592,17 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <Command Name="EXIT" Source="client">
       <Arguments>
         <Argument Name="reason" Optional="yes" Sentence="yes">
-        Clients may optionally specify a reason for quitting. The server is not required to use this reason in any way.
+        Clients may optionally specify a reason for quitting. 
+		If the user simply wished to exit, many lobby clients send their name and version.
         </Argument>
       </Arguments>
       <Description>
       Clients should send this as their last command before severing the connection to indicate
-      a clean and deliberate disconnect. The server is not requried to acknowledge this in any way.
+      a clean and deliberate disconnect. 
       </Description>
+	  <Response>
+	  The server is not required to acknowledge, or respond, to the exiting client. However, it may notify other clients via server messages or status change commands.
+	  </Response>
     </Command>
 
     <Command Name="LOGININFOEND" Source="server">
