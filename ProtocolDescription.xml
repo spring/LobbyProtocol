@@ -31,10 +31,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 
   <h4>Formating rules: lines, words and sentences</h4>
   <p>
-  All communication must be encoded in utf-8 (no binary data is allowed).
+  All communication must be encoded in utf-8. Binary data is not permitted.
   </p>
   <p>
-  A <i>line</i> typically consists of a single protocol command, plus its arguments, communicated as a single string.
+  A <i>line</i>, also known as a <i>message</i>, consists of a single protocol command, plus its arguments, communicated as a single string.
   Lines may be of any length; 600 KB long strings have been verified to worked in both directions. 
   Nevertheless, some commands (like <clink name="CLIENTS"/>) do divide the data they send into several lines, because it's clearer that way (and, historically it was necessary). 
   A natural implementation of the protocol will result in almost all lines being under 1 KB in length.
@@ -46,7 +46,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   which are considered as a single argument; sentences must be separated from other arguments by tab characters (<code>\t</code>).
   </p>
   <p>
-  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 4 or 8 whitespaces are used for this, but it's your choice.
+  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 4 or 8 whitespaces would be used for this, but it's your choice.
   If you do not, your sentence arg will not be parsed correctly by the server.)
   </p>
 
@@ -65,10 +65,14 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <h4>Argument order</h4>
   <p>
   All commands, except for some developer/admin specific commands, are listed below.
-  Their arguments are listed in order.
-  Some commands may also support <i>named arguments</i>, which are sent as <code>name=value</code> pairs, separated by tab characters. 
-  Named arguments can be written in any order and are case sensitive, e.g. username != userName.
-  The main benefit of named arguments is that they make backwards compatibility easier. 
+  Their arguments are listed in order, and should be sent in that order.
+  </p>
+  <p>
+  <!-- For future use (currently only applies to PROMOTE):
+  A few commands require that they be invoked using a JSON format, which allows arguments to be named (and, consequently, sent in any order).
+  Named arguments can be written in any order and the names are case sensitive, e.g. username != userName.
+  The main benefit of named arguments is that they help with backwards compatibility when the protocol changes, and it is planned that more commands will use JSON in future, particularly commands related to statuses and battles. 
+  -->
   </p>
 
   <h3>Protocol rules</h3>
@@ -138,7 +142,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   It can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
   </p>
   <p>
-  Lobby clients should (always) assume that verification is enabled.
+  Lobby clients should always assume that verification is enabled.
   However, if verification is not enabled, then all email address and verification code fields can be left blank (or fed arbitrary data). 
   In this case, no verification codes will be sent, and all verification attempts will automatically pass.
   </p>
@@ -189,69 +193,62 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   These commands will allow to initiate games without creating/joining a battle-room.
   </p>
 
-
-  <h3>Battles</h3>
+  <h3>Hosting battles</h3>
   <p>
+  Any client may host a <i>battleroom</i>, also referred to as a <i>battle</i>, which is (effectively) a special type of chat channel with extra features related to setting up and launching a multi-player game.
   A client may join at most one battleroom at any given time. 
   This includes when the client is hosting the battle. The server automatically enforces this rule.
   </p>
   <p>
-  Clients should detect whether a battle is in progress or not by monitoring the hosts status.
+  Clients detect whether a battle has a game currently in progress by monitoring the hosts status.
   For example, if the hosts status changes to "in game", then the battles is "in game".
   </p>
+  <p>
+  <code>spring.exe</code> uses UDP connections for online multi-player games (TCP is not suitable due to latency).
+  These connections are made between the host client (of the battleroom) and non-host clients. 
+  Consequently, the lobby protocol contains a set of commands dedicated to setting up UDP connections between host/non-host clients.
+  </p>
   
-  <h4> UDP ports and packets </h4>
+  <h4> Setting up UDP connections: non-host perspective </h4>
+  
   <p>
-  <i> Todo: make these notes clearer and shorter! </i>
+  Before joining a battle, a client is expected to first acquire their UDP source port from the server.
+  This is done by sending a UDP packet, which a response coming via <clink name="UDPSOURCEPORT"/>.
+  Once the client has done that, the client should keep sending UDP packets to the server at regular 20 second intervals, 
+  to keep the connection alive and ensure that the clients router does not remove the UDP connection from its port translation table.
+  After <code>spring.exe</code> is launched, these UDP keep-alive signals may be discontinued (because then <code>spring.exe</code> will be sending regular UDP packets).
+  Once <code>spring.exe</code> exits, the client should resume sending UDP keep-alive signals.
   </p>
   <p>
-  <b> Non-host perspective: </b> 
-  When joining a battle, a client should first acquire his UDP source port
-  from the server before sending the <clink name="JOINBATTLE"/> command.
-  Once he has done that and joined the battle,
-  he should keep sendings some UDP packets to the server on regular intervals,
-  just to make sure the router does not forget about it and remove it
-  from its translation table
-  (some routers have timeout as short as 20 seconds,
-  so this should also be the minimum refresh interval).
-  Once the game actually starts,
-  the client lobby should stop sending UDP packets to the server
-  since the OS will not allow it anyway
-  (will not be able to bind the same source port,
-  as it will already be bound by spring.exe).
-  Also, there is no need for it,
-  since spring.exe will keep sending the packets
-  and so keep the port open instead of the lobby client.
-  Once the lobby client detects the user has returned from the game,
-  it should start sending the UDP packets again,
-  in order to keep the "connection" alive.
-  Another thing to note is,
-  that the lobby client does not need to "punch through"
-  like it has to when hosting, since spring.exe will do that anyway.
-
-  Just before starting the game,
-  the server will send a <clink name="HOSTPORT"/> command to the user,
+  Just before starting the game, the host should send a <clink name="HOSTPORT"/> command to the user,
   containing the host's public UDP source port.
-  The lobby cient should replace the battle's port with this one,
-  as it will have to connect to this port and not the original one
-  (acquired through the <clink name="BATTLEOPENED"/> command).
+  The lobby cient should replace the battles port with this one,
+  as it will have to connect to the game using this port and not the original one
+  (that was acquired through the <clink name="BATTLEOPENED"/> command).
   </p>
-    <p>
-  <b>Host perspective: </b>
+  <p>
+  Note: If the client is not hosting, then it does not need to "punch through", which is does have to do when hosting, because <code>spring.exe</code> will take care of that. <i> Todo: make this clearer!</i>
+  </p>
+  
+  <h4> Setting up UDP connections: host perspective </h4>
+  <p>
   Before sending the <clink name="OPENBATTLE"/> command,
-  the host should try to acquire his UDP source port from the server,
+  the host should try to acquire its UDP source port from the server,
   just to make sure it can acquire it at all
   (better to find out it does not work before hosting,
   than right before starting the game).
-  Nevertheless, the lobby client does not need to keep to refresh this port,
+  However, the client does not need to keep this UDP connection alive,
   since it will not be used to actually host the game.
-  It is just a test to see if it works,
-  not to actually acquire a port for hosting.
-  Each time a new client joins the battle,
-  the server will send a <clink name="CLIENTIPPORT"/> command,
-  telling the host about this client's public UDP source port.
+  It is just a test to see if UDP connectivity works.
+  </p>
+  <p>
+  When a new client joins the battle,
+  the server will send a <clink name="CLIENTIPPORT"/> command to the host,
+  informing the host of this client's public UDP source port.
   The host should remember this information,
   as he will have to use it when starting the game.
+  </p>
+  <p>
   Right before starting the game,
   the host should try to acquire his source port again.
   This time he will actually use this port to host the game.
@@ -261,17 +258,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   The host does not need to keep refreshing his connection
   to keep the port open,
   as spring.exe will do that for him.
-  Also, upon returning from the game,
-  he does not need to start refreshing it either
-  (as a non-host would have to),
-  since when he will start a new game,
-  he will have to acquire a new source port anyway.
-  This is mostly because some people could play "single-player" games with bots
-  before opening the battle to other players,
-  and spring.exe would of course not keep the connection alive in that case,
-  and upon returning from the game,
-  the port would already be timed-out long ago.
-  This is why the host has to acquire a new port each time it starts a battle.
+  Upon returning from the first game that was hosted in his battleroom,
+  the host does not need to keep refreshing it either (as a client would have to do --
+  because when the host starts a new game
+  it will have to acquire a new source port anyway).
+  </p>
+  
+  <h4> Why? </h4>
+  <p>
+  This setup exists because some host clients might play "single-player" games with bots
+  before opening their battleroom to other players,
+  in which case any UDP port that was originally set up would have long ago timed out (spring.exe would not keep it alive during a single player game!).
+  For this reason, the host has to acquire a new UDP port each time it starts a battle.
   </p>
 
   <h3> Further information </h3>
@@ -398,9 +396,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
       Sent as the response to a <clink name="PING"/> command.
       </Description>
-      <Response>
-      None.
-      </Response>
     </Command>
 
 <!--- tls -->	
@@ -471,16 +466,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       The client sends this command when trying to register a new account.
-      Note that the client mustn't already be logged in,
+      Note that the client must not already be logged in,
       or else the server will deny his request.
-      If the server is running in LAN mode, this command will be ignored.
+	  <br/>
+	  <br/>
+	  The username and password are given sanity/uniqueness checks, and these primarily determine the servers response. If email verification is enabled, and no valid email address is provided, the server will deny the registration.
       </Description>
       <Response>
       <clink name="REGISTRATIONDENIED"/>
       or <clink name="REGISTRATIONACCEPTED"/>.
       </Response>
       <Examples>
-        <Example>REGISTER Johnny Gnmk1g3mcY6OWzJuM4rlMw==</Example>
+        <Example>REGISTER Johnny Gnmk1g3mcY6OWzJuM4rlMw== enormous_crocodile@hawtmail.com</Example>
       </Examples>
     </Command>
 
@@ -497,8 +494,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <Command Name="REGISTRATIONACCEPTED" Source="server">
       <Description>
       Sent in response to a <clink name="REGISTER"/> command,
-      if registration has been accepted.
-      </Description>
+      if registration has been accepted. 
+	  <br/><br/>
+	  If email verification is enabled, sending of this command notifies that the server has sent a verification code to the users email address. This verification code is expected to be sent back in <clink name="CONFIRMAGREEMENT"/>
+      <br/><br/>
+	  Upon reciept of this command, a lobby client would normally be expected to reply with a <clink name="LOGIN"/> attempt (but this is not a requirement of the protocol).
+	  </Description>
     </Command>
 
 <!--- login -->	
@@ -700,7 +701,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
       <Response>
       No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
+      although the server may reply with a <clink name="SERVERMSG"/>.
       </Response>
       <Examples>
         <Example>RENAMEACCOUNT Johnny2</Example>
@@ -717,7 +718,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
       <Response>
       No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
+      although the server may reply with a <clink name="SERVERMSG"/>.
       </Response>
     </Command>
 	
@@ -739,10 +740,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <Command Name="CHANGEEMAILREQUESTACCEPT" Source="server">
       <Description>
 	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
+		<br/><br/>
+		No response is required from the client, although a <clink name="CHANGEEMAIL"/> command would normally be sent once the user has supplied their verification code.
 	  </Description>
-      <Response>
-		None. The verification code should be used in <clink name="CHANGEEMAIL"/>.
-	  </Response>
     </Command>
 
     <Command Name="CHANGEEMAILREQUESTDENIED" Source="server">
@@ -752,9 +752,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 	  <Description>
 	    Notifies that a verification code was not sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
 	  </Description>
-      <Response>
-		None.
-	  </Response>
     </Command>
 	
     <Command Name="CHANGEEMAIL" Source="client">
@@ -779,9 +776,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
 	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAIL"/>.
 	  </Description>
-      <Response>
-		None. 
-	  </Response>
     </Command>
 
     <Command Name="CHANGEEMAILDENIED" Source="server">
@@ -791,9 +785,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
 	    Notifies that the email address could not be changed, in response to <clink name="CHANGEEMAIL"/>.
 	  </Description>
-      <Response>
-		None.
-	  </Response>
     </Command>	
 
     <Command Name="RESENDVERIFICATION" Source="client">
@@ -814,9 +805,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
 	    Notifies that a verification code was re-sent, in response to <clink name="RESENDVERIFICATION"/>.
 	  </Description>
-      <Response>
-		None. 
-	  </Response>
     </Command>
 
     <Command Name="RESENDVERIFICATIONDENIED" Source="server">
@@ -826,9 +814,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
 	    Notifies that a verification code was not re-sent, in response to <clink name="RESENDVERIFICATION"/>.
 	  </Description>
-      <Response>
-		None.
-	  </Response>
     </Command>	
 
 <!--- moderation interface -->	
@@ -1444,6 +1429,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       Indicates that a user sent a private chat message to the receiving client
       using the <clink name="SAYPRIVATEEX:client"/> command.
       </Description>
+    </Command>
+
+    <Command Name="PROMOTE" Source="client">
+      <Description>
+		This command posts a message in particular channels, calling for players. It is currently the (only) test case for using a JSON format in the lobby protocol, and consequently is not included in this documentation.
+	  </Description>
     </Command>
 
     <Command Name="OPENBATTLE" Source="client">
