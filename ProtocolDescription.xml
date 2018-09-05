@@ -730,7 +730,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
 		Requests a verification code, to be sent to a new email address that the user wishes to associate to their account.
-		If email verification is disabled, the response will be <clink name="CHANGEEMAILREQUESTDENIED"/>.
+		<br/><br/>
+		Even if email verification is disabled, it is intended that the client will call this before calling <clink name="CHANGEEMAIL"/>.
+		If email verification is disabled, the response will be a <clink name="CHANGEEMAILREQUESTDENIED"/>, containing a message informing the user that a blank verification code will be accepted.
 	  </Description>
       <Response>
 		<clink name="CHANGEEMAILREQUESTDENIED"/> or <clink name="CHANGEEMAILREQUESTACCEPT"/>
@@ -760,12 +762,11 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
           The email address the user wishes to change too. 
         </Argument>
         <Argument Name="verificationCode" Optional="yes" Sentence="no">
-		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPT"/>
+		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPT"/>.
 		</Argument>
       </Arguments>
       <Description>
-        Request to change the email address associated to the client.
-		If email verification is enabled, a verification code will be needed, obtained via <clink name="CHANGEEMAILREQUEST"/>
+        Asks the server to change the email address associated to the client. See also <clink name="CHANGEEMAILREQUEST"/>, which would typically be called first.
 	  </Description>
       <Response>
 		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPT"/>
@@ -774,7 +775,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 
     <Command Name="CHANGEEMAILACCEPT" Source="server">
       <Description>
-	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAIL"/>.
+	    Notifies that client that their email address was changed, in response to <clink name="CHANGEEMAIL"/>.
 	  </Description>
     </Command>
 
