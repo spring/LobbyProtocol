@@ -55,7 +55,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <ul>
   <li> <clink name="JOINEDBATTLE"/>, with 2 word arguments: <br/><code>JOINEDBATTLE 25869 oxido</code></li> 
   <li> <clink name="UPDATEBATTLEINFO"/>, with 4 words and 1 sentence argument: <br/><code>UPDATEBATTLEINFO 25903 1 0 -210360064 Trojan Hills v03</code></li>
-  <li> <clink name="BATTLEOPENED"/>, with 7 words and 4 sentences: <br/><code>BATTLEOPENED 4437 0 0 BlackHoleHost6 71.2.10.1 8626 10 0 0 -1213614804 Spring 104.0 &#160;&#160; Coastline_Dry_V1 &#160;&#160; The BlackHoleHost - Conflict &#160;&#160; Balanced Annihilation V9.46</code></li>
+  <li> <clink name="BATTLEOPENED"/>, with 10 words and 4 sentences: <br/><code>BATTLEOPENED 4437 0 0 BlackHoleHost6 71.2.10.1 8626 10 0 0 -1213614804 Spring 104.0 &#160;&#160; Coastline_Dry_V1 &#160;&#160; The BlackHoleHost - Conflict &#160;&#160; Balanced Annihilation V9.46</code></li>
   </ul>
   </p>
   <p>
@@ -78,6 +78,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <p>
   All commands, except for some developer/admin specific commands, are listed below.
   Their arguments are listed in order, and should be sent in that order.
+  </p>
+  <p>
+  In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
+  The details below refer to the latest version of the protocol, and assume that the client has all the latest compatibility flag present.
   </p>
   <p>
   <!-- For future use (currently only applies to PROMOTE):
