@@ -23,9 +23,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 
   <h3>Nomenclature</h3>
   <p>
-  We use two terms for "clients": <i>client</i> and an <i>user</i>.
-  At first, <i>user</i> was considered to be a registered client,
-  that means a client that is logged-in.
+  We use two terms for "clients": <i>client</i> and <i>user</i>.
+  At first, <i>user</i> was considered to be a registered or logged-in client.
   The two terms are used uncleanly though, so you may best think of them as equal.
   </p>
 
@@ -46,7 +45,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   which are considered as a single argument; sentences must be separated from other arguments by tab characters (<code>\t</code>).
   </p>
   <p>
-  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 4 or 8 whitespaces would be used for this, but it's your choice.
+  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 2 or 8 whitespaces would be used for this, but it's your choice.
   If you do not, your sentence arg will not be parsed correctly by the server.)
   </p>
 
@@ -574,9 +573,17 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent as a response to the <clink name="LOGIN"/> command, if it succeeded.
-      After the server has finished sending info about clients and battles,
+      Next, the server will send much info about clients and battles:
+      <ul>
+        <li>multiple <clink name="MOTD"/>, each giving one line of the current welcome message</li>
+        <li>multiple <clink name="ADDUSER"/>, listing all users currently logged in</li>
+        <li>multiple <clink name="BATTLEOPENED"/>, <clink name="UPDATEBATTLEINFO"/>, detailing the state of all currently open battles</li>
+		<li>multiple <clink name="JOINEDBATTLE"/>, indiciating the clients present in each battle</li>
+        <li>multiple <clink name="CLIENTSTATUS"/>, detailing the statuses of all currently logged in users</li>
+      </ul>
+	  Finally, 
       it will send a <clink name="LOGININFOEND"/> command
-      indicating that it has finished sending the login info.
+      indicating that it has finished sending all this info. Note that, except for this final command, the commands/info listed above may be sent to the client in any order. 
       </Description>
     </Command>
 
@@ -607,19 +614,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 
     <Command Name="LOGININFOEND" Source="server">
       <Description>
-      Sent by the server, indicating that it has finished sending the login info
-      (which is sent immediately after accepting the LOGIN command).
-      This way, the client can figure out when the server has finished updating clients and battles info
-      and can therefore figure out when the login sequence is finished.
-      <br/>
-      Note that sending login info consists of 4 phases:
-      <ul>
-        <li>sending MOTD</li>
-        <li>sending list of all users currently logged on the server</li>
-        <li>sending info currently active battles</li>
-        <li>sending statuses of all users</li>
-      </ul>
-      This command is sent when the server has finished sending this info.
+      Sent by the server, indicating that it has finished sending the login info, completing the sequence initiated by <clink name="ACCEPTED"/>
       </Description>
       <Examples>
       </Examples>
@@ -659,9 +654,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       and wait for the user to accept/reject it).
       </Description>
       <Response>
-      A <clink name="CONFIRMAGREEMENT"/> command is expected from the client
-      in case the user agreed to the agreement.
-      Otherwise, the client should disconnect from the server.
+      A response is not mandatory, but the server now awaits a <clink name="CONFIRMAGREEMENT"/> command from the client, providing that the user agreed to the agreement.
+      Otherwise, the client should disconnect from the server, and restart the <clink name="LOGIN"/> sequence.
       </Response>
     </Command>
 
@@ -684,9 +678,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-       Sent by the server after the client has successfully logged in.
-       The server may send multiple MOTD commands
-       (each MOTD corresponds to one line, for example).
+       Sent by the server after <clink name="ACCEPTED"/>.
+       The server may send multiple MOTD commands, each MOTD corresponds to one line of the current welcome message.
       </Description>
       <Examples>
       </Examples>
