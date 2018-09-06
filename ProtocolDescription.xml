@@ -33,20 +33,33 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   All communication must be encoded in utf-8. Binary data is not permitted.
   </p>
   <p>
-  A <i>line</i>, also known as a <i>message</i>, consists of a single protocol command, plus its arguments, communicated as a single string.
+  A <i>line</i>, also known as a <i>message</i>, consists of a single protocol command, plus its arguments, communicated as a single string, and terminated by a newline character (\n).
   Lines may be of any length; 600 KB long strings have been verified to worked in both directions. 
-  Nevertheless, some commands (like <clink name="CLIENTS"/>) do divide the data they send into several lines, because it's clearer that way (and, historically it was necessary). 
   A natural implementation of the protocol will result in almost all lines being under 1 KB in length.
+  <!--Nevertheless, some commands (like <clink name="AGREEMENT"/>) do divide the data they send into several lines, but only for clarity.-->
   </p>
   <p>
-  The arguments of a protocol command come in two types: <i>words</i> and <i>sentences</i>. 
-  Word arguments are sequences of non-whitespace characters, and separated from each other by whitespaces.
+  Each line begins with a <i>command</i>, written in capitals. 
+  The arguments of the command, which come next, come in two types: <i>words</i> and <i>sentences</i>. 
+  Word arguments are sequences of non-whitespace characters, and are separated from each other by whitespaces.
   Sentence arguments are sequences of words (separated by whitespaces), 
-  which are considered as a single argument; sentences must be separated from other arguments by tab characters (<code>\t</code>).
+  which are considered as a single argument.
+  Sentences arguments are seperated from each other by tab characters (\t).
   </p>
   <p>
-  (So, when you talk to the server, make sure to find+replace all the places where you want your 'real' sentences to contain tabs, with whitespaces -- typically 2 or 8 whitespaces would be used for this, but it's your choice.
-  If you do not, your sentence arg will not be parsed correctly by the server.)
+  The word arguments of a command <i>always</i> come first, followed by its sentence arguments.
+  The last word argument is separated from the first sentence argument by a single whitespace.
+  Some examples:
+  </p>
+  <p>
+  <ul>
+  <li> <clink name="JOINEDBATTLE"/>, with 2 word arguments: <br/><code>JOINEDBATTLE 25869 oxido</code></li> 
+  <li> <clink name="UPDATEBATTLEINFO"/>, with 4 words and 1 sentence argument: <br/><code>UPDATEBATTLEINFO 25903 1 0 -210360064 Trojan Hills v03</code></li>
+  <li> <clink name="BATTLEOPENED"/>, with 7 words and 4 sentences: <br/><code>BATTLEOPENED 4437 0 0 BlackHoleHost6 71.2.10.1 8626 10 0 0 -1213614804 Spring 104.0 &#160;&#160; Coastline_Dry_V1 &#160;&#160; The BlackHoleHost - Conflict &#160;&#160; Balanced Annihilation V9.46</code></li>
+  </ul>
+  </p>
+  <p>
+  (So, when a client talks to the server, if you want to include a tab character in a sentence, you can't!)
   </p>
 
   <h4>Legend</h4>
@@ -54,10 +67,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   The following notation is used within the arguments of a command.
   A given argument should be assumed to be a word, unless {} is present, in which case it is a sentence.
   <ul>
-    <li>{} = a sentence. (Must be separated from other args by tab characters.)</li>
-    <li>{} {} ... = two or more sentences. (They must be separated by TAB characters.)</li>
-    <li>| = separates choices ("OR")</li>
-    <li>[] = an optional argument</li>
+    <li>{...} = a sentence arg </li>
+    <li>{...} {...} = two sentence args (which should be separated by a tab character!)</li>
+    <li>| = multiple choices for the argument i.e. "OR"</li>
+    <li>[...] = an optional argument</li>
   </ul>
   </p>
   
@@ -796,7 +809,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         Request that an active verification code to be re-sent.
 	  </Description>
       <Response>
-		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPT"/>
+		<clink name="RESENDVERIFICATIONDENIED"/> or <clink name="RESENDVERIFICATIONACCEPT"/>
       </Response>
     </Command>
 
@@ -828,13 +841,13 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-		The server will then add the corresponding user, AND their current ip, AND their current email address, to the server ban list.
+		Requests that the server add the corresponding user, AND their current ip, AND their current email address, to the server ban list.
  	  </Description>
       <Response>
         None. The server will give a response via server message(s).
 	  </Response>
       <Examples>
-        <Example>BANSPECIFIC [SMART]dude 1 sending private messages advertising viagra to everyone on the server </Example>
+        <Example>BAN [SMART]dude 1 spamming #sy</Example>
       </Examples>
     </Command>
 
@@ -849,9 +862,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
+		Requests that the server add the given arg (and nothing else, unlike <clink name="BAN"/>) to the server ban list.
+		<br/><br/>
 		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
-		The server will auto-recognize the input as one of these three forms (or reply with an error message).
-		The server will then add the given arg to the server ban list.
+		The server will auto-recognize the input as one of these three forms, or respond with an error message.
  	  </Description>
       <Response>
         None. The server will give a response via server message(s).
@@ -859,7 +873,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Examples>
         <Example>BANSPECIFIC [BaD]UserGuy 1.5 smurfing like a pro </Example>
         <Example>BANSPECIFIC 216.3.128.12 7 shooting wabbits out of sheason </Example>
-        <Example>BANSPECIFIC enormous_crocodile@hotmail.com 999 honking </Example>
+        <Example>BANSPECIFIC enormous_crocodile@hootmail.com 999 honking </Example>
       </Examples>
     </Command>
 
@@ -868,9 +882,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="username|ip|email" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
+		Requests that all bans matching the given input be removed from the server banlist.
+		<br/><br/>
 		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
-		The server will auto-recognize the input as one of these three forms (or reply with an error message).
-		All bans matching the given input will be removed.
+		The server will auto-recognize the input as one of these three forms, or respond with an error message.
 	  </Description>
       <Response>
         None. The server will give a response via server message(s).
@@ -892,7 +907,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
- 	    Add a domain to the blacklist; the server will deny verification attempts for email addresses ending in a blacklisted domain.
+ 	    Request that given domain be added to the blacklist. The server will deny verification attempts for all emails ending in a blacklisted domain.
 	  </Description>
       <Response>
         None. The server will give a response via server message(s).
@@ -906,7 +921,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="domain" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
- 	    Remove a domain from the blacklist.
+ 	    Request that the given domain be removed from the blacklist.
 	  </Description>
       <Response>
         None. The server will give a response via server message(s).
