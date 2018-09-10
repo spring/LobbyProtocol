@@ -750,11 +750,11 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 		If email verification is disabled, the response will be a <clink name="CHANGEEMAILREQUESTDENIED"/>, containing a message informing the user that a blank verification code will be accepted.
 	  </Description>
       <Response>
-		<clink name="CHANGEEMAILREQUESTDENIED"/> or <clink name="CHANGEEMAILREQUESTACCEPT"/>
+		<clink name="CHANGEEMAILREQUESTDENIED"/> or <clink name="CHANGEEMAILREQUESTACCEPTED"/>
       </Response>
     </Command>
 
-    <Command Name="CHANGEEMAILREQUESTACCEPT" Source="server">
+    <Command Name="CHANGEEMAILREQUESTACCEPTED" Source="server">
       <Description>
 	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
 		<br/><br/>
@@ -777,18 +777,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
           The email address the user wishes to change too. 
         </Argument>
         <Argument Name="verificationCode" Optional="yes" Sentence="no">
-		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPT"/>.
+		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPTED"/>.
 		</Argument>
       </Arguments>
       <Description>
         Asks the server to change the email address associated to the client. See also <clink name="CHANGEEMAILREQUEST"/>, which would typically be called first.
 	  </Description>
       <Response>
-		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPT"/>
+		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPTED"/>
       </Response>
     </Command>
 
-    <Command Name="CHANGEEMAILACCEPT" Source="server">
+    <Command Name="CHANGEEMAILACCEPTED" Source="server">
       <Description>
 	    Notifies that client that their email address was changed, in response to <clink name="CHANGEEMAIL"/>.
 	  </Description>
@@ -813,11 +813,11 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         Request that an active verification code to be re-sent.
 	  </Description>
       <Response>
-		<clink name="RESENDVERIFICATIONDENIED"/> or <clink name="RESENDVERIFICATIONACCEPT"/>
+		<clink name="RESENDVERIFICATIONDENIED"/> or <clink name="RESENDVERIFICATIONACCEPTED"/>
       </Response>
     </Command>
 
-    <Command Name="RESENDVERIFICATIONACCEPT" Source="server">
+    <Command Name="RESENDVERIFICATIONACCEPTED" Source="server">
       <Description>
 	    Notifies that a verification code was re-sent, in response to <clink name="RESENDVERIFICATION"/>.
 	  </Description>
