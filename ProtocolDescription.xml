@@ -171,9 +171,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   </p>
   <p>
   Currently, we don't have match-making. 
-  We do have a <clink name="FORCEJOINBATTLE:client"/> command,
-  and a compatibility flag 'm', 
-  which might one day form the basis for a match-making system.
   Contact a server admin if you are interested in developing this!
   </p>
 
@@ -325,6 +322,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 		  </li>
 	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
     <li> All SAYDATA* commands were removed. </li>
+    <li> The FORCEJOINBATTLE command set was removed. </li>
     </ul>
  
  </Version>
@@ -348,8 +346,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
       <li><b>b</b>: battle authorization 
         <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
-      <li><b>m</b>: basic match-making 
-        <clink name="FORCEJOINBATTLE:server"/></li>
+      <li><b>m</b>: basic match-making (edit: no longer valid)</li>
       <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (note: currently unimplemented by server!)</li>
       <li><b>sd</b>: SAYDATA* commands (note: no longer valid)</li>
       <li><b>cl</b>:
@@ -2394,47 +2391,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       not just for the current or last game.
       </Description>
    </Command>
-
-    <Command Name="FORCEJOINBATTLE" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      A client may send this command if he is a battle host or a lobby moderator.
-      The server will decide if they are, and send a command to the addressed user.
-      See the <i>Match-Making</i> section in the beginning of this document for more details.
-      </Description>
-      <Response>
-      See <clink name="FORCEJOINBATTLE:server"/> and <clink name="FORCEJOINBATTLEFAILED:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="FORCEJOINBATTLE" Source="server">
-      <Arguments>
-        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent to a user specified in a previous <clink name="FORCEJOINBATTLE:client"/>
-      command which was received on the server form an other client (host or lobby moderator).
-      The receiving client must subsequently comply by sending a
-      <clink name="JOINBATTLE:client"/> command to the server.
-      See the <i>Match-Making</i> section in the beginning of this document for more details.
-      </Description>
-    </Command>
-
-    <Command Name="FORCEJOINBATTLEFAILED" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to the user who just sent a <clink name="FORCEJOINBATTLE:client"/> request,
-      in the case of it being rejected by the server.
-      </Description>
-    </Command>
 
     <Command Name="LISTCOMPFLAGS" Source="client">
       <Description>
