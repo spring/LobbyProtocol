@@ -147,20 +147,20 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <h4>Email Verification</h4>
   <p>
   If a valid 'server_email_account.txt' exists (in the same directory as <code>server.py</code>), then Uberserver will carry out email verification. 
-  In order to verify an email address: the server sends a four digit verification code to an email address, the user/lobby must send this code back to the server.
+  In order to verify an email address: the server sends a four digit verification code to an email address, and the client must send this code back to the server.
   Each verification code is valid for 24h, and allows max 3 attempts at verification.
   Currently, the same email address can be used to verify multiple accounts, but this may change in future.
   </p>
   <p>
   If email verification is enabled, then it is required for registering a new account and for changing email address.
-  In this case, both <clink name="REGISTRATIONACCEPTED:server"/> and <clink name="CHANGEEMAILREQUEST:server"/> cause a verification code to be created, and sent.
+  In this case, both <clink name="REGISTRATIONACCEPTED"/> and <clink name="CHANGEEMAILREQUESTACCEPTED"/> cause a verification code to be created, and sent.
   The verification code is expected back in <clink name="CONFIRMAGREEMENT"/> and <clink name="CHANGEEMAIL"/> respectively.
   It can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
   </p>
   <p>
   Lobby clients should always assume that verification is enabled.
-  However, if verification is not enabled, then all email address and verification code fields can be left blank (or fed arbitrary data). 
-  In this case, no verification codes will be sent, and all verification attempts will automatically pass.
+  However, if verification is not enabled, then no verification codes will be sent, and all verification attempts will automatically pass.
+  In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
   </p>
 
   <h4>Match-Making</h4>
