@@ -330,7 +330,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 	
   <Version Name="0.37">
   <ul>
-	<li>Added the <clink name="FORCEJOINBATTLE"/> command.</li>
+	<li>Added the FORCEJOINBATTLE command set.</li>
     <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>Added the <clink name="IGNORE"/> command set.</li>
