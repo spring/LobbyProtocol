@@ -197,13 +197,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <!--It will probably not work in LAN mode, especially if combined with players from the internet.-->
   </p>
    
-  <h4>Decoupling games from battle-rooms</h4>
-  <p>
-  At some point we hope to implement the  
-  <clink name="CONNECTUSER:client"/> command set. There are the only commands documented below that are currently unimplemented.
-  These commands will allow to initiate games without creating/joining a battle-room.
-  </p>
-
   <h3>Hosting battles</h3>
   <p>
   Any client may host a <i>battleroom</i>, also referred to as a <i>battle</i>, which is (effectively) a special type of chat channel with extra features related to setting up and launching a multi-player game.
@@ -316,14 +309,14 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
         while before it was the same in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is sent in plaintext format</li>
-      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (note: currently unimplemented by server!)</li>
-      <li><b>sd</b>: SAYDATA* command set </li>
-      <li><b>m</b>: FORCEJOINBATTLE command set</li>
+      <li><b>cu</b>: CONNECTUSER command set (note: these commands were later removed)</li>
+      <li><b>sd</b>: SAYDATA* command set (note: these commands were later removed)</li>
+      <li><b>m</b>: FORCEJOINBATTLE command set (note: these commands were later removed)</li>
     </ul></p>
   </CompatFlags>  
   
   <Versions>
- <Version Name="0.xx -- current">  
+ <Version Name="0.38 -- current dev/live version --">  
   <ul>
     <li> Uberserver now supports email verification. See above. 
 	<ul>
@@ -369,7 +362,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <li>Added the <clink name="FORCEJOINBATTLE"/> command set.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> command set (unimplemented).</li>
+    <li>Added the CONNECTUSER command set (edit: removed in 0.38).</li>
     <li>Added the SAYDATA* command set (edit: removed in 0.38) </li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
@@ -2417,52 +2410,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
     </Command>
 
-    <Command Name="CONNECTUSER" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no">
-        This might be IP v4 or v6, and has to be in the form "IP:Port".
-        </Argument>
-        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
-      The client may send this command if it is a battle host or lobby moderator.
-      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user,
-      or <clink name="CONNECTUSERFAILED:server"/> to the client issuing this command.
-      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
-      </Description>
-      <Response>
-      See <clink name="CONNECTUSER:server"/> and <clink name="CONNECTUSERFAILED:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="CONNECTUSER" Source="server">
-      <Arguments>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no">
-        This might be IP v4 or v6, and has to be in the form "IP:Port".
-        </Argument>
-        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
-       </Arguments>
-      <Description>
-	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
-      Instructs the client to connect spring to the given IP:port
-      with the script password given in <clink name="CONNECTUSER:client"/>.
-      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
-      </Description>
-    </Command>
-
-    <Command Name="CONNECTUSERFAILED" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-	  WARNING: NOT IMPLEMENTED!!!<br/><br/>  
-      Sent by the server to the user who just sent a <clink name="CONNECTUSER:client"/> request,
-      in the case of it being rejected by the server.
-      </Description>
-    </Command>
 
     <Command Name="IGNORE" Source="client">
       <Arguments>
