@@ -73,23 +73,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <li>[...] = an optional argument</li>
   </ul>
   </p>
-  
-  <h4>Argument order</h4>
   <p>
-  All commands, except for some developer/admin specific commands, are listed below.
+  All commands, except for some developer/admin specific commands, are listed in the commands section of this document.
   Their arguments are listed in order, and should be sent in that order.
   </p>
-  <p>
-  In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
-  The details below refer to the latest version of the protocol, and assume that the client has all the latest compatibility flag present.
-  </p>
-  <p>
-  <!-- For future use (currently only applies to PROMOTE):
+  <!--<p>
+  For future use (currently only applies to PROMOTE):
   A few commands require that they be invoked using a JSON format, which allows arguments to be named (and, consequently, sent in any order).
   Named arguments can be written in any order and the names are case sensitive, e.g. username != userName.
   The main benefit of named arguments is that they help with backwards compatibility when the protocol changes, and it is planned that more commands will use JSON in future, particularly commands related to statuses and battles. 
-  -->
+  
   </p>
+-->
 
   <h3>Protocol rules</h3>
   <h4> Keep-alive signals</h4>
@@ -304,6 +299,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <li><b>sd</b>: SAYDATA* command set (note: these commands were later removed)</li>
       <li><b>m</b>: FORCEJOINBATTLE command set (note: these commands were later removed)</li>
     </ul></p>
+  <p>
+  In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
+  The details below refer to the latest version of the protocol, and assume that the client has all the latest compatibility flag present.
+  </p>
   </CompatFlags>  
   
   <Versions>

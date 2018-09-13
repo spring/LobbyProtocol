@@ -59,20 +59,6 @@
 	  </td></tr>
     </table>
 
-    <h2> Statistics </h2>
-    <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
-      <tr><td>
-		<p>
-		Some statistics on this document:<br />
-        <ul>
-        <li>Number of commands described: <xsl:value-of select="count(//Command)"/></li>
-        <li>Number of client commands: <xsl:value-of select="count(//Command[@Source='client'])"/></li>
-        <li>Number of server commands: <xsl:value-of select="count(//Command[@Source='server'])"/></li>
-        </ul>
-		</p>
-	  </td></tr>
-    </table>
-
     <h2> Compatability Flags </h2>
     <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
       <tr><td>
@@ -95,7 +81,6 @@
     </xsl:if>
 
     <h2>Command list</h2>
-
     <xsl:for-each select="CommandList/Command">
 
       <xsl:variable name="headercolor">
@@ -163,12 +148,29 @@
         </tr>
       </table>
       <br />
-      <br />
     </xsl:for-each>
 
+
+    <h2> Statistics </h2>
+    <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
+      <tr><td>
+		<p>
+		Some statistics on this document:<br />
+        <ul>
+        <li>Number of commands described: <xsl:value-of select="count(//Command)"/></li>
+        <li>Number of client commands: <xsl:value-of select="count(//Command[@Source='client'])"/></li>
+        <li>Number of server commands: <xsl:value-of select="count(//Command[@Source='server'])"/></li>
+        </ul>
+		</p>
+	  </td></tr>
+    </table>
+      <br />
+	
+	
   </body>
   </html>
 </xsl:template>
+
 
 <!-- this overrides default built-in template for text nodes. Currently doesn't do anything useful! -->
 <xsl:template match="text()">
@@ -211,6 +213,8 @@
       </xsl:choose>
     </xsl:otherwise>
   </xsl:choose>
+  
+  
 
 </xsl:template>
 
