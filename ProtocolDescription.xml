@@ -168,8 +168,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   By match-making, we mean a somewhat abstract way of automating
   the process of users finding each other in battle rooms
   and then starting a game of a type that they like.
-  </p>
-  <p>
   Currently, we don't have match-making. 
   Contact a server admin if you are interested in developing this!
   </p>
@@ -294,10 +292,38 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
    
   </Intro>
 
+  <CompatFlags>
+      <i>Compatibility-Flags: </i>
+        This list details the current compatibility flags a client may send
+        with the <clink name="LOGIN:client"/> command.
+		Clients should update their behaviour for compatibility with the changes below, and send the appropriate flag to announce compatibility.
+		<br/><br/>
+        This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
+    <p><ul>
+      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
+      <li><b>b</b>: battle authorization 
+        <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
+      <li><b>cl</b>:
+        <ul>
+        <li>added <clink name="CHANGEEMAIL"/></li>
+        <li>added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+        <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
+        </ul>
+      </li>
+      <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
+        and change the time resolution of the changedTime argument in
+        <clink name="CHANNELTOPIC:server"/>,
+        which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
+        while before it was the same in milliseconds</li>
+      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is sent in plaintext format</li>
+      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (note: currently unimplemented by server!)</li>
+      <li><b>sd</b>: SAYDATA* command set </li>
+      <li><b>m</b>: FORCEJOINBATTLE command set</li>
+    </ul></p>
+  </CompatFlags>  
+  
   <Versions>
-
- 
- <Version Name="0.xx">  
+ <Version Name="0.xx -- current">  
   <ul>
     <li> Uberserver now supports email verification. See above. 
 	<ul>
@@ -327,44 +353,15 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
  
  </Version>
 
-	
+
   <Version Name="0.37">
   <ul>
-	<li>Added the FORCEJOINBATTLE command set.</li>
-    <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>Added the <clink name="IGNORE"/> command set.</li>
     <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
+	<li>Added the FORCEJOINBATTLE command set (edit: removed in 0.38).</li>
+    <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
   </ul>
-  <ul>
-  <li>
-      <i>Compatibility-Flags: </i>
-        This list details the current compatibility flags a client may send
-        with the <clink name="LOGIN:client"/> command.
-        This list will be emptied whenever a new protocol version gets released.
-    <p><ul>
-      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
-      <li><b>b</b>: battle authorization 
-        <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
-      <li><b>m</b>: basic match-making (edit: no longer valid)</li>
-      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (note: currently unimplemented by server!)</li>
-      <li><b>sd</b>: SAYDATA* commands (note: no longer valid)</li>
-      <li><b>cl</b>:
-        <ul>
-        <li>added <clink name="CHANGEEMAIL"/></li>
-        <li>added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
-        <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
-        </ul>
-      </li>
-      <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
-        and change the time resolution of the changedTime argument in
-        <clink name="CHANNELTOPIC:server"/>,
-        which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
-        while before it was the same in milliseconds</li>
-      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
-    </ul></p>
-    </li>
-	</ul>
   </Version>
 
   <Version Name="0.36">
