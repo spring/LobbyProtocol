@@ -163,15 +163,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
   </p>
 
-  <h4>Match-Making</h4>
-  <p>
-  By match-making, we mean a somewhat abstract way of automating
-  the process of users finding each other in battle rooms
-  and then starting a game of a type that they like.
-  Currently, we don't have match-making. 
-  Contact a server admin if you are interested in developing this!
-  </p>
-
   <h4>Syncing</h4>
   <p>
   To be in <i>sync</i> means to have the same versions of all the content
