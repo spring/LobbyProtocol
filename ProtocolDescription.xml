@@ -1357,58 +1357,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
     </Command>
 
-	
-<!-- udp port commands -->
-
-    <Command Name="UDPSOURCEPORT" Source="server">
-      <Arguments>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent as a response to a client's UDP packet
-      (used with "hole punching" NAT traversal technique).
-      </Description>
-      <Examples>
-        <Example>UDPSOURCEPORT 52361</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="CLIENTIPPORT" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent to the battle's host, notifying him about another client's IP address
-      and his public UDP source port.
-      The host needs to know public UDP source ports of all players in his battle
-      in order for the <i>Hole punching</i> technique to work.
-      The IP is needed for both NAT traversal methods
-      ("hole punching" and "fixed source ports").
-      This command is sent to the the battle host immediately after a new user joins the battle
-      (currently only if some NAT traversal technique is used).
-      </Description>
-    </Command>
-
-    <Command Name="HOSTPORT" Source="server">
-      <Arguments>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server to all clients participating in the battle
-      (except for the host), notifying them about the new host port.
-      This message will only be sent right before the host starts a game,
-      if this battle is being hosted using "hole punching" NAT traversal technique.
-      When a client receives this message,
-      he should replace the battle's host port with this new port,
-      so that when the game actually starts,
-      he will connect to this new port,
-      rather than to the port which the host selected when he initialy started the battle
-      (with the <clink name="OPENBATTLE"/> command).
-      </Description>
-    </Command>
-	
 <!-- joining/opening battle commands -->
 	
     <Command Name="OPENBATTLE" Source="client">
@@ -1586,10 +1534,14 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Notifies a client that their request to <clink name="JOINBATTLE:client"/> was successful, and that they have just joined the battle.
+      <br/><br/>
+	  Clients in the battle will be notified of the new user via <clink name="JOINEDBATTLE"/>.
 	  <br/><br/>      
-	  Next, the server will send a series of commands, which might include <clink name="DISABLEUNITS"/>, <clink name="ADDBOT"/> <clink name="ADDSTARTRECT"/> and so on, 
+	  Next, the server will send a series of commands to the newly joined client, which might include <clink name="DISABLEUNITS"/>, <clink name="ADDBOT"/>, <clink name="ADDSTARTRECT"/>, <clink name="SETSCRIPTTAGS"/> and so on, 
 	  along with multiple <clink name="CLIENTBATTLESTATUS"/>, in order to describe the current state of the battle to the joining client.
-      </Description>
+	  <br/><br/>
+	  If the battle has natType>0, the server will also send the clients IP port to the host, via the <clink name="CLIENTIPPORT"/> command. <i> Someone who knows more about this should write more! </i>
+	  </Description>
     </Command>
 
     <Command Name="JOINBATTLEFAILED" Source="server">
@@ -1648,6 +1600,58 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
     </Command>
 
+<!-- udp port commands -->
+
+    <Command Name="UDPSOURCEPORT" Source="server">
+      <Arguments>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent as a response to a client's UDP packet
+      (used with "hole punching" NAT traversal technique).
+	  <br/><i> Someone who knows more about this should document it!</i>
+      </Description>
+      <Examples>
+        <Example>UDPSOURCEPORT 52361</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="CLIENTIPPORT" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to the battle's host, notifying him about another client's IP address
+      and his public UDP source port. 
+      <!--The host needs to know public UDP source ports of all players in his battle
+      in order for the <i>Hole punching</i> technique to work.
+      The IP is needed for both NAT traversal methods
+      ("hole punching" and "fixed source ports").
+      This command is sent to the the battle host immediately after a new user joins the battle
+      (currently only if some NAT traversal technique is used).-->
+      </Description>
+    </Command>
+
+    <Command Name="HOSTPORT" Source="server">
+      <Arguments>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server to all clients participating in the battle, except for the host, notifying them about the (possibly new) host port.
+      <!--This message will only be sent right before the host starts a game,
+      if this battle is being hosted using "hole punching" NAT traversal technique.
+      When a client receives this message,
+      he should replace the battle's host port with this new port,
+      so that when the game actually starts,
+      he will connect to this new port,
+      rather than to the port which the host selected when he initialy started the battle
+      (with the <clink name="OPENBATTLE"/> command).-->
+      </Description>
+    </Command>
+		
+	
 <!-- battle state commands -->
 	
     <Command Name="UPDATEBATTLEINFO" Source="server">
@@ -1663,7 +1667,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         A boolean ("0" (for false) or "1").
         Note that when the client creates a battle,
         the server assumes it is unlocked (by default).
-        The client must make sure it uses this same default.
+        The client must make sure it assumes this same default.
         </Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer.
@@ -1688,7 +1692,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         A boolean ("0" (for false) or "1").
         Note that when the client creates a battle,
         the server assumes it is unlocked (by default).
-        The client must make sure it uses this same default.
+        The client must make sure it assumes this same default.
         </Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer.
@@ -1710,14 +1714,11 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Send a chat message to all clients participating in a battle.
-      A 'battleID' argument is not required,
-      since every user can participate in only one battle at a time.
-      If the user is not participating in any battle,
-      receiption of this command is considered invalid
-      and will therefore be ignored.
+      (A 'battleID' argument is not required,
+      since every user can participate in only one battle at a time.)
       </Description>
       <Response>
-      See <clink name="SAIDBATTLE:server"/>.
+      <clink name="SAIDBATTLE:server"/>.
       </Response>
     </Command>
 
@@ -1729,11 +1730,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
       Sent to the participants of a battle when a client sent a chat message to it,
       using the <clink name="SAYBATTLE:client"/> command.
-      A 'battleID' is not required,
-      since every client knows which battle he is participating in,
-      since every client may participate in only one battle at a time.
-      If the client is not participating in any battle,
-      he should ignore this command or raise an error.
+      (A 'battleID' is not required,
+      since every client knows which battle he is participating in.)
       </Description>
     </Command>
 
@@ -1744,12 +1742,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
       Sent by any client participating in a battle
       when he wants to say something in "/me" IRC style.
-      The server can forge this command too
-      (for example, when the founder of the battle kicks a user,
-      the server uses this command to indicate what just happened).
+      Also gets sent by the server to inform users when e.g. a user is kicked from the battle.
       </Description>
       <Response>
-      See <clink name="SAIDBATTLEEX:server"/>.
+      <clink name="SAIDBATTLEEX:server"/>.
       </Response>
     </Command>
 
@@ -1763,6 +1759,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       when the client sent the <clink name="SAYBATTLEEX:client"/> command.
       </Description>
     </Command>
+	
+<!-- client status changes -->
 
     <Command Name="MYSTATUS" Source="client">
       <Arguments>
@@ -1784,9 +1782,13 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by a client to inform the server about his changed status.
-      To figure out if a battle is "in-game",
-      a client must check the in-game status of the host.
+      <br/><br/>
+	  Note: To tell out if a battle is "in-game", a client must check the in-game status of the host.
       </Description>
+	  <Response>
+	  The status change will be communicated to relevant users via <clink name="CLIENTSTATUS"/> commands.<br/><br/>
+	  If a battle founder changes from being not in-game to being in-game, <clink name="HOSTPORT"/> commands will be sent to users in their battle.
+	  </Response>
     </Command>
 
     <Command Name="CLIENTSTATUS" Source="server">
@@ -1839,6 +1841,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
       Sent by a client to the server, telling him his battle status changed.
       </Description>
+	  <Response>
+	  The status change will communicated to relevant users via the <clink name="CLIENTBATTLESTATUS"/> and <clink name="UPDATEBATTLEINFO:server"/> commands.
+	  </Response>
     </Command>
 
     <Command Name="CLIENTBATTLESTATUS" Source="server">
@@ -1862,15 +1867,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <Command Name="REQUESTBATTLESTATUS" Source="server">
       <Description>
       Sent by the server to a user which just opened a battle or joined one.
-      This command is sent after all <clink name="CLIENTBATTLESTATUS"/>
+      Sent after all <clink name="CLIENTBATTLESTATUS"/>
       commands for all clients have been sent.
-      This way, the user can choose a suitable team, ally-team and color,
-      since he knows the battle statuses of other clients already.
       </Description>
       <Response>
-      When a client receives this command,
-      he has to send the <clink name="MYBATTLESTATUS"/> command to the server,
-      so that the server can synchronize the battle status with the other clients.
+      This command is an invitation for the user with a <clink name="MYBATTLESTATUS"/> and choose a suitable team, ally-team and color,
+      since the user now knows the battle statuses of other clients.
       </Response>
     </Command>
 
