@@ -1409,14 +1409,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
     </Command>
 	
-<!-- battle commands -->
+<!-- joining/opening battle commands -->
 	
-    <Command Name="PROMOTE" Source="client">
-      <Description>
-		This command posts a message in particular channels, calling for players. It is currently the (only) test case for using a JSON format in the lobby protocol, and consequently is not included in this documentation.
-	  </Description>
-    </Command>
-
     <Command Name="OPENBATTLE" Source="client">
       <Arguments>
         <Argument Name="type" Optional="no" Sentence="no">
@@ -1437,39 +1431,37 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="gameHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="rank" Optional="no" Sentence="no"/>
+        <Argument Name="rank" Optional="no" Sentence="no">
+		The minimum rank required for a client in the battle to be allowed to become a player.
+		</Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">Use 'Spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', same format as in <clink name="TASSERVER:server"/></Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'cl' )
-      The client becomes a founder of this battle, if the command is successful.
-
+      Sent by the client requesting to open a new battle. 
+      If the command is successful, the client becomes the founder (i.e. host) of the new battle.
+	  <br/><br/>
+	  Clients without botflags will have their maxPlayers capped at 10; 
+	  the founding client will be informed via a server message if the server applies this limitation.
       </Description>
       <Response>
-      The cient is notified about this command's success
-      via the <clink name="OPENBATTLE:server"/> /<clink name="OPENBATTLEFAILED:server"/> commands.
+      If accepted: <clink name="BATTLEOPENED"/> and <clink name="OPENBATTLE:server"/><br/>
+	  If denied: <clink name="OPENBATTLEFAILED:server"/> 
       </Response>
     </Command>
 
-    <Command Name="OPENBATTLE" Source="server">
+    <Command Name="OPENBATTLEFAILED" Source="server">
       <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a client who previously sent a <clink name="OPENBATTLE:client"/> command,
-      if the client's request to open a new battle has been approved.
-      If the server rejected the request,
-      the client is notified via the <clink name="OPENBATTLEFAILED"/> command.
-      The server first sends a <clink name="BATTLEOPENED"/>, then this command
-      (this is important - the client must have the battle in his battle list
-      before he receives this command!).
+      Informs a client that tried to open a battle that their request has been rejected.
       </Description>
     </Command>
 
@@ -1497,7 +1489,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         </Argument>
         <Argument Name="rank" Optional="no" Sentence="no"/>
         <Argument Name="mapHash" Optional="no" Sentence="no">
-        A signed 32-bit integer as returned from (acquired via the unitsync library).
+        A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
         <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
         <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
@@ -1506,20 +1498,22 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to all registered users,
-      when a new battle has been opened. ( Compatibility-Flag need: 'cl' )
-      A series of instances of this command are sent to user when he logs in
-      (1 command for each battle).
+      Sent by the server to all registered users, when a new battle becomes open. 
       </Description>
     </Command>
 
-    <Command Name="BATTLECLOSED" Source="server">
+    <Command Name="OPENBATTLE" Source="server">
       <Arguments>
         <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent when the founder has closed a battle (or if he was disconnected).
-      </Description>
+      Sent to a client who previously sent an <clink name="OPENBATTLE:client"/> command,
+      if the client's request to open a new battle has been approved. 
+	  <br/><br/>
+	  Note that the corresponding <clink name="BATTLEOPENED"/> command is sent <i>before</i> this command is used to reflect the successful <clink name="OPENBATTLE:client"/> command back to the client.
+	  <br/><br/>
+      After sending this command, the server will send a <clink name="JOINBATTLE:server"/> (to notify the founding client that they have joined their own battle) followed by a <clink name="REQUESTBATTLESTATUS"/>.
+	  </Description>
     </Command>
 
     <Command Name="JOINBATTLE" Source="client">
@@ -1527,36 +1521,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="battleID" Optional="no" Sentence="no"/>
         <Argument Name="password" Optional="yes" Sentence="no"/>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no">
-        A random, client-generated string,
-        wich will be written to script.txt by the host,
-        to avoid account spoofing
-        (= someone is trying to join the battle under a wrong user-name).
-        If set, the password has to be set too, even if it is empty.
+        A random, client-generated string (which is used to avoid account spoofing ingame, and will appear in script.txt).
+        Note that if this argument is sent, a password must be sent too. If the battle is not passworded then an empty password should be sent.
         </Argument>
       </Arguments>
       <Description>
-      Sent by a client trying to join a battle.
-      The password is an optional parameter.
+      Sent by a client requesting to join a battle.
       </Description>
-    </Command>
-
-    <Command Name="JOINBATTLE" Source="server">
-      <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
-        <Argument Name="hashCode" Optional="no" Sentence="no">
-        A signed 32-bit integer.
-        </Argument>
-      </Arguments>
-      <Description>
-      Tells the client that he has just joined the battle successfully.
-      The server will also send a series of
-      <clink name="CLIENTBATTLESTATUS"/> commands after this command,
-      so that the user will get the battle statuses of all the clients in the battle.
-	  <br/><br/>
-	  The hashCode is a value computed using the current map, game, and other dependencies, of the battle.
-	  It is used to check that the client has correct non-corrupt downloads of the required content.
-      </Description>
-    </Command>
+	  <Response>
+	  The server will reply to the client with either <clink name="JOINBATTLE:server"/> or <clink name="JOINBATTLEFAILED"/>. 
+	  In order to determine which response is given, the server will typically send a <clink name="JOINBATTLEREQUEST"/> to the battle founder, and wait for the reply. 
+	  </Response>
+	</Command>
 
     <Command Name="JOINBATTLEREQUEST" Source="server">
       <Arguments>
@@ -1564,16 +1540,11 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="ip" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to a battle founder,
-      each time a client requests to join his battle,
-      if the battle founder supports the battle authorization system
-      (i.e., he provided the battle authorization compatibility flag ('b')
-      in the <clink name="LOGIN"/> command).
+      Sent by the server to a battle founder, each time a client requests to join his battle.
       </Description>
       <Response>
-      When the client receives this command,
-      he must send either a <clink name="JOINBATTLEACCEPT"/>
-      or a <clink name="JOINBATTLEDENY"/> command to the server.
+      The battle founder should reply with either <clink name="JOINBATTLEACCEPT"/>
+      or <clink name="JOINBATTLEDENY"/>.
       </Response>
     </Command>
 
@@ -1582,9 +1553,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client in response to a <clink name="JOINBATTLEREQUEST"/> command
-      in order to allow the user to join the battle.
+      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to allow the user to join their battle.
       </Description>
+      <Response>
+      None. The client server will now send <clink name="JOINBATTLE:server"/> to the client, and join the client to the battle.
+      </Response>
     </Command>
 
     <Command Name="JOINBATTLEDENY" Source="client">
@@ -1593,8 +1567,37 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client in response to a <clink name="JOINBATTLEREQUEST"/> command
-      in order to prevent the user from joining the battle.
+      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to disallow the user to join their battle.
+      </Description>
+      <Response>
+      None. The client server will now send <clink name="JOINBATTLEFAILED"/> to the client.
+      </Response>
+    </Command>
+
+    <Command Name="JOINBATTLE" Source="server">
+      <Arguments>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="hashCode" Optional="no" Sentence="no">
+        A signed 32-bit integer (acquired via the unitsync library).
+  	    This code is computed using the current map, game, and other dependencies.
+	    It is used to check that the client has correct non-corrupt downloads of the required content.
+        </Argument>
+      </Arguments>
+      <Description>
+      Notifies a client that their request to <clink name="JOINBATTLE:client"/> was successful, and that they have just joined the battle.
+	  <br/><br/>      
+	  Next, the server will send a series of commands, which might include <clink name="DISABLEUNITS"/>, <clink name="ADDBOT"/> <clink name="ADDSTARTRECT"/> and so on, 
+	  along with multiple <clink name="CLIENTBATTLESTATUS"/>, in order to describe the current state of the battle to the joining client.
+      </Description>
+    </Command>
+
+    <Command Name="JOINBATTLEFAILED" Source="server">
+      <Arguments>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Notifies a client that their request to <clink name="JOINBATTLE:client"/> was denied.
       </Description>
     </Command>
 
@@ -1628,28 +1631,25 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <Command Name="LEAVEBATTLE" Source="client">
       <Description>
       Sent by the client when he leaves a battle.
-      Also sent by a founder of the battle when he closes his battle.
+	  <br/><br/>
+      When this command is by the founder of a battle, it notifies that the battle is now closed.
       </Description>
+	  <Response>
+	  If sent by the founder, <clink name="BATTLECLOSED"/>.
+	  </Response>
     </Command>
 
-    <Command Name="JOINBATTLEFAILED" Source="server">
+    <Command Name="BATTLECLOSED" Source="server">
       <Arguments>
-        <Argument Name="reason" Optional="no" Sentence="yes"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Tells a user that just tried to join a battle that he has been rejected.
+      Sent to all users to notify that a battle has been closed.
       </Description>
     </Command>
 
-    <Command Name="OPENBATTLEFAILED" Source="server">
-      <Arguments>
-        <Argument Name="reason" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Tells a user that just tried to open a battle that this request has been rejected.
-      </Description>
-    </Command>
-
+<!-- battle state commands -->
+	
     <Command Name="UPDATEBATTLEINFO" Source="server">
       <Arguments>
         <Argument Name="battleID" Optional="no" Sentence="no"/>
@@ -2520,6 +2520,12 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Examples>
         <Example>UNSUBSCRIBE chanName=sy</Example>
       </Examples>
+    </Command>
+
+    <Command Name="PROMOTE" Source="client">
+      <Description>
+		This command posts a message in particular channels, calling for players. It is currently the (only) test case for a client command used JSON format.
+	  </Description>
     </Command>
 
     <Command Name="FAILED" Source="server">
