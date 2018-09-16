@@ -1885,9 +1885,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by the founder of the battle when changing a user's handicap value
-      (which is part of his battle status).
-      Only the founder can change other users handicap values
-      (even they themselves ca not change it).
+      (which is part of that users battle status).
+      <br/><br/>
+	  Only the founder can change other users handicap values, and that requests from non-founder users will be ignored.
       </Description>
     </Command>
 
@@ -1896,24 +1896,20 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of the battle when he kicks a client out of the battle.
-      The server removes the client from the battle
-      and notifies him about it via the <clink name="FORCEQUITBATTLE:server"/> command.
+      Sent by the founder of the battle, to tell the server to kick a client from the battle.
+      The server removes the target client from the battle and notifies the target client via <clink name="FORCEQUITBATTLE:server"/> command.
       </Description>
     </Command>
 
     <Command Name="FORCEQUITBATTLE" Source="server">
       <Description>
-      Sent to a client that just got kicked by the battle founder,
-      using the <clink name="KICKFROMBATTLE"/> command.
-      the client does not need to send the <clink name="LEAVEBATTLE"/> command,
-      as that is already done by the server.
-      The only purpose of this command,
-      is to notify the client that he was kicked from the battle.
-      Note that the client should close the battle internally,
-      since he is no longer a part of it
-      (or he can do that once he receives
-      the <clink name="LEFTBATTLE:server"/> command containing his user name).
+      Sent to a client that was kicked from their current battle by the battle founder.
+      <br/><br/>
+	  The client does not need to send <clink name="LEAVEBATTLE"/>,
+      as removal has already been done by the server.
+      The only purpose of this command
+      is to notify the client that they were kicked.
+      (The client will also recieve a corresponding <clink name="LEFTBATTLE:server"/> notification.)
       </Description>
     </Command>
 
@@ -1924,7 +1920,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's team number to 'teamNo'.
+      to change the team number of a user.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1936,7 +1932,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's ally number to 'allyno'.
+      to change the ally team number of a user.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1953,7 +1949,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's team color to 'color'.
+      to change the team colour of a team.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1964,7 +1960,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's mode to 'spectator'.
+      to force a given user to become a spectator.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1978,9 +1974,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of a battle,
-      telling the server that he disabled one or more units.
-      At least one unit name must be passed as an argument.
+      Sent by the founder of a battle
+      to tell the server that one or more units are now disabled.
+      The server will update the client's battle status automatically.
       </Description>
     </Command>
 
@@ -1993,7 +1989,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
+      Sent by the server to all clients in a battle,
       telling them that some units have been added to disabled units list.
       Also see the <clink name="DISABLEUNITS:client"/> command.
       </Description>
@@ -2008,9 +2004,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of the battle,
-      telling the server that he enabled one or more previously disabled units.
-      At least one unit name must be passed as an argument.
+      Sent by the founder of a battle
+      to tell the server that one or more units are now enabled.
+      The server will update the client's battle status automatically.
       </Description>
     </Command>
 
@@ -2023,8 +2019,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
-      telling them that some units have been removed from disabled units list.
+      Sent by the server to all clients in a battle,
+      telling them that some units have been added to enabled units list.
+      Also see the <clink name="DISABLEUNITS:client"/> command.
       </Description>
     </Command>
 
@@ -2038,7 +2035,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 
     <Command Name="ENABLEALLUNITS" Source="server">
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
+      Sent by the server to all clients in a battle,
       telling them that the disabled units list has been cleared.
       </Description>
     </Command>
@@ -2048,10 +2045,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client to the server when trying to play a "ring" sound to an other user.
-      Only privileged users can ring everyone,
-      although "normal" clients can ring players participating in their battle
-      when they are hosting.
+      Sent to request that a "ring" sound to be played to other user.
       </Description>
       <Response>
       See <clink name="RING:server"/>.
@@ -2063,39 +2057,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Telling a client that a user just rang.
-      As a consequence, the client should play the "ring" sound.
-      </Description>
-    </Command>
-
-    <Command Name="REDIRECT" Source="server">
-      <Arguments>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server when running in "redirection mode".
-      When a client connects, the server will send him only this message
-      and disconnect the socket immediately.
-      The client should connect to the given IP and port, in that case.
-      This command may be useful when the official server ip/address changes,
-      so that clients are automatically redirected to the new one.
-      </Description>
-      <Examples>
-        <Example>
-        REDIRECT 87.96.164.14 8200
-        </Example>
-      </Examples>
-    </Command>
-
-    <Command Name="BROADCAST" Source="server">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server when an urgent message has to be delivered to all users.
-      The lobby client program should display this message either in some system log
-      or in some message box (the user has to see this message!).
+      Sent to notify a client that another user requested that a "ring" sound be played to them.
       </Description>
     </Command>
 
@@ -2522,6 +2484,37 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Examples>
         <Example>UNSUBSCRIBE chanName=sy</Example>
       </Examples>
+    </Command>
+
+
+    <Command Name="REDIRECT" Source="server">
+      <Arguments>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server when running in "redirection mode".
+      When a client connects, the server will send him only this message
+      and disconnect the socket immediately.
+      The client should connect to the given IP and port, in that case.
+      This command may be useful when the official server ip/address changes,
+      so that clients are automatically redirected to the new one.
+      </Description>
+      <Examples>
+        <Example>
+        REDIRECT 87.96.164.14 8200
+        </Example>
+      </Examples>
+    </Command>
+
+    <Command Name="BROADCAST" Source="server">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server when a message has to be delivered to all users.
+      A lobby client program recieving this command should display this message to the user.
+      </Description>
     </Command>
 
     <Command Name="PROMOTE" Source="client">
