@@ -1400,7 +1400,19 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Description>
     </Command>
 
-
+    <Command Name="GETCHANNELMESSAGES" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="lastID" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a client requesting the history of a channel, since the lastID.
+	  </Description>
+	  <Response>
+	  The server will respond with a sequence of <clink name="SAID"/> commands via the <clink name="JSON"/> command, one for each chat message requested (up to a two week limit). 
+	  </Response>
+    </Command>
+	
     <Command Name="MUTELIST" Source="client">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
@@ -2507,28 +2519,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         Sent by the server after it has finished sending the ignore list for a client.
         Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
       </Description>
-    </Command>
-	
-
-    <Command Name="REDIRECT" Source="server">
-      <Arguments>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server when running in "redirection mode".
-      When a client connects, the server will send him only this message
-      and disconnect the socket immediately.
-      The client should connect to the given IP and port, in that case.
-      This command may be useful when the official server ip/address changes,
-      so that clients are automatically redirected to the new one.
-      </Description>
-      <Examples>
-        <Example>
-        REDIRECT 87.96.164.14 8200
-        </Example>
-      </Examples>
-    </Command>
+    </Command>	
 
 <!-- compat flags -->
 
@@ -2560,20 +2551,48 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
     </Command>
 
-<!-- JSON -->
+<!-- Other -->
+
+    <Command Name="REDIRECT" Source="server">
+      <Arguments>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server when running in "redirection mode".
+      When a client connects, the server will send him only this message
+      and disconnect the socket immediately.
+      The client should connect to the given IP and port, in that case.
+      This command may be useful when the official server ip/address changes,
+      so that clients are automatically redirected to the new one.
+      </Description>
+      <Examples>
+        <Example>
+        REDIRECT 87.96.164.14 8200
+        </Example>
+      </Examples>
+    </Command>
+
+    <Command Name="FAILED" Source="server">
+      <Description>
+		A command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
+		<i> Someone who knows more about this should document it! </i>
+	  </Description>
+    </Command>
 
     <Command Name="PROMOTE" Source="client">
       <Description>
 		This command posts a message in particular channels, calling for players. It is currently the (only) test case for a client command used JSON format.
 	  </Description>
     </Command>
-	
-    <Command Name="FAILED" Source="server">
+
+    <Command Name="JSON" Source="server">
       <Description>
-		A JSON format command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
-		<i> Someone who knows more about this should document it! </i>
+		A command used to send information to clients in JSON format. (Currently rarely used.)
 	  </Description>
     </Command>
+
+	
 	
 	
   </CommandList>
