@@ -279,7 +279,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 		<br/><br/>
         This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
     <p><ul>
-      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
+      <li><b>a</b>: userIDs sent in the <clink name="ADDUSER"/> command</li>
       <li><b>b</b>: battle authorization 
         <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
       <li><b>cl</b>:
@@ -308,10 +308,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
   <Versions>
  <Version Name="0.38 -- current dev/live version --">  
   <ul>
-    <li> Uberserver now supports email verification. See above. 
+    <li> Added email verification commands. (See above.) 
 	<ul>
 	  <li>Added/updated <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> command set. </li>
-	  <li>Added <clink name="RESENDVERIFICATION"/> and related denied/accept commands. </li>
+	  <li>Added <clink name="RESENDVERIFICATION"/> command set. </li>
       <li> If email verification is enabled, 
 	  <ul> 
 	    <li> <clink name="REGISTER"/> requires an email arg</li>
@@ -342,18 +342,16 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>Added the <clink name="IGNORE"/> command set.</li>
     <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
-	<li>Added the FORCEJOINBATTLE command set (edit: removed in 0.38).</li>
     <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
   </ul>
   </Version>
 
   <Version Name="0.36">
   <ul>
-    <li>Added the <clink name="FORCEJOINBATTLE"/> command set.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
+	<li>Added the FORCEJOINBATTLE command set (edit: removed in 0.38).</li>
     <li>Added the CONNECTUSER command set (edit: removed in 0.38).</li>
-    <li>Added the SAYDATA* command set (edit: removed in 0.38) </li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
@@ -378,10 +376,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
       Requests a <clink name="PONG"/> back from the server. 
 	  <br/><br/>
-	  It is recommended to send <clink name="PING"/> once every 30 seconds, if no other data is being sent to the server. For details, see the notes above on keep-alive signals. 
+	  Clients should send <clink name="PING"/> once every 30 seconds, if no other data is being sent to the server. For details, see the notes above on keep-alive signals. 
 	  </Description>
       <Response>
-      The server will reply with <clink name="PONG"/>.
+      <clink name="PONG"/>
       </Response>
     </Command>
 
@@ -397,10 +395,18 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       <Description>
         Initiate a TLS connection to the server. <i>Someone who knows more about this should document it!</i>
 	  </Description>
+      <Response>
+      <clink name="OK"/>
+      </Response>
     </Command>
 
+    <Command Name="OK" Source="server">
+      <Description>
+      Sent as the response to a <clink name="STLS"/> command. <i>Someone who knows more about this should document it!</i>
+      </Description>
+    </Command>
 
-<!--- greeting -->	
+<!--- greeting / exiting -->	
 
     <Command Name="TASSERVER" Source="server">
       <Arguments>
@@ -441,6 +447,23 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Example>TASSERVER 0.35 * 8201 0</Example>
       </Examples>
     </Command>
+	
+    <Command Name="EXIT" Source="client">
+      <Arguments>
+        <Argument Name="reason" Optional="yes" Sentence="yes">
+        Clients may optionally specify a reason for quitting. 
+		If the user simply wished to exit, many lobby clients send their name and version.
+        </Argument>
+      </Arguments>
+      <Description>
+      Clients should send this as their last command before severing their connection to the server, to notify
+      a clean and deliberate disconnect. 
+      </Description>
+	  <Response>
+	  The server is not required to acknowledge, or respond, to the exiting client. <br/>
+	  Other clients via server messages or status change commands.
+	  </Response>
+    </Command>	
 
 <!--- registration -->	
 
@@ -489,7 +512,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       Sent in response to a <clink name="REGISTER"/> command,
       if registration has been accepted. 
 	  <br/><br/>
-	  If email verification is enabled, sending of this command notifies that the server has sent a verification code to the users email address. This verification code is expected to be sent back in <clink name="CONFIRMAGREEMENT"/>
+	  If email verification is enabled, sending of this command notifies that the server has sent a verification code to the users email address. This verification code is expected back from the client in <clink name="CONFIRMAGREEMENT"/>
       <br/><br/>
 	  Upon reciept of this command, a lobby client would normally be expected to reply with a <clink name="LOGIN"/> attempt (but this is not a requirement of the protocol).
 	  </Description>
@@ -505,9 +528,6 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
           (which means the command itself shall be encrypted, including
           its arguments), it should send BASE64(password), otherwise it
           should send BASE64(MD5(password)).
-          <br/>
-          Note that when the server is running in LAN mode, 
-          any username and password will be accepted.
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
         deprecated, set it to 0
@@ -533,9 +553,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         Each flag in this space separated parameter indicates a specific functionality
         (like IRC user/channel flags).
         By default, all the optional functionalities are considered as not supported by the client.
-        For the current list of flags, see
-        <i>Recent changes - Version *-SNAPSHOT - Compatibility-Flags</i>
-        in the beginning of this document.
+        For the current list of flags, see the section on recent changes.
         </Argument>
       </Arguments>
       <Description>
@@ -543,9 +561,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 	  <br/><br/>
       Note: if the client has not yet confirmed the user agreement,
       then server will send the <clink name="AGREEMENT"/> to the client as a response to this command.
-	  In this case the response to <clink name="LOGIN"/> will be delayed until <clink name="CONFIRMAGREEMENT"/>.
-      The client should resend <clink name="LOGIN"/> once the user has agreed to the user agreement, 
-	  or should disconnect from the server if the user has rejected the agreement.
+	  In this case the response to <clink name="LOGIN"/> will be delayed until after <clink name="CONFIRMAGREEMENT"/>.
       <br/><br/>
       Also see <clink name="LOGININFOEND"/> command.
       </Description>
@@ -557,7 +573,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
 	  <Response>
 	    If the client has previously accepted the user agreement: <clink name="ACCEPTED"/> or <clink name="DENIED"/>. <br/>
-		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>
+		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>.<br/>
+		See these commands for further responses.
 	  </Response>
     </Command>
 
@@ -586,24 +603,8 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent as a response to a failed <clink name="LOGIN"/> command.
+      Sent as a response to a failed <clink name="LOGIN"/> command. 
       </Description>
-    </Command>
-
-    <Command Name="EXIT" Source="client">
-      <Arguments>
-        <Argument Name="reason" Optional="yes" Sentence="yes">
-        Clients may optionally specify a reason for quitting. 
-		If the user simply wished to exit, many lobby clients send their name and version.
-        </Argument>
-      </Arguments>
-      <Description>
-      Clients should send this as their last command before severing the connection to indicate
-      a clean and deliberate disconnect. 
-      </Description>
-	  <Response>
-	  The server is not required to acknowledge, or respond, to the exiting client. However, it may notify other clients via server messages or status change commands.
-	  </Response>
     </Command>
 
     <Command Name="LOGININFOEND" Source="server">
@@ -809,6 +810,73 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
 	  </Description>
     </Command>	
 
+<!--- other users logins -->	
+
+    <Command Name="ADDUSER" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="country" Optional="no" Sentence="no">
+        A two-character country code based on ISO 3166 standard.
+        See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
+        </Argument>
+        <Argument Name="cpu" Optional="no" Sentence="no">
+        deprecated, see the <clink name="LOGIN"/> command.
+        </Argument>
+        <Argument Name="userID" Optional="yes" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Tells the client that a new user joined a server.
+      The client should add this user to his clients list,
+      which he must maintain while he is connected to the server.
+      </Description>
+    </Command>
+
+    <Command Name="REMOVEUSER" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Indicates that a user disconnected from the server.
+      The client should remove this user from his clients list,
+      which he must maintain while he is connected to the server.
+      </Description>
+    </Command>
+	
+<!-- server messages -->
+	
+    <Command Name="SERVERMSG" Source="server">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      A general purpose message sent by the server.
+      The lobby client program should display it either in the chat log
+      or in some kind of system log, where the user will notice it.
+      Also see the <clink name="SERVERMSGBOX"/> command.
+      </Description>
+      <Examples>
+        <Example>SERVERMSG Server is going down in 5 minutes for a restart, due to a new update.</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="SERVERMSGBOX" Source="server">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+        <Argument Name="url" Optional="yes" Sentence="yes">
+        If specified, the lobby client should ask the user
+        if he wants this URL to be opened in a browser window.
+        The lobby client should then (once the user clicked OK)
+        launch the default browser and open this URL in there.
+        </Argument>
+      </Arguments>
+      <Description>
+      The client should open the message in a dialog window
+      (and not just in the console).
+      Also see the <clink name="SERVERMSG"/> command.
+      </Description>
+    </Command>
+	
+
 <!--- moderation interface -->	
 
     <Command Name="BAN" Source="client">
@@ -918,7 +986,379 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Response>
     </Command>	
 	
-<!--- wtf -->	
+<!-- channel commands -->
+	
+    <Command Name="CHANNELS" Source="client">
+      <Description>
+      Sent by a client when requesting the list of all channels on the server
+      </Description>
+      <Response>
+      A series of <clink name="CHANNEL"/> commands,
+      followed by an <clink name="ENDOFCHANNELS"/> command.
+      </Response>
+      <Examples>
+        <Example>JOIN main</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="CHANNEL" Source="server">
+    <Arguments>
+      <Argument Name="chanName" Optional="no" Sentence="no"/>
+      <Argument Name="userCount" Optional="no" Sentence="no">
+      Number of users in the channel.
+      </Argument>
+      <Argument Name="topic" Optional="yes" Sentence="yes">
+      Is omited if the topic is not set for the channel.
+      </Argument>
+    </Arguments>
+    <Description>
+    Sent by the server to a client who requested the channels list
+    via the <clink name="CHANNELS"/> command.
+    A series of these commands will be sent to the client,
+    one for each open channel.
+    A series of CHANNEL commands is followed by the <clink name="ENDOFCHANNELS"/> command.
+    </Description>
+    </Command>
+
+    <Command Name="ENDOFCHANNELS" Source="server">
+      <Description>
+      Sent to a client who previously requested the channel list,
+      after a series of <clink name="CHANNEL"/> commands (one for each channel).
+      </Description>
+    </Command>	
+    <Command Name="JOIN" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="key" Optional="yes" Sentence="no">
+        If the channel is locked, non-priviledged clients must supply the correct key to join.
+        </Argument>
+      </Arguments>
+      <Description>
+      Sent by a client requesting to join a channel.
+      </Description>
+	  <Response>
+	    <clink name="JOIN:server"/> or <clink name="JOINFAILED"/>. See there for further responses.
+	  </Response>
+      <Examples>
+        <Example>JOIN moddev</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="JOIN" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no">
+        Name of the channel which the client has just joined
+        </Argument>
+      </Arguments>
+      <Description>
+      Sent to a client who has successfully <clink name="JOIN:client"/>ed a channel.
+      </Description>
+      <Examples>
+        <Example>JOIN main</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="JOINFAILED" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent if joining a channel failed for some reason.
+      </Description>
+    </Command>
+
+    <Command Name="CHANNELTOPIC" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="author" Optional="no" Sentence="no"/>
+        <Argument Name="topic" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to a client who just <clink name="JOIN"/>ed a channel, or who was already present in a channel when the topic was changed.
+      This command informs the client of the current channel topic.
+      </Description>
+    </Command>
+
+    <Command Name="CHANNELTOPIC" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="topic" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+        A request to change a channel's topic, typically sent by a priviledged user.
+      </Description>
+    </Command>
+
+    <Command Name="NOCHANNELTOPIC" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to a client who just <clink name="JOIN"/>ed a channel, or who was already present in a channel when the topic was changed.
+      This command informs the client that no topic is set for this channel.
+      </Description>
+    </Command>
+
+    <Command Name="CLIENTS" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="clients" Optional="no" Sentence="yes">
+		  A sentence in which each word is the username of a client present in the channel. 
+		</Argument>
+      </Arguments>
+      <Description>
+      Sent to a client who just joined the channel. This command informs the client of the list of users present in the channel, including the client itself.
+      </Description>
+    </Command>
+
+    <Command Name="JOINED" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to all clients in a channel (except the new client)
+      when a new user joins the channel.
+      </Description>
+    </Command>
+
+    <Command Name="LEAVE" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a client when requesting to leave a channel.
+      <br/><br/>
+	  Note that when the client is disconnected, the client is automatically removed from all channels.
+      </Description>
+	  <Response>
+		None. The server will broadcast the <clink name="LEFT"/> command to (other) users who remain in the channel.
+	  </Response>
+    </Command>
+
+    <Command Name="LEFT" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server to inform a client, present in a channel, that another user has left that channel.
+      </Description>
+    </Command>
+
+    <Command Name="FORCELEAVECHANNEL" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by a priviledged client,
+      requsting that a user be removed from the channel.
+      If the user is present, they will be removed. 
+      </Description>
+	  <Response>
+		The removed user will be notified with a
+      <clink name="FORCELEAVECHANNEL:server"/> command, and other clients in the channel will notified with a <clink name="LEFT"/> command.	  
+	  </Response>
+    </Command>
+
+    <Command Name="FORCELEAVECHANNEL" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to a user who has just been kicked from a channel.
+      Notifies that the server no longer regards the recipient as present in the channel; a lobby client should display this to the user.
+      </Description>
+    </Command>
+
+    <Command Name="CHANNELMESSAGE" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server to all clients in a channel.
+      Used to broadcast messages in a channel.
+      </Description>
+    </Command>
+
+    <Command Name="SAY" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Send a chat message to a specific channel.
+      The client has to join the channel first,
+      to be allowed to use this command.
+      </Description>
+      <Response>
+      See <clink name="SAID:server"/>.<br/>
+	  <i> If the request to speak is denied, a <clink name="FAILED"/> command will be sent in JSON format. </i>
+      </Response>
+    </Command>
+
+    <Command Name="SAID" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to all clients participating in a specific channel
+      when one of the clients sent a chat message to it
+      (including the author of the message).
+      </Description>
+    </Command>
+
+    <Command Name="SAYEX" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by any client requesting to say something in a channel in "/me" IRC style.
+      (The <clink name="SAY:client"/> command is used for normal chat messages.)
+      </Description>
+      <Response>
+      See <clink name="SAIDEX:server"/>.<br/>
+	  <i> If the request to speak is denied, a <clink name="FAILED"/> command will be sent in JSON format. </i>
+      </Response>
+    </Command>
+
+    <Command Name="SAIDEX" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server when a client said something
+      using the <clink name="SAYEX:client"/> command.
+      </Description>
+    </Command>
+
+    <Command Name="SAYPRIVATE" Source="client">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Send a private chat message to an other client.
+      </Description>
+      <Response>
+      <clink name="SAYPRIVATE:server"/> and <clink name="SAIDPRIVATE:server"/>
+      </Response>
+    </Command>
+
+    <Command Name="SAYPRIVATE" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
+      This notifies the client that the server sent the private message on to its intended recipient.
+      </Description>
+    </Command>
+
+    <Command Name="SAIDPRIVATE" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a private message on to its intended recipient.
+      </Description>
+    </Command>
+
+    <Command Name="SAYPRIVATEEX" Source="client">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by a client requesting to say something in "/me" IRC style in a private message.
+      (Normal chat messages are sent via the <clink name="SAYPRIVATE:client"/> command.)
+      </Description>
+      <Response>
+      <clink name="SAYPRIVATEEX:server"/> and <clink name="SAIDPRIVATE:server"/>
+      </Response>
+    </Command>
+
+    <Command Name="SAYPRIVATEEX" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
+      This notifies the client that the server sent the private message on to its intended recipient.
+      </Description>
+    </Command>
+
+    <Command Name="SAIDPRIVATEEX" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a private message in "/me" IRC style on to its intended recipient.
+      </Description>
+    </Command>
+
+
+    <Command Name="MUTELIST" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a client when requesting the mute list of a channel.
+      </Description>
+	  <Response>
+		The response begins with <clink name="MUTELISTBEGIN"/>.
+	  </Response>
+      <Examples>
+        <Example>MUTELIST main</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="MUTELISTBEGIN" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server as a notification that the server is about to send a channel's mute list to the client. 
+	  It will be followed by multiple <clink name="MUTELIST"/> commands, one for each entry on the channels mutelist, and finally a <clink name="MUTELISTEND"/> command.
+      </Description>
+    </Command>
+
+    <Command Name="MUTELIST" Source="server">
+      <Arguments>
+        <Argument Name="mute description" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		  An item on the mutelist of a channel.
+      </Description>
+      <Examples>
+        <Example>MUTELIST Johnny, 345 seconds remaining</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="MUTELISTEND" Source="server">
+      <Description>
+		Notifies that the stream of multiple <clink name="MUTELIST:server"/> command, sent following <clink name="MUTELISTBEGIN"/>, is now completed.
+      </Description>
+    </Command>
+
+	
+<!-- udp port commands -->
 
     <Command Name="UDPSOURCEPORT" Source="server">
       <Arguments>
@@ -968,464 +1408,9 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       (with the <clink name="OPENBATTLE"/> command).
       </Description>
     </Command>
-
-    <Command Name="SERVERMSG" Source="server">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      A general purpose message sent by the server.
-      The lobby client program should display it either in the chat log
-      or in some kind of system log, where the user will notice it.
-      Also see the <clink name="SERVERMSGBOX"/> command.
-      </Description>
-      <Examples>
-        <Example>SERVERMSG Server is going down in 5 minutes for a restart, due to a new update.</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="SERVERMSGBOX" Source="server">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-        <Argument Name="url" Optional="yes" Sentence="yes">
-        If specified, the lobby client should ask the user
-        if he wants this URL to be opened in a browser window.
-        The lobby client should then (once the user clicked OK)
-        launch the default browser and open this URL in there.
-        </Argument>
-      </Arguments>
-      <Description>
-      The client should open the message in a dialog window
-      (and not just in the console).
-      Also see the <clink name="SERVERMSG"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="ADDUSER" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="country" Optional="no" Sentence="no">
-        A two-character country code based on ISO 3166 standard.
-        See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
-        </Argument>
-        <Argument Name="cpu" Optional="no" Sentence="no">
-        deprecated, see the <clink name="LOGIN"/> command.
-        </Argument>
-        <Argument Name="accountID" Optional="yes" Sentence="no">
-        Unique ID bound to the account (can be used to track renammed accounts).
-        This field is only provided if the lobby client sent the accountID compatibility flag ('a')
-        in the <clink name="LOGIN"/> command.
-        </Argument>
-      </Arguments>
-      <Description>
-      Tells the client that a new user joined a server.
-      The client should add this user to his clients list,
-      which he must maintain while he is connected to the server.
-      The server will send multiple commands of this kind,
-      once the client logs in,
-      in order to provide the client with the list of all users currently connected.
-      </Description>
-    </Command>
-
-    <Command Name="REMOVEUSER" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Indicates that a user disconnected from the server.
-      The client should remove this user from his clients list,
-      which he must maintain while he is connected to the server.
-      </Description>
-    </Command>
-
-    <Command Name="JOIN" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="key" Optional="yes" Sentence="no">
-        If the channel is locked, the client must supply the correct key to join the channel
-        (clients with access >= Account.ADMIN_ACCESS can join locked channels
-        withouth supplying the key - needed for the ChanServ bot).
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent by a client trying to join a channel.
-      </Description>
-      <Examples>
-        <Example>JOIN main</Example>
-        <Example>JOIN myprivatechannel mypassword</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="JOIN" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no">
-        Name of the channel which the client has just joined
-        (by previously sending the <clink name="JOIN:client"/> command).
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent to a client who has successfully joined a channel.
-      </Description>
-      <Examples>
-        <Example>JOIN main</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="JOINFAILED" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent if joining a channel failed for some reason.
-      </Description>
-    </Command>
-
-    <Command Name="CHANNELS" Source="client">
-      <Description>
-      Sent by a client when requesting the list of all channels on the server
-      </Description>
-      <Response>
-      A series of <clink name="CHANNEL"/> command,
-      followed by an <clink name="ENDOFCHANNELS"/> command.
-      </Response>
-      <Examples>
-        <Example>JOIN main</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="CHANNEL" Source="server">
-    <Arguments>
-      <Argument Name="chanName" Optional="no" Sentence="no"/>
-      <Argument Name="userCount" Optional="no" Sentence="no">
-      Number of users in the channel.
-      </Argument>
-      <Argument Name="topic" Optional="yes" Sentence="yes">
-      Is omited if the topic is not set for the channel.
-      </Argument>
-    </Arguments>
-    <Description>
-    Sent by the server to a client who requested the channels list
-    via the <clink name="CHANNELS"/> command.
-    A series of these commands will be sent to the client,
-    one for each open channel.
-    A series of CHANNEL commands is followed by the <clink name="ENDOFCHANNELS"/> command.
-    </Description>
-    </Command>
-
-    <Command Name="ENDOFCHANNELS" Source="server">
-      <Description>
-      Sent to a client who previously requested the channel list,
-      after a series of <clink name="CHANNEL"/> commands (one for each channel).
-      </Description>
-    </Command>
-
-    <Command Name="MUTELIST" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by a client when requesting the mute list of a channel.
-      </Description>
-      <Examples>
-        <Example>MUTELIST main</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="MUTELISTBEGIN" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server when sending channel's mute list to the client.
-      </Description>
-      <Response>
-      0 or more <clink name="MUTELIST:server"/> commands
-      and finally by a <clink name="MUTELISTEND"/> command.
-      </Response>
-    </Command>
-
-    <Command Name="MUTELIST" Source="server">
-      <Arguments>
-        <Argument Name="mute description" Optional="no" Sentence="yes">
-        The form of this argument is not prescribed
-        (it may vary from version to version).
-        The lobby client program should simply display it as it receives it.
-        </Argument>
-      </Arguments>
-      <Description>
-      Multiple commands of this kind may be sent after a <clink name="MUTELISTBEGIN"/> command
-      (or none, if the mute list is empty).
-      </Description>
-      <Examples>
-        <Example>MUTELIST Johnny, 345 seconds remaining</Example>
-        <Example>MUTELIST rabbit, indefinite time remaining</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="MUTELISTEND" Source="server">
-      <Description>
-      Sent by the server after it has finished sending the list of mutes for a channel.
-      Also see the <clink name="MUTELIST:server"/> and <clink name="MUTELISTBEGIN"/> commands.
-      </Description>
-    </Command>
-
-    <Command Name="CHANNELTOPIC" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="author" Optional="no" Sentence="no"/>
-        <Argument Name="changedTime" Optional="no" Sentence="no">
-        Time in seconds since Jan 1, 1970 (UTC).
-        </Argument>
-        <Argument Name="topic" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a client who just joined the channel,
-      if some topic is set for this channel.
-      </Description>
-    </Command>
-
-    <Command Name="CHANNELTOPIC" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="topic" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent a by privileged user who is trying to change a channel's topic.
-      Use "*" as topic if you wish to remove the topic.
-      </Description>
-    </Command>
-
-    <Command Name="NOCHANNELTOPIC" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no">
-          The Channel name which the client joined
-        </Argument>
-      </Arguments>
-      <Description>
-        This command informs the client that the channel it just joined has no topic set.
-        Also see the <clink name="JOIN:client"/> and <clink name="CHANNELTOPIC:server"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="CLIENTS" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="clients" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a client who just joined the channel.
-      Note: Multiple commands of this kind can be sent in a row.
-      The server takes the list of clients in a channel,
-      separates it into several lines and sends each line seperately.
-      This ensures no line is too long,
-      because the client may have some limit set on the maximum line-length
-      and it could ignore the line if it was too long.
-      Also note, that the clients user-name is sent in this list too!
-      So when the client receives a JOIN command,
-      he should not add his name in the client list of the channel,
-      but he should wait for the CLIENTS command,
-      which will contain his name too
-      and he will add himself automatically then.
-      </Description>
-    </Command>
-
-    <Command Name="JOINED" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent to all clients in a channel (except the new client)
-      when a new user joins the channel.
-      </Description>
-    </Command>
-
-    <Command Name="LEAVE" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by a client when he is trying to leave a channel.
-      When the client is disconnected,
-      he is automatically removed from all channels.
-      </Description>
-    </Command>
-
-    <Command Name="LEFT" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to all clients in a channel when some client left this channel.
-      WARNING:
-      The server does not send this command to a client that has just left a channel,
-      because there is no need to,
-      as the client who has left the channel knows that already.
-      A client that was kicked from the channel is notified about it
-      via the <clink name="FORCELEAVECHANNEL:server"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="FORCELEAVECHANNEL" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by a client (moderator),
-      requsting that a user be removed from the channel.
-      The user will be notified with a
-      <clink name="FORCELEAVECHANNEL:server"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="FORCELEAVECHANNEL" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a user who has just been kicked from the channel #chanName
-      by user "userName".
-      The lobby client should now internally close/detach from the channel,
-      as he was removed from the clients list of #channame on the server side.
-      </Description>
-    </Command>
-
-    <Command Name="CHANNELMESSAGE" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server to all clients in a channel.
-      Used to broadcast messages in a channel.
-      </Description>
-    </Command>
-
-    <Command Name="SAY" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a chat message to a specific channel.
-      The client has to join the channel first,
-      to be allowed to use this command.
-      </Description>
-      <Response>
-      See <clink name="SAID:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAID" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to all clients participating in a specific channel
-      when one of the clients sent a chat message to it
-      (including the author of the message).
-      </Description>
-    </Command>
-
-    <Command Name="SAYEX" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by any client when he is trying to say something in "/me" IRC style.
-      Also see the <clink name="SAY:client"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="SAIDEX" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server when a client said something
-      using the <clink name="SAYEX:client"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="SAYPRIVATE" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a private chat message to an other client.
-      </Description>
-      <Response>
-      See <clink name="SAYPRIVATE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAYPRIVATE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
-      This way, the client can verify that the server did get his chat message
-      and that the receiver will get it too.
-      </Description>
-    </Command>
-
-    <Command Name="SAIDPRIVATE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Indicates that a user sent a private chat message to the receiving client.
-      </Description>
-    </Command>
-
-    <Command Name="SAYPRIVATEEX" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by a client when he is trying to say something in "/me" IRC style in a private chat.
-      Also see the <clink name="SAYPRIVATE:client"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="SAYPRIVATEEX" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Indicates that a user sent a private "/me" IRC style chat message to the receiving client.
-      </Description>
-    </Command>
-
-    <Command Name="SAIDPRIVATEEX" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Indicates that a user sent a private chat message to the receiving client
-      using the <clink name="SAYPRIVATEEX:client"/> command.
-      </Description>
-    </Command>
-
+	
+<!-- battle commands -->
+	
     <Command Name="PROMOTE" Source="client">
       <Description>
 		This command posts a message in particular channels, calling for players. It is currently the (only) test case for using a JSON format in the lobby protocol, and consequently is not included in this documentation.
@@ -2537,6 +2522,14 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
     </Command>
 
+    <Command Name="FAILED" Source="server">
+      <Description>
+		A JSON format command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
+		<i> Someone who knows more about this should document it! </i>
+	  </Description>
+    </Command>
+	
+	
   </CommandList>
 
 </ProtocolDescription>
