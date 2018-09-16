@@ -3,7 +3,7 @@
 ## What is Spring RTS?
 
 Spring (formerly TASpring) is an Open Source Real Time Strategy game engine.
-Visit our [project homepage](http://springrts.com/) for help, suggestions,
+Visit our [project homepage](https://springrts.com/) for help, suggestions,
 bugs, community forum and everything spring related.
 
 ## What is the lobby protocol used for?
@@ -23,4 +23,4 @@ by opening _ProtocolDescription.xml_ in your browser, if it supports XSL.
 
 You can get the latest official version of these files [here](https://github.com/spring/LobbyProtocol).
 
-A [readable Page](http://springrts.com/dl/LobbyProtocol/) is automaticly generated every night.
+A [readable Page](https://springrts.com/dl/LobbyProtocol/) is automaticly generated every night.
