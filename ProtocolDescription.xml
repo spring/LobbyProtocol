@@ -850,9 +850,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Arguments>
       <Description>
       A general purpose message sent by the server.
-      The lobby client program should display it either in the chat log
-      or in some kind of system log, where the user will notice it.
-      Also see the <clink name="SERVERMSGBOX"/> command.
+      The lobby client program should display this message to the user in a non-invasive way, but clearly visible to the user.
       </Description>
       <Examples>
         <Example>SERVERMSG Server is going down in 5 minutes for a restart, due to a new update.</Example>
@@ -870,13 +868,10 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         </Argument>
       </Arguments>
       <Description>
-      The client should open the message in a dialog window
-      (and not just in the console).
-      Also see the <clink name="SERVERMSG"/> command.
+      The lobby client program should display this message to the user in an invasive way, which requires response from the user (e.g. a dialogue box).
       </Description>
     </Command>
 	
-
 <!--- moderation interface -->	
 
     <Command Name="BAN" Source="client">
@@ -985,6 +980,98 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         None. The server will give a response via server message(s).
       </Response>
     </Command>	
+
+<!-- user status mod commands -->
+
+    <Command Name="GETLASTLOGINTIME" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's last login time (before the current login, if the user is currently logged in).
+      </Description>
+   </Command>
+
+    <Command Name="GETLOBBYVERSION" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's lobby version (as sent via <clink name="LOGIN"/>).
+      </Description>
+   </Command>
+
+   <Command Name="GETUSERID" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user_id of the user (as sent via <clink name="LOGIN"/>).
+      </Description>
+   </Command>
+   
+   <Command Name="GETIP" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the most recently known IP of the user.
+      </Description>
+   </Command>
+
+   <Command Name="FINDIP" Source="client">
+      <Arguments>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+      </Arguments>
+	  <Description>
+      The server replies with a stream of <clink name="SERVERMSG:server"/>s,
+      listing users whose most recently used IP matches that given.
+      </Description>
+   </Command>
+
+   <Command Name="SETBOTMODE" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="mode" Optional="no" Sentence="no">
+		 0 or 1
+		</Argument>
+      </Arguments>
+      <Description>
+	  Send to add or remove a botflag from a client.
+      The server replies with a <clink name="SERVERMSG:server"/>s.
+      </Description>
+   </Command>
+   
+    <Command Name="BROADCAST" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSG"/> to all users.
+	  </Description>
+    </Command>
+
+    <Command Name="BROADCASTEX" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSGBOX"/> to all users.
+	  </Description>
+    </Command>
+
+    <Command Name="ADMINBROADCAST" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSG"/> to all users, prefixed by "Admin broadcast:".
+	  </Description>
+    </Command>
 	
 <!-- channel commands -->
 	
@@ -2311,44 +2398,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
     </Command>
 
-    <Command Name="GETINGAMETIME" Source="client">
-      <Description>
-      The server replies with a <clink name="SERVERMSG:server"/>,
-      indicating the user's ingame time in minutes.
-      It is understood as the acumulated time the user has spent in-game,
-      be it as a player or as a spectator, since recording of history,
-      not just for the current or last game.
-      </Description>
-   </Command>
-
-    <Command Name="LISTCOMPFLAGS" Source="client">
-      <Description>
-      A client may send this command after it has received <clink name="TASSERVER"/>
-      to query the server for supported comp-flags that may be specified on <clink name="LOGIN"/>.
-      </Description>
-      <Response>
-      See <clink name="COMPFLAGS:server"/>.
-      </Response>
-   </Command>
-
-   <Command Name="COMPFLAGS" Source="server">
-      <Arguments>
-        <Argument Name="compFlag1" Optional="yes" Sentence="no"/>
-        <Argument Name="compFlag2" Optional="yes" Sentence="no"/>
-        <Argument Name="..." Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent as a response to a <clink name="LISTCOMPFLAGS:client"/> command.
-      The server sends a list of supported comp-flags that may be specified
-      by the client on <clink name="LOGIN"/>.
-      </Description>
-      <Examples>
-        <Example>COMPFLAGS a b</Example>
-        <Example>COMPFLAGS a b sp</Example>
-        <Example>COMPFLAGS</Example>
-      </Examples>
-    </Command>
-
+<!-- ignore list -->   
 
     <Command Name="IGNORE" Source="client">
       <Arguments>
@@ -2458,34 +2508,7 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
         Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
       </Description>
     </Command>
-
-    <Command Name="SUBSCRIBE" Source="client">
-      <Description>
-        Sent by the client to subscribe to a channel
-      </Description>
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
-          Name of the channel
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SUBSCRIBE chanName=sy</Example>
-      </Examples>
-    </Command>
-    <Command Name="UNSUBSCRIBE" Source="client">
-      <Description>
-        Sent by the client to subscribe to a channel
-      </Description>
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
-          Name of the channel to unsubscribe
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>UNSUBSCRIBE chanName=sy</Example>
-      </Examples>
-    </Command>
-
+	
 
     <Command Name="REDIRECT" Source="server">
       <Arguments>
@@ -2507,22 +2530,44 @@ NOTE: This document is available in HTML form at: http://springrts.com/dl/LobbyP
       </Examples>
     </Command>
 
-    <Command Name="BROADCAST" Source="server">
+<!-- compat flags -->
+
+    <Command Name="LISTCOMPFLAGS" Source="client">
+      <Description>
+      A client may send this command after it has received <clink name="TASSERVER"/>
+      to query the server for supported comp-flags that may be specified on <clink name="LOGIN"/>.
+      </Description>
+      <Response>
+      See <clink name="COMPFLAGS:server"/>.
+      </Response>
+   </Command>
+
+   <Command Name="COMPFLAGS" Source="server">
       <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
+        <Argument Name="compFlag1" Optional="yes" Sentence="no"/>
+        <Argument Name="compFlag2" Optional="yes" Sentence="no"/>
+        <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server when a message has to be delivered to all users.
-      A lobby client program recieving this command should display this message to the user.
+      Sent as a response to a <clink name="LISTCOMPFLAGS:client"/> command.
+      The server sends a list of supported comp-flags that may be specified
+      by the client on <clink name="LOGIN"/>.
       </Description>
+      <Examples>
+        <Example>COMPFLAGS a b</Example>
+        <Example>COMPFLAGS a b sp</Example>
+        <Example>COMPFLAGS</Example>
+      </Examples>
     </Command>
+
+<!-- JSON -->
 
     <Command Name="PROMOTE" Source="client">
       <Description>
 		This command posts a message in particular channels, calling for players. It is currently the (only) test case for a client command used JSON format.
 	  </Description>
     </Command>
-
+	
     <Command Name="FAILED" Source="server">
       <Description>
 		A JSON format command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
