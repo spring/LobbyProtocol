@@ -4,207 +4,241 @@
 <!-- transform this xml into html (so you can view it in a browser): -->
 <?xml-stylesheet type="text/xsl" href="ProtocolDescription_xml2html.xsl"?>
 
+
+<!-- 
+NOTE: This document is available in HTML form at: https://springrts.com/dl/LobbyProtocol/ 
+-->
+
+
 <ProtocolDescription>
 
   <Intro>
-  <p>
-  <i>NOTE: This document is available in a HTML form at the following address:
-  <url>http://springrts.com/dl/LobbyProtocol/</url></i>
-  </p>
 
   <h3>Introduction</h3>
   <p>
-  This is a simple text protocol in a "human readable form". Text protocol was chosen since
+  This is a simple text protocol in a "human readable form". Text protocol was chosen because
   it's easier to debug and implement on the client side. It does require some more overhead,
   but since server and clients do not communicate much anyway, this is not an issue.
-  Because its text only, all messages sent and received have to be encoded in utf-8, no binary data is allowed.
-  To send binary data it could be encoded/decoded with base64.
   </p>
 
   <h3>Nomenclature</h3>
   <p>
-  We use two terms for "clients": <i>client</i> and an <i>user</i>.
-  At first, <i>user</i> was considered to be a registered client,
-  that means a client that is logged-in.
+  We use two terms for "clients": <i>client</i> and <i>user</i>.
+  At first, <i>user</i> was considered to be a registered or logged-in client.
   The two terms are used uncleanly though, so you may best think of them as equal.
   </p>
-  <h4>Legend</h4>
+
+  <h4>Formating rules: lines, words and sentences</h4>
+  <p>
+  All communication must be encoded in utf-8. Binary data is not permitted.
+  </p>
+  <p>
+  A <i>line</i>, also known as a <i>message</i>, consists of a single protocol command, plus its arguments, communicated as a single string, and terminated by a newline character (\n).
+  Lines may be of any length; 600 KB long strings have been verified to worked in both directions. 
+  A natural implementation of the protocol will result in almost all lines being under 1 KB in length.
+  <!--Nevertheless, some commands (like <clink name="AGREEMENT"/>) do divide the data they send into several lines, but only for clarity.-->
+  </p>
+  <p>
+  Each line begins with a <i>command</i>, written in capitals. 
+  The arguments of the command, which come next, come in two types: <i>words</i> and <i>sentences</i>. 
+  Word arguments are sequences of non-whitespace characters, and are separated from each other by whitespaces.
+  Sentence arguments are sequences of words (separated by whitespaces), 
+  which are considered as a single argument.
+  Sentences arguments are seperated from each other by tab characters (\t).
+  </p>
+  <p>
+  The word arguments of a command <i>always</i> come first, followed by its sentence arguments.
+  The last word argument is separated from the first sentence argument by a single whitespace.
+  Some examples:
+  </p>
   <p>
   <ul>
-    <li>{} = sentence = several words (at least one!) separated by space characters</li>
-    <li>{} {} ... = two or more sentences. They are separated by TAB characters.</li>
-    <li>words are always separated by space characters.</li>
-    <li>| = separates choices ("OR")</li>
-    <li>[] = denotes an optional argument</li>
+  <li> <clink name="JOINEDBATTLE"/>, with 2 word arguments: <br/><code>JOINEDBATTLE 25869 oxido</code></li> 
+  <li> <clink name="UPDATEBATTLEINFO"/>, with 4 words and 1 sentence argument: <br/><code>UPDATEBATTLEINFO 25903 1 0 -210360064 Trojan Hills v03</code></li>
+  <li> <clink name="BATTLEOPENED"/>, with 10 words and 4 sentences: <br/><code>BATTLEOPENED 4437 0 0 BlackHoleHost6 71.2.10.1 8626 10 0 0 -1213614804 Spring 104.0 &#160;&#160; Coastline_Dry_V1 &#160;&#160; The BlackHoleHost - Conflict &#160;&#160; Balanced Annihilation V9.46</code></li>
   </ul>
   </p>
+  <p>
+  (So, when a client talks to the server, if you want to include a tab character in a sentence, you can't!)
+  </p>
 
-  <h3>Protocol low-level format rules</h3>
+  <h4>Legend</h4>
   <p>
-  Single word arguments are separated by spaces,
-  "sentences" (a sentence is a series of words separated by spaces, denoting a single argument)
-  are separated by TABs.
-  Make sure to replace all TABs in your sentences with spaces (2 or 8 usually)!
-  If you do not, your command is invalid, and will not be read correctly by the server.
+  The following notation is used within the arguments of a command.
+  A given argument should be assumed to be a word, unless {} is present, in which case it is a sentence.
+  <ul>
+    <li>{...} = a sentence arg </li>
+    <li>{...} {...} = two sentence args (which should be separated by a tab character!)</li>
+    <li>| = multiple choices for the argument i.e. "OR"</li>
+    <li>[...] = an optional argument</li>
+  </ul>
   </p>
   <p>
-  Lines sent and received may be of any length. It has been tested with 600 KB
-  long strings and it worked in both directions. Nevertheless, commands like
-  "CLIENTS" still try to divide data into several lines, just to make sure the
-  client will receive them. Since all client should support lines of any length,
-  dividing data into several lines is not needed anymore.
-  Though, we keep it just in case, to be compatible with other clients
-  which may emerge in the future. I do not divide data when sending info on
-  battles and clients in battles. This lines may get long, but not longer than a
-  couple of hundred bytes (they should always be under 1 KB in length).
+  All commands, except for some developer/admin specific commands, are listed in the commands section of this document.
+  Their arguments are listed in order, and should be sent in that order.
   </p>
+  <!--<p>
+  For future use (currently only applies to PROMOTE):
+  A few commands require that they be invoked using a JSON format, which allows arguments to be named (and, consequently, sent in any order).
+  Named arguments can be written in any order and the names are case sensitive, e.g. username != userName.
+  The main benefit of named arguments is that they help with backwards compatibility when the protocol changes, and it is planned that more commands will use JSON in future, particularly commands related to statuses and battles. 
+  
+  </p>
+-->
 
   <h3>Protocol rules</h3>
+  <h4> Keep-alive signals</h4>
   <p>
-  A client must maintain a constant connection with the server.
-  That is if no data is to be transfered,
-  the client must send <clink name="PING"/> commands to the server on regular intervals.
-  This ensures that the server can properly detect any network timeouts/disconnects.
-  The server will automatically disconnect a client
-  if no data has been received from it within a certain time period.
-  A client should send some data at least after half that interval passed.
+  A client must maintain a 'constant' connection with the server, to ensure that network timeouts and disconnects can be detected.
+  If no data is being transfered, the client must send <clink name="PING"/> commands to the server at regular intervals -- every 30 seconds is recommended.
+  The server will reply with a <clink name="PONG"/> command.
+  If no data or ping command has been sent for 60 seconds, the server will assume a network timeout and disconnect the client.
+  Similarly, if the client does not hear back within 30 seconds of a ping, it should assume the server has gone down.
   </p>
+  <h4>Zero status assumption</h4>
   <p>
-  Clients may find out whether a battle is in progress or not
-  by monitoring the battle-founder's status.
-  If his status changes to "in game", the battle's status is also "in game".
+  When a client joins the server, the client will be notified about statuses of users only for cases where this status is non-zero.
+  A client's status and battle status should be assumed to be 0, if not specified otherwise by the server.
+  (This saves on bandwidth, not that we really need to...)
   </p>
+  
+  <h4> Status change updates </h4>
   <p>
-  A client's status and battle status are assumed to be 0 if not specified otherwise.
-  Each client should assume that every other client's status and battle statuses are 0
-  if not stated otherwise by the server.
-  So when a client joins the server, he is notified about statuses of those users only,
-  who have status or battle status different from 0.
-  This way we also save some bandwidth
-  (although that is not really an issue here.
-  If we were worried about this protocol taking up too much bandwidth,
-  we would not use a text protocol, would we?).
-  </p>
-  <p>
-  Most of the commands that notify about some changes are forwarded to the source of the change too.
+  Most of the commands that notify about some changes are forwarded to the source of the change.
   For example: When a client sends a <clink name="MYBATTLESTATUS"/> command,
   the server sends a <clink name="CLIENTBATTLESTATUS"/> command to all users in the battle,
   including the client who sent the <clink name="MYBATTLESTATUS"/> command.
-  This is a good practice, because this way the client can synchronize
-  his local status with the server's, after the server has actually updated
-  his status (it also serves as confirmation mechanism).
+  This allows the client to synchronize their local status with the server's, 
+  after the server has verified that the status change is valid; therefore, it also serves as confirmation mechanism.
   </p>
+  
+  <h4>Message IDs</h4>
   <p>
-  All commands except for some admin specific commands are listed here.
-  For more details on a specific command,
-  you may have a look at a lobby servers source code,
-  for example SpringLS or ueberserver.
-  </p>
-  <p>
-  A Client may participate in only one battle at the same time. If he is hosting
-  a battle, he may not participate in other battles at the same time. The server
-  checks for that automatically.
-  </p>
-  <p>
-  Team colors are currently set by players, perhaps it would be better if only
-  the host would be able to change them?
-  </p>
-  <h4>Messages IDs</h4>
-  <p>
-  As of version 0.33, the command syntax has been slightly changed.
-  Messages may now contain IDs:
-  Any message may be prefixed with a message ID.
+  Any message can be prefixed with a message ID.
   For example:
-  "#123 SAY main hello!" <br/>
-  Server will use this ID with a reply, for example:
-  "#123 SAID main Betalord hello!" <br/>
-  The message ID has only one function: to ease tracking server responses for the client.
-  Using message IDs means that the client can also use synchronous communication (with certain commands),
-  which makes it easier to implement commands that require multiple responses in both directions.
-  <br/>
-  Note that IDs should be non-negative values, in a 31-bit range (0..2147483647).
-  Negative values are reserved for internal handling logic of the server / lobby clients.
+  <code>
+  '#123 SAY main hello world!'
+  </code>
+  is a valid <clink name="SAY"/> command with message ID 123. The server will use this ID in any message sent as a reply, for example:
+  <code>
+  '#123 SAID main Betalord hello world!'
+  </code>
+  would communicate the greeting on to other clients with a <clink name="SAID"/> command.
   </p>
-
+  <p>
+  The message ID has only one function: to ease tracking server responses for the client.
+  They makes it easier to implement commands that require multiple responses in both directions.
+  You can also use them with <clink name="PING"/>/<clink name="PONG"/> to measure your round trip time.
+  </p>
+  <p>
+  Message IDs should be non-negative values, within 31-bit range (so, 0 up to 2147483647).
+  Negative values are reserved by the server for internal use.
+  </p>
 
   <p>
   <h3>Sub-systems</h3>
   </p>
 
+  <h4>Email Verification</h4>
+  <p>
+  If a valid 'server_email_account.txt' exists (in the same directory as <code>server.py</code>), then Uberserver will carry out email verification. 
+  In order to verify an email address: the server sends a four digit verification code to an email address, and the client must send this code back to the server.
+  Each verification code is valid for 24h, and allows max 3 attempts at verification.
+  Currently, the same email address can be used to verify multiple accounts, but this may change in future.
+  </p>
+  <p>
+  If email verification is enabled, then it is required for registering a new account and for changing email address.
+  In this case, both <clink name="REGISTRATIONACCEPTED"/> and <clink name="CHANGEEMAILREQUESTACCEPTED"/> cause a verification code to be created, and sent.
+  The verification code is expected back in <clink name="CONFIRMAGREEMENT"/> and <clink name="CHANGEEMAIL"/> respectively.
+  It can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
+  </p>
+  <p>
+  Lobby clients should always assume that verification is enabled.
+  However, if verification is not enabled, then no verification codes will be sent, and all verification attempts will automatically pass.
+  In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
+  </p>
+
   <h4>Syncing</h4>
   <p>
-  To be in sync means, to have the same versions of all the content
-  required to play a game.
-  It works by clients comparing host's hash code with their own. If the two
-  codes match, client should update his battle status and this way telling other
-  clients in the battle that he is synced (or unsynced otherwise). The hash code
-  comes from hashing the mod's file and probably all the dependences too. See
-  unitsync documentation for details.
+  To be in <i>sync</i> means to have the same versions of all the content
+  required to play a particular game (including the map, engine, dependencies, etc).
+  See <clink name="JOINBATTLE:server"/> or the unitsync documentation for details.
   </p>
 
   <h4>Hole punching</h4>
   <p>
   <quote>
-  Hole punching is a computer networking technique
+  Hole punching is a networking technique
   for establishing communications between two parties in separate organizations
   who are both behind restrictive firewalls.
   </quote>
   <url>https://en.wikipedia.org/wiki/Hole_punching</url>
-
-  We use it for allowing clients to connect to the lobby server,
-  that would otherwise not be able to.
-
-  This will probably not work in LAN mode, especially if combined with
-  players from the internet.
+  We use it to allow clients to connect to the lobby server, that would otherwise not be able to. 
+  See the commands
+  <clink name="TASSERVER"/>,
+  <clink name="OPENBATTLE"/>,
+  <clink name="UDPSOURCEPORT"/>,
+  <clink name="CLIENTIPPORT"/>,
+  <clink name="HOSTPORT"/>.
+  <!--It will probably not work in LAN mode, especially if combined with players from the internet.-->
   </p>
-  <h5>Non-host perspective</h5>
+   
+  <h3>Hosting battles</h3>
   <p>
-  When joining a battle, a client should first acquire his UDP source port
-  from the server before sending the <clink name="JOINBATTLE"/> command.
-  Once he has done that and joined the battle,
-  he should keep sendings some UDP packets to the server on regular intervals,
-  just to make sure the router does not forget about it and remove it
-  from its translation table
-  (some routers have timeout as short as 20 seconds,
-  so this should also be the minimum refresh interval).
-  Once the game actually starts,
-  the client lobby should stop sending UDP packets to the server
-  since the OS will not allow it anyway
-  (will not be able to bind the same source port,
-  as it will already be bound by spring.exe).
-  Also, there is no need for it,
-  since spring.exe will keep sending the packets
-  and so keep the port open instead of the lobby client.
-  Once the lobby client detects the user has returned from the game,
-  it should start sending the UDP packets again,
-  in order to keep the "connection" alive.
-  Another thing to note is,
-  that the lobby client does not need to "punch through"
-  like it has to when hosting, since spring.exe will do that anyway.
-
-  Just before starting the game,
-  the server will send a <clink name="HOSTPORT"/> command to the user,
-  containing the host's public UDP source port.
-  The lobby cient should replace the battle's port with this one,
-  as it will have to connect to this port and not the original one
-  (acquired through the <clink name="BATTLEOPENED"/> command).
+  Any client may host a <i>battleroom</i>, also referred to as a <i>battle</i>, which is (effectively) a special type of chat channel with extra features related to setting up and launching a multi-player game.
+  A client may join at most one battleroom at any given time. 
+  This includes when the client is hosting the battle. The server automatically enforces this rule.
   </p>
-  <h5>Host perspective</h5>
+  <p>
+  Clients detect whether a battle has a game currently in progress by monitoring the hosts status.
+  For example, if the hosts status changes to "in game", then the battles is "in game".
+  </p>
+  <p>
+  <code>spring.exe</code> uses UDP connections for online multi-player games (TCP is not suitable due to latency).
+  These connections are made between the host client (of the battleroom) and non-host clients. 
+  Consequently, the lobby protocol contains a set of commands dedicated to setting up UDP connections between host/non-host clients.
+  </p>
+  
+  <h4> Setting up UDP connections: non-host perspective </h4>
+  
+  <p>
+  Before joining a battle, a client is expected to first acquire their UDP source port from the server.
+  This is done by sending a UDP packet, which a response coming via <clink name="UDPSOURCEPORT"/>.
+  Once the client has done that, the client should keep sending UDP packets to the server at regular 20 second intervals, 
+  to keep the connection alive and ensure that the clients router does not remove the UDP connection from its port translation table.
+  After <code>spring.exe</code> is launched, these UDP keep-alive signals may be discontinued (because then <code>spring.exe</code> will be sending regular UDP packets).
+  Once <code>spring.exe</code> exits, the client should resume sending UDP keep-alive signals.
+  </p>
+  <p>
+  Just before starting the game, the host should send a <clink name="HOSTPORT"/> command to the user,
+  containing the host's public UDP source port.
+  The lobby cient should replace the battles port with this one,
+  as it will have to connect to the game using this port and not the original one
+  (that was acquired through the <clink name="BATTLEOPENED"/> command).
+  </p>
+  <p>
+  Note: If the client is not hosting, then it does not need to "punch through", which is does have to do when hosting, because <code>spring.exe</code> will take care of that. <i> Todo: make this clearer!</i>
+  </p>
+  
+  <h4> Setting up UDP connections: host perspective </h4>
   <p>
   Before sending the <clink name="OPENBATTLE"/> command,
-  the host should try to acquire his UDP source port from the server,
+  the host should try to acquire its UDP source port from the server,
   just to make sure it can acquire it at all
   (better to find out it does not work before hosting,
   than right before starting the game).
-  Nevertheless, the lobby client does not need to keep to refresh this port,
+  However, the client does not need to keep this UDP connection alive,
   since it will not be used to actually host the game.
-  It is just a test to see if it works,
-  not to actually acquire a port for hosting.
-  Each time a new client joins the battle,
-  the server will send a <clink name="CLIENTIPPORT"/> command,
-  telling the host about this client's public UDP source port.
+  It is just a test to see if UDP connectivity works.
+  </p>
+  <p>
+  When a new client joins the battle,
+  the server will send a <clink name="CLIENTIPPORT"/> command to the host,
+  informing the host of this client's public UDP source port.
   The host should remember this information,
   as he will have to use it when starting the game.
+  </p>
+  <p>
   Right before starting the game,
   the host should try to acquire his source port again.
   This time he will actually use this port to host the game.
@@ -214,123 +248,44 @@
   The host does not need to keep refreshing his connection
   to keep the port open,
   as spring.exe will do that for him.
-  Also, upon returning from the game,
-  he does not need to start refreshing it either
-  (as a non-host would have to),
-  since when he will start a new game,
-  he will have to acquire a new source port anyway.
-  This is mostly because some people could play "single-player" games with bots
-  before opening the battle to other players,
-  and spring.exe would of course not keep the connection alive in that case,
-  and upon returning from the game,
-  the port would already be timed-out long ago.
-  This is why the host has to acquire a new port each time it starts a battle.
+  Upon returning from the first game that was hosted in his battleroom,
+  the host does not need to keep refreshing it either (as a client would have to do --
+  because when the host starts a new game
+  it will have to acquire a new source port anyway).
   </p>
-
-  <h4>Match-Making</h4>
+  
+  <h4> Why? </h4>
   <p>
-  With match-making, we mean a somewhat abstract way of automating
-  the process of users finding to each other in battle rooms
-  to play a game of a type they like.
-
-  For us this means, more specifically,
-  that users get shuffled around hosts (usually autohosts) that support match-making,
-  according to preferences they set, by the hand of a central match planning strategy/algorithm.
-  Match-making enabled hosts have to be marked as such.
-  The current way of doing this is, to let them report a CPU frequency of 6667.
-  This way, each lobby client may choose to visually outline this host property
-  in a certain way or not at all.
-  A user may choose to take part in match-making by entering one of these hosts battle.
-  When a match-maker sends a request for a certain user to switch hosts
-  by sending a <clink name="FORCEJOINBATTLE:client"/> command to the server,
-  and the server subsequently sends a <clink name="FORCEJOINBATTLE:server"/>
-  to that addressed user,
-  the lobby client must comply by joining that hosts battle-room.
-  To opt-out of the match-making process,
-  a user has to leave the battle-room,
-  after then he may join a non-match-making enabled host.
-  If the <clink name="FORCEJOINBATTLE:client"/> request was illegitimate,
-  the server will send <clink name="FORCEJOINBATTLEFAILED:server"/>
-  to the command issuing user.
+  This setup exists because some host clients might play "single-player" games with bots
+  before opening their battleroom to other players,
+  in which case any UDP port that was originally set up would have long ago timed out (spring.exe would not keep it alive during a single player game!).
+  For this reason, the host has to acquire a new UDP port each time it starts a battle.
   </p>
 
-  <h5>Decoupling games from battle-rooms</h5>
+  <h3> Further information </h3>
   <p>
-  For better match-making, you may now use the commands
-  <clink name="CONNECTUSER:client"/> (client) and <clink name="CONNECTUSER:server"/> (server).
-  They allow to initiate games without creating a battle-room first.
-  That means in practise, that we can also initiate multiple games from a single chat-room.
+  If this document doesn't provide what you are looking for, 
+  you may have a look at the Uberserver source code, in <code>protocol.py</code>, 
+  or ask for help in the <code>#sy</code> channel of the SpringRTS lobbyserver.
   </p>
-
-  <h5>Inter-lobby-client data exchange</h5>
-  <p>
-  For quasi direct communication between lobby clients,
-  in order to allow faster development cycles,
-  and to keep the lobby protocol from getting bloated unnecessarily,
-  a new set of commands was introduced.
-  They mirror most of the chat commands,
-  but instead of human, user2user chat interaction,
-  these are meant for programmatic, client2client or user2client communication.
-  The server just routes the messages to the intended receiving client(s).
-  They are meant to be used for stuff like standardized auto-host commands,
-  for example a common set of commands and arguments for voting.
-  Commands that may be used through this new communication channel
-  have to be discussed and approved by the lobby-dev meeting first,
-  and be documented in the <i>Inter-lobby-client data exchange protocol</i>.
-  When receiving messages through these new lobby protocol commands,
-  clients should generally not show them to the user as is,
-  but either ignore them,
-  or act according to the <i>Inter-lobby-client data exchange protocol</i>.
-  <ul>
-    <li><clink name="SAYDATA:client"/></li>
-    <li><clink name="SAIDDATA:server"/></li>
-    <li><clink name="SAYDATAPRIVATE:client"/></li>
-    <li><clink name="SAIDDATAPRIVATE:server"/></li>
-    <li><clink name="SAYDATABATTLE:client"/></li>
-    <li><clink name="SAIDDATABATTLE:server"/></li>
-  </ul>
-  </p>
-
-  <h5>Named arguments</h5>
-  <p>
-      Commands can also support named arguments, which are written as name=value pairs separated by tab characters (\t). Arguments can be written in any order and are case sensitive, e.g. username != userName.
-      The main benefit of using named arguments is that those commands using it can be updated without affecting old lobbies and usually without the use of compatibility flags.
-  </p>
-
+   
   </Intro>
 
-  <Versions>
-
-  <Version Name="0.37-SNAPSHOT">
-  <ul>
-    <li>Added basic match-making system support,
-      see the <i>Match-Making</i> section in the beginning of this document.</li>
-    <li>Added the SAYDATA* command set,
-      see the <i>Inter-lobby-client data exchange</i>
-      section in the beginning of this document.</li>
-    <li>An email address can now be associated with existing and set while registering an user account,
-      thereby enabling unassisted account recovery</li>
-    <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
-    <li>
-      <i>Compatibility-Flags</i>
-      <p>
-        This list explains the current compatibility flags a client may send
+  <CompatFlags>
+      <i>Compatibility-Flags: </i>
+        This list details the current compatibility flags a client may send
         with the <clink name="LOGIN:client"/> command.
-        This list will be emptied whenever a new protocol version gets released.
-      </p>
-    <ul>
-      <li><b>a</b>: account IDs sent in the <clink name="ADDUSER"/> command</li>
-      <li><b>b</b>: the battle authorization system
-        (<clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>
-        and <clink name="JOINBATTLEDENY"/> commands)</li>
-      <li><b>m</b>: the basic match-making command
-        <clink name="FORCEJOINBATTLE:server"/></li>
-      <li><b>cu</b>: <clink name="CONNECTUSER:server"/> command (for decoupling games from battle-rooms)</li>
-      <li><b>sd</b>: SAYDATA* commands</li>
+		Clients should update their behaviour for compatibility with the changes below, and send the appropriate flag to announce compatibility.
+		<br/><br/>
+        This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
+    <p><ul>
+      <li><b>a</b>: userIDs sent in the <clink name="ADDUSER"/> command</li>
+      <li><b>b</b>: battle authorization 
+        <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
       <li><b>cl</b>:
         <ul>
-        <li>added CHANGEEMAIL</li>
-        <li>added Engine Name / Engine Version to the <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
+        <li>added <clink name="CHANGEEMAIL"/></li>
+        <li>added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
         <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
         </ul>
       </li>
@@ -339,52 +294,65 @@
         <clink name="CHANNELTOPIC:server"/>,
         which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
         while before it was the same in milliseconds</li>
-      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is in plaintext format (deprecated rtf)</li>
+      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is sent in plaintext format</li>
+      <li><b>cu</b>: CONNECTUSER command set (note: these commands were later removed)</li>
+      <li><b>sd</b>: SAYDATA* command set (note: these commands were later removed)</li>
+      <li><b>m</b>: FORCEJOINBATTLE command set (note: these commands were later removed)</li>
+    </ul></p>
+  <p>
+  In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
+  The details below refer to the latest version of the protocol, and assume that the client has all the latest compatibility flag present.
+  </p>
+  </CompatFlags>  
+  
+  <Versions>
+ <Version Name="0.38 -- current dev/live version --">  
+  <ul>
+    <li> Added email verification commands. (See above.) 
+	<ul>
+	  <li>Added/updated <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> command set. </li>
+	  <li>Added <clink name="RESENDVERIFICATION"/> command set. </li>
+      <li> If email verification is enabled, 
+	  <ul> 
+	    <li> <clink name="REGISTER"/> requires an email arg</li>
+		<li> <clink name="CONFIRMAGREEMENT"/> requires a verification code arg</li>
+        <li> <clink name="CHANGEEMAIL"/> requires a verification code arg</li>
+	  </ul></li>
+	</ul></li>
+	  <li> Added new moderation interface, with new/updated commands. The new interface is
+          <clink name="BAN"/>,
+          <clink name="BANSPECIFIC"/>,
+          <clink name="UNBAN"/>,
+          <clink name="BLACKLIST"/>,
+          <clink name="UNBLACKLIST"/>,
+          <clink name="LISTBANS"/>,
+          <clink name="LISTBLACKLIST"/>.
+          All other moderation commands (KICKBAN, BANIP, KICKUSER, BANLIST) were removed.
+		  </li>
+	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
+    <li> All SAYDATA* commands were removed. </li>
+    <li> The FORCEJOINBATTLE command set was removed. </li>
     </ul>
-    </li>
-    <li>Added the <clink name="IGNORE:client"/> client command.</li>
-    <li>Added the <clink name="IGNORE:server"/> server command.</li>
-    <li>Added the <clink name="UNIGNORE:client"/> client command.</li>
-    <li>Added the <clink name="UNIGNORE:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:client"/> client command.</li>
-    <li>Added the <clink name="IGNORELISTBEGIN:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELIST:server"/> server command.</li>
-    <li>Added the <clink name="IGNORELISTEND:server"/> server command.</li>
-    <li>Crypto: added the <clink name="GETPUBLICKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="GETSIGNEDMSG:client"/> client command.</li>
-    <li>Crypto: added the <clink name="SETSHAREDKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="ACKSHAREDKEY:client"/> client command.</li>
-    <li>Crypto: added the <clink name="PUBLICKEY:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SIGNEDMSG:server"/> server command.</li>
-    <li>Crypto: added the <clink name="SHAREDKEY:server"/> server command.</li>
+ 
+ </Version>
+
+
+  <Version Name="0.37">
+  <ul>
+    <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
+    <li>Added the <clink name="IGNORE"/> command set.</li>
+    <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
+    <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
   </ul>
-    The protocol additions marked "Crypto:" add secure-session capability by allowing
-    client and server to exchange AES(-256) encryption keys. Note that the server can
-    choose to enforce secure authentication (the <clink name="LOGIN:client"/> and
-    <clink name="REGISTER:client"/> commands) only, blanket secure communication (all
-    commands including authentication), or leave the decision to use encrypted sessions
-    up to clients themselves. For the format specification of encrypted messages, see
-    <clink name="SETSHAREDKEY:client"/>.
   </Version>
 
   <Version Name="0.36">
   <ul>
-    <li>Added the <clink name="FORCEJOINBATTLE:client"/> client command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLE:server"/> server command.</li>
-    <li>Added the <clink name="FORCEJOINBATTLEFAILED:server"/> server command.</li>
     <li>Added the <clink name="LISTCOMPFLAGS:client"/> client command.</li>
     <li>Added the <clink name="COMPFLAGS:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSER:client"/> client command.</li>
-    <li>Added the <clink name="CONNECTUSER:server"/> server command.</li>
-    <li>Added the <clink name="CONNECTUSERFAILED:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATA:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATA:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATAPRIVATE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATAPRIVATE:server"/> server command.</li>
-    <li>Added the <clink name="SAYDATABATTLE:client"/> client command.</li>
-    <li>Added the <clink name="SAIDDATABATTLE:server"/> server command.</li>
+	<li>Added the FORCEJOINBATTLE command set (edit: removed in 0.38).</li>
+    <li>Added the CONNECTUSER command set (edit: removed in 0.38).</li>
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
-    <li>Added the <clink name="RECOVERACCOUNT:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
     <li>'scriptPassword' argument added: This change affects the following commands:
@@ -393,11 +361,9 @@
   <ul>
     <li>
     <i>Compatibility-Flags</i>
-    <p>
     <ul>
-      <li><b>sp</b>: the scriptPassword parameter, sent in the <clink name="JOINEDBATTLE"/>command</li>
+      <li><b>sp</b>: the scriptPassword parameter, sent in the <clink name="JOINEDBATTLE"/> command</li>
     </ul>
-    </p>
     </li>
   </ul>
   </Version>
@@ -408,28 +374,39 @@
 
     <Command Name="PING" Source="client">
       <Description>
-      This command must be used by the lobby clients to maintain their connection to the server. It serves 2 purposes:
-      notify the server that the client is still alive, and check if server is still available. The server will assume
-      a client died if it does not receive any data from it for one minute. Similarly, a lobby client should consider
-      the server became unavailable if it does not receive any data from it for one minute. So, if nothing has been sent
-      to server for 30 seconds, it is recommended to send this command to reset the server side timeout. Similarly, if
-      no data has been received from server for 30 seconds, it is recommended to use this command to detect if server
-      has become unavailable.
-      Additionally, this command can be used to compute the round trip delay time to lobby server (in this case a
-      message ID should be used so the PONG response can be associated with the corresponding original PING request)
-      </Description>
+      Requests a <clink name="PONG"/> back from the server. 
+	  <br/><br/>
+	  Clients should send <clink name="PING"/> once every 30 seconds, if no other data is being sent to the server. For details, see the notes above on keep-alive signals. 
+	  </Description>
       <Response>
-      See <clink name="PONG"/>.
+      <clink name="PONG"/>
       </Response>
     </Command>
 
     <Command Name="PONG" Source="server">
       <Description>
-      Used as a response to a <clink name="PING"/> command.
-      You can determine how long the reply took
-      by using a message ID with the <clink name="PING"/> command.
+      Sent as the response to a <clink name="PING"/> command.
       </Description>
     </Command>
+
+<!--- tls -->	
+	
+	<Command Name="STLS" Source="client">
+      <Description>
+        Initiate a TLS connection to the server. <i>Someone who knows more about this should document it!</i>
+	  </Description>
+      <Response>
+      <clink name="OK"/>
+      </Response>
+    </Command>
+
+    <Command Name="OK" Source="server">
+      <Description>
+      Sent as the response to a <clink name="STLS"/> command. <i>Someone who knows more about this should document it!</i>
+      </Description>
+    </Command>
+
+<!--- greeting / exiting -->	
 
     <Command Name="TASSERVER" Source="server">
       <Arguments>
@@ -470,6 +447,25 @@
         <Example>TASSERVER 0.35 * 8201 0</Example>
       </Examples>
     </Command>
+	
+    <Command Name="EXIT" Source="client">
+      <Arguments>
+        <Argument Name="reason" Optional="yes" Sentence="yes">
+        Clients may optionally specify a reason for quitting. 
+		If the user simply wished to exit, many lobby clients send their name and version.
+        </Argument>
+      </Arguments>
+      <Description>
+      Clients should send this as their last command before severing their connection to the server, to notify
+      a clean and deliberate disconnect. 
+      </Description>
+	  <Response>
+	  The server is not required to acknowledge, or respond, to the exiting client. <br/>
+	  Other clients via server messages or status change commands.
+	  </Response>
+    </Command>	
+
+<!--- registration -->	
 
     <Command Name="REGISTER" Source="client">
       <Arguments>
@@ -486,17 +482,18 @@
       </Arguments>
       <Description>
       The client sends this command when trying to register a new account.
-      Note that the client mustn't already be logged in,
+      Note that the client must not already be logged in,
       or else the server will deny his request.
-      If the server is running in LAN mode, this command will be ignored.
-      The optional email allows account recovery via <clink name="RECOVERACCOUNT"/>.
+	  <br/>
+	  <br/>
+	  The username and password are given sanity/uniqueness checks, and these primarily determine the servers response. If email verification is enabled, and no valid email address is provided, the server will deny the registration.
       </Description>
       <Response>
-      The server will respond with either a <clink name="REGISTRATIONDENIED"/>
-      or <clink name="REGISTRATIONACCEPTED"/> command.
+      <clink name="REGISTRATIONDENIED"/>
+      or <clink name="REGISTRATIONACCEPTED"/>.
       </Response>
       <Examples>
-        <Example>REGISTER Johnny Gnmk1g3mcY6OWzJuM4rlMw==</Example>
+        <Example>REGISTER Johnny Gnmk1g3mcY6OWzJuM4rlMw== enormous_crocodile@hawtmail.com</Example>
       </Examples>
     </Command>
 
@@ -505,71 +502,24 @@
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a client that has just sent a <clink name="REGISTER"/> command,
+      Sent in response to a <clink name="REGISTER"/> command,
       if registration has been refused.
       </Description>
     </Command>
 
     <Command Name="REGISTRATIONACCEPTED" Source="server">
       <Description>
-      Sent to a client who has just sent a <clink name="REGISTER"/> command,
-      if registration has been accepted.
-      </Description>
+      Sent in response to a <clink name="REGISTER"/> command,
+      if registration has been accepted. 
+	  <br/><br/>
+	  If email verification is enabled, sending of this command notifies that the server has sent a verification code to the users email address. This verification code is expected back from the client in <clink name="CONFIRMAGREEMENT"/>
+      <br/><br/>
+	  Upon reciept of this command, a lobby client would normally be expected to reply with a <clink name="LOGIN"/> attempt (but this is not a requirement of the protocol).
+	  </Description>
     </Command>
 
-    <Command Name="RENAMEACCOUNT" Source="client">
-      <Arguments>
-        <Argument Name="newUsername" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will rename the current account name to newUsername.
-      The user has to be logged in for this to work.
-      After the server renames the account, it will disconnect the client.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-      <Examples>
-        <Example>RENAMEACCOUNT Johnny2</Example>
-      </Examples>
-    </Command>
+<!--- login -->	
 
-    <Command Name="CHANGEPASSWORD" Source="client">
-      <Arguments>
-        <Argument Name="oldPassword" Optional="no" Sentence="no"/>
-        <Argument Name="newPassword" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will change the password of the users's account.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-    </Command>
-
-    <Command Name="CHANGEEMAIL" Source="client">
-      <Arguments>
-        <Argument Name="newEmail" Optional="no" Sentence="no">
-          The email address associated with a given username.
-          Case is ignored.
-        </Argument>
-        <Argument Name="userName" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Will change or, in case there was none previously associated,
-      set the E-Mail address associated with a user's account.
-      The optional userName may only differ from the sender name
-      iff the sender has at least moderator status.
-      Multiple accounts may use the same E-Mail address.
-      </Description>
-      <Response>
-      No formal response is required,
-      although the server may reply with a <clink name="SERVERMSG"/> command.
-      </Response>
-    </Command>
-    
     <Command Name="LOGIN" Source="client">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
@@ -578,10 +528,6 @@
           (which means the command itself shall be encrypted, including
           its arguments), it should send BASE64(password), otherwise it
           should send BASE64(MD5(password)).
-          <br/>
-          Note that when the server is running in LAN mode, you can specify
-          any username and password (the password will be ignored, but you
-          must send some string anyway - you mustn't ommit it!)
         </Argument>
         <Argument Name="cpu" Optional="no" Sentence="no">
         deprecated, set it to 0
@@ -607,21 +553,16 @@
         Each flag in this space separated parameter indicates a specific functionality
         (like IRC user/channel flags).
         By default, all the optional functionalities are considered as not supported by the client.
-        For the current list of flags, see
-        <i>Recent changes - Version *-SNAPSHOT - Compatibility-Flags</i>
-        in the beginning of this document.
+        For the current list of flags, see the section on recent changes.
         </Argument>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to log on to the server.
-      The server may respond with a
-      <clink name="ACCEPTED"/> or <clink name="DENIED"/> command.
-      Note, that if the client has not yet confirmed the server agreement,
-      then server will send the agreement to the client upon receiving this command
-      (the LOGIN command will be ignored; the client should resend LOGIN
-      once the user has agreed to the agreement or disconnect from the server
-      if the user has rejected the agreement).
-      <br/>
+      Sent by a client asking to log on to the server.
+	  <br/><br/>
+      Note: if the client has not yet confirmed the user agreement,
+      then server will send the <clink name="AGREEMENT"/> to the client as a response to this command.
+	  In this case the response to <clink name="LOGIN"/> will be delayed until after <clink name="CONFIRMAGREEMENT"/>.
+      <br/><br/>
       Also see <clink name="LOGININFOEND"/> command.
       </Description>
       <Examples>
@@ -630,6 +571,11 @@
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>123456</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
       </Examples>
+	  <Response>
+	    If the client has previously accepted the user agreement: <clink name="ACCEPTED"/> or <clink name="DENIED"/>. <br/>
+		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>.<br/>
+		See these commands for further responses.
+	  </Response>
     </Command>
 
     <Command Name="ACCEPTED" Source="server">
@@ -638,9 +584,17 @@
       </Arguments>
       <Description>
       Sent as a response to the <clink name="LOGIN"/> command, if it succeeded.
-      After the server has finished sending info about clients and battles,
+      Next, the server will send much info about clients and battles:
+      <ul>
+        <li>multiple <clink name="MOTD"/>, each giving one line of the current welcome message</li>
+        <li>multiple <clink name="ADDUSER"/>, listing all users currently logged in</li>
+        <li>multiple <clink name="BATTLEOPENED"/>, <clink name="UPDATEBATTLEINFO"/>, detailing the state of all currently open battles</li>
+		<li>multiple <clink name="JOINEDBATTLE"/>, indiciating the clients present in each battle</li>
+        <li>multiple <clink name="CLIENTSTATUS"/>, detailing the statuses of all currently logged in users</li>
+      </ul>
+	  Finally, 
       it will send a <clink name="LOGININFOEND"/> command
-      indicating that it has finished sending the login info.
+      indicating that it has finished sending all this info. Note that, except for this final command, the commands/info listed above may be sent to the client in any order. 
       </Description>
     </Command>
 
@@ -649,41 +603,19 @@
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent as a response to a failed <clink name="LOGIN"/> command.
-      </Description>
-    </Command>
-
-    <Command Name="EXIT" Source="client">
-      <Arguments>
-        <Argument Name="reason" Optional="yes" Sentence="yes">
-        Clients may optionally specify a reason for quitting. The server is not required to use this reason in any way.
-        </Argument>
-      </Arguments>
-      <Description>
-      Clients should send this as their last command before severing the connection to indicate
-      a clean and deliberate disconnect. The server is not requried to acknowledge this in any way.
+      Sent as a response to a failed <clink name="LOGIN"/> command. 
       </Description>
     </Command>
 
     <Command Name="LOGININFOEND" Source="server">
       <Description>
-      Sent by the server, indicating that it has finished sending the login info
-      (which is sent immediately after accepting the LOGIN command).
-      This way, the client can figure out when the server has finished updating clients and battles info
-      and can therefore figure out when the login sequence is finished.
-      <br/>
-      Note that sending login info consists of 4 phases:
-      <ul>
-        <li>sending MOTD</li>
-        <li>sending list of all users currently logged on the server</li>
-        <li>sending info currently active battles</li>
-        <li>sending statuses of all users</li>
-      </ul>
-      This command is sent when the server has finished sending this info.
+      Sent by the server, indicating that it has finished sending the login info, completing the sequence initiated by <clink name="ACCEPTED"/>
       </Description>
       <Examples>
       </Examples>
     </Command>
+
+<!--- agreement -->	
 
     <Command Name="AGREEMENT" Source="server">
       <Arguments>
@@ -694,9 +626,9 @@
       <Description>
       Sent by the server upon receiving a <clink name="LOGIN"/> command,
       if the client has not yet agreed to the server's "terms-of-use".
-      The server may send multiple AGREEMENT commands
-      (which corresponds to multiple new lines in the agreement text),
-      finishing it with an <clink name="AGREEMENTEND"/> command.
+      The server may send multiple AGREEMENT commands, 
+      each of corresponds to a new line in the agreement text,
+      finishing with an <clink name="AGREEMENTEND"/> command.
       The client should send <clink name="CONFIRMAGREEMENT"/>
       and then resend the <clink name="LOGIN"/> command,
       or disconnect from the server if he has chosen to refuse the agreement.
@@ -717,92 +649,208 @@
       and wait for the user to accept/reject it).
       </Description>
       <Response>
-      A <clink name="CONFIRMAGREEMENT"/> command is expected from the client
-      in case the user agreed to the agreement.
-      Otherwise, the client should disconnect from the server.
+      A response is not mandatory, but the server now awaits a <clink name="CONFIRMAGREEMENT"/> command from the client, providing that the user agreed to the agreement.
+      Otherwise, the client should disconnect from the server, and restart the <clink name="LOGIN"/> sequence.
       </Response>
     </Command>
 
     <Command Name="CONFIRMAGREEMENT" Source="client">
+      <Arguments>
+        <Argument Name="verificationCode" Optional="yes" Sentence="no">
+        </Argument>
+      </Arguments>
       <Description>
-      Notifies the server that the user has confirmed the agreement.
-      Also see the <clink name="AGREEMENT"/> command.
-      </Description>
+        Confirm that the user agreed to the user agreement, and supply an email verification code (if necessary).
+	  </Description>
+      <Response>
+      <clink name="ACCEPTED"/>, if the verification was either accepted or was not needed. <br/>
+	  <clink name="DENIED"/>, if the verification code was not accepted.
+      </Response>
     </Command>
-
+	
     <Command Name="MOTD" Source="server">
       <Arguments>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-       Sent by the server after the client has successfully logged in.
-       The server may send multiple MOTD commands
-       (each MOTD corresponds to one line, for example).
+       Sent by the server after <clink name="ACCEPTED"/>.
+       The server may send multiple MOTD commands, each MOTD corresponds to one line of the current welcome message.
       </Description>
       <Examples>
       </Examples>
     </Command>
 
-    <Command Name="UDPSOURCEPORT" Source="server">
+		
+<!--- account management -->	
+
+    <Command Name="RENAMEACCOUNT" Source="client">
       <Arguments>
-        <Argument Name="port" Optional="no" Sentence="no"/>
+        <Argument Name="newUsername" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent as a response to a client's UDP packet
-      (used with "hole punching" NAT traversal technique).
-      For more info,
-      see the <i>Hole punching</i> section in the beginnig of this document.
+      Will rename the current account name to newUsername.
+      The user has to be logged in for this to work.
+      After the server renames the account, it will disconnect the client.
       </Description>
+      <Response>
+      No formal response is required,
+      although the server may reply with a <clink name="SERVERMSG"/>.
+      </Response>
       <Examples>
-        <Example>UDPSOURCEPORT 52361</Example>
+        <Example>RENAMEACCOUNT Johnny2</Example>
       </Examples>
     </Command>
 
-    <Command Name="CLIENTIPPORT" Source="server">
+    <Command Name="CHANGEPASSWORD" Source="client">
+      <Arguments>
+        <Argument Name="oldPassword" Optional="no" Sentence="no"/>
+        <Argument Name="newPassword" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Will change the password of the users's account.
+      </Description>
+      <Response>
+      No formal response is required,
+      although the server may reply with a <clink name="SERVERMSG"/>.
+      </Response>
+    </Command>
+	
+    <Command Name="CHANGEEMAILREQUEST" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wishes to change too.
+        </Argument>
+      </Arguments>
+      <Description>
+		Requests a verification code, to be sent to a new email address that the user wishes to associate to their account.
+		<br/><br/>
+		Even if email verification is disabled, it is intended that the client will call this before calling <clink name="CHANGEEMAIL"/>.
+		If email verification is disabled, the response will be a <clink name="CHANGEEMAILREQUESTDENIED"/>, containing a message informing the user that a blank verification code will be accepted.
+	  </Description>
+      <Response>
+		<clink name="CHANGEEMAILREQUESTDENIED"/> or <clink name="CHANGEEMAILREQUESTACCEPTED"/>
+      </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILREQUESTACCEPTED" Source="server">
+      <Description>
+	    Notifies that a verification code was sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
+		<br/><br/>
+		No response is required from the client, although a <clink name="CHANGEEMAIL"/> command would normally be sent once the user has supplied their verification code.
+	  </Description>
+    </Command>
+
+    <Command Name="CHANGEEMAILREQUESTDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+	  <Description>
+	    Notifies that a verification code was not sent, in response to <clink name="CHANGEEMAILREQUEST"/>.
+	  </Description>
+    </Command>
+	
+    <Command Name="CHANGEEMAIL" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wishes to change too. 
+        </Argument>
+        <Argument Name="verificationCode" Optional="yes" Sentence="no">
+		  The verification code recieved as a result of <clink name="CHANGEEMAILREQUESTACCEPTED"/>.
+		</Argument>
+      </Arguments>
+      <Description>
+        Asks the server to change the email address associated to the client. See also <clink name="CHANGEEMAILREQUEST"/>, which would typically be called first.
+	  </Description>
+      <Response>
+		<clink name="CHANGEEMAILDENIED"/> or <clink name="CHANGEEMAILACCEPTED"/>
+      </Response>
+    </Command>
+
+    <Command Name="CHANGEEMAILACCEPTED" Source="server">
+      <Description>
+	    Notifies that client that their email address was changed, in response to <clink name="CHANGEEMAIL"/>.
+	  </Description>
+    </Command>
+
+    <Command Name="CHANGEEMAILDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+	    Notifies that the email address could not be changed, in response to <clink name="CHANGEEMAIL"/>.
+	  </Description>
+    </Command>	
+
+    <Command Name="RESENDVERIFICATION" Source="client">
+      <Arguments>
+        <Argument Name="newEmail" Optional="no" Sentence="no">
+          The email address the user wished to change too, or register with, but has forgotten/lost/eaten or not recieved their verification code for. 
+        </Argument>
+      </Arguments>
+      <Description>
+        Request that an active verification code to be re-sent.
+	  </Description>
+      <Response>
+		<clink name="RESENDVERIFICATIONDENIED"/> or <clink name="RESENDVERIFICATIONACCEPTED"/>
+      </Response>
+    </Command>
+
+    <Command Name="RESENDVERIFICATIONACCEPTED" Source="server">
+      <Description>
+	    Notifies that a verification code was re-sent, in response to <clink name="RESENDVERIFICATION"/>.
+	  </Description>
+    </Command>
+
+    <Command Name="RESENDVERIFICATIONDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+	    Notifies that a verification code was not re-sent, in response to <clink name="RESENDVERIFICATION"/>.
+	  </Description>
+    </Command>	
+
+<!--- other users logins -->	
+
+    <Command Name="ADDUSER" Source="server">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
+        <Argument Name="country" Optional="no" Sentence="no">
+        A two-character country code based on ISO 3166 standard.
+        See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
+        </Argument>
+        <Argument Name="cpu" Optional="no" Sentence="no">
+        deprecated, see the <clink name="LOGIN"/> command.
+        </Argument>
+        <Argument Name="userID" Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent to the battle's host, notifying him about another client's IP address
-      and his public UDP source port.
-      The host needs to know public UDP source ports of all players in his battle
-      in order for the <i>Hole punching</i> technique to work.
-      The IP is needed for both NAT traversal methods
-      ("hole punching" and "fixed source ports").
-      This command is sent to the the battle host immediately after a new user joins the battle
-      (currently only if some NAT traversal technique is used).
+      Tells the client that a new user joined a server.
+      The client should add this user to his clients list,
+      which he must maintain while he is connected to the server.
       </Description>
     </Command>
 
-    <Command Name="HOSTPORT" Source="server">
+    <Command Name="REMOVEUSER" Source="server">
       <Arguments>
-        <Argument Name="port" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients participating in the battle
-      (except for the host), notifying them about the new host port.
-      This message will only be sent right before the host starts a game,
-      if this battle is being hosted using "hole punching" NAT traversal technique.
-      When a client receives this message,
-      he should replace the battle's host port with this new port,
-      so that when the game actually starts,
-      he will connect to this new port,
-      rather than to the port which the host selected when he initialy started the battle
-      (with the <clink name="OPENBATTLE"/> command).
+      Indicates that a user disconnected from the server.
+      The client should remove this user from his clients list,
+      which he must maintain while he is connected to the server.
       </Description>
     </Command>
-
+	
+<!-- server messages -->
+	
     <Command Name="SERVERMSG" Source="server">
       <Arguments>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
       A general purpose message sent by the server.
-      The lobby client program should display it either in the chat log
-      or in some kind of system log, where the user will notice it.
-      Also see the <clink name="SERVERMSGBOX"/> command.
+      The lobby client program should display this message to the user in a non-invasive way, but clearly visible to the user.
       </Description>
       <Examples>
         <Example>SERVERMSG Server is going down in 5 minutes for a restart, due to a new update.</Example>
@@ -820,98 +868,219 @@
         </Argument>
       </Arguments>
       <Description>
-      The client should open the message in a dialog window
-      (and not just in the console).
-      Also see the <clink name="SERVERMSG"/> command.
+      The lobby client program should display this message to the user in an invasive way, which requires response from the user (e.g. a dialogue box).
       </Description>
     </Command>
+	
+<!--- moderation interface -->	
 
-    <Command Name="ADDUSER" Source="server">
+    <Command Name="BAN" Source="client">
       <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="country" Optional="no" Sentence="no">
-        A two-character country code based on ISO 3166 standard.
-        See <url>http://www.iso.org/iso/en/prods-services/iso3166ma/index.html</url>
+        <Argument Name="username" Optional="no" Sentence="no">
+          The target of the ban. 
         </Argument>
-        <Argument Name="cpu" Optional="no" Sentence="no">
-        deprecated, see the <clink name="LOGIN"/> command.
+        <Argument Name="duration" Optional="no" Sentence="no">
+          In days, as a float. 
         </Argument>
-        <Argument Name="accountID" Optional="yes" Sentence="no">
-        Unique ID bound to the account (can be used to track renammed accounts).
-        This field is only provided if the lobby client sent the accountID compatibility flag ('a')
-        in the <clink name="LOGIN"/> command.
-        </Argument>
-      </Arguments>
-      <Description>
-      Tells the client that a new user joined a server.
-      The client should add this user to his clients list,
-      which he must maintain while he is connected to the server.
-      The server will send multiple commands of this kind,
-      once the client logs in,
-      in order to provide the client with the list of all users currently connected.
-      </Description>
-    </Command>
-
-    <Command Name="REMOVEUSER" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Indicates that a user disconnected from the server.
-      The client should remove this user from his clients list,
-      which he must maintain while he is connected to the server.
-      </Description>
-    </Command>
-
-    <Command Name="JOIN" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="key" Optional="yes" Sentence="no">
-        If the channel is locked, the client must supply the correct key to join the channel
-        (clients with access >= Account.ADMIN_ACCESS can join locked channels
-        withouth supplying the key - needed for the ChanServ bot).
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent by a client trying to join a channel.
-      </Description>
-      <Examples>
-        <Example>JOIN main</Example>
-        <Example>JOIN myprivatechannel mypassword</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="JOIN" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no">
-        Name of the channel which the client has just joined
-        (by previously sending the <clink name="JOIN:client"/> command).
-        </Argument>
-      </Arguments>
-      <Description>
-      Sent to a client who has successfully joined a channel.
-      </Description>
-      <Examples>
-        <Example>JOIN main</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="JOINFAILED" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent if joining a channel failed for some reason.
-      </Description>
+		Requests that the server add the corresponding user, AND their current ip, AND their current email address, to the server ban list.
+ 	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+	  </Response>
+      <Examples>
+        <Example>BAN [SMART]dude 1 spamming #sy</Example>
+      </Examples>
     </Command>
 
+    <Command Name="BANSPECIFIC" Source="client">
+      <Arguments>
+        <Argument Name="username|ip|email" Optional="no" Sentence="no">
+          The target of the ban. 
+        </Argument>
+        <Argument Name="duration" Optional="no" Sentence="no">
+          In days, as a float. 
+        </Argument>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		Requests that the server add the given arg (and nothing else, unlike <clink name="BAN"/>) to the server ban list.
+		<br/><br/>
+		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
+		The server will auto-recognize the input as one of these three forms, or respond with an error message.
+ 	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+      <Examples>
+        <Example>BANSPECIFIC [BaD]UserGuy 1.5 smurfing like a pro </Example>
+        <Example>BANSPECIFIC 216.3.128.12 7 shooting wabbits out of sheason </Example>
+        <Example>BANSPECIFIC enormous_crocodile@hootmail.com 999 honking </Example>
+      </Examples>
+    </Command>
+
+    <Command Name="UNBAN" Source="client">
+      <Arguments>
+        <Argument Name="username|ip|email" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+		Requests that all bans matching the given input be removed from the server banlist.
+		<br/><br/>
+		The first argument can be either a username, an ip in the form 'x.x.x.x' or an email address in the form 'a@b.c'. 
+		The server will auto-recognize the input as one of these three forms, or respond with an error message.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>
+	
+    <Command Name="LISTBANS" Source="client">
+      <Description>
+	    Ask the server to reply with a stream of server messages, containing a human readable version of the server ban list.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+
+    <Command Name="BLACKLIST" Source="client">
+      <Arguments>
+        <Argument Name="domain" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+ 	    Request that given domain be added to the blacklist. The server will deny verification attempts for all emails ending in a blacklisted domain.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+      <Examples>
+        <Example>BLACKLIST hawtmail.com</Example>
+      </Examples>    </Command>	
+	
+    <Command Name="UNBLACKLIST" Source="client">
+      <Arguments>
+        <Argument Name="domain" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+ 	    Request that the given domain be removed from the blacklist.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+
+    <Command Name="LISTBLACKLIST" Source="client">
+      <Description>
+	    Ask the server to reply with a stream of server messages, containing a human readable version of the current blacklist.
+	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+      </Response>
+    </Command>	
+
+<!-- user status mod commands -->
+
+    <Command Name="GETLASTLOGINTIME" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's last login time (before the current login, if the user is currently logged in).
+      </Description>
+   </Command>
+
+    <Command Name="GETLOBBYVERSION" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user's lobby version (as sent via <clink name="LOGIN"/>).
+      </Description>
+   </Command>
+
+   <Command Name="GETUSERID" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the user_id of the user (as sent via <clink name="LOGIN"/>).
+      </Description>
+   </Command>
+   
+   <Command Name="GETIP" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      The server replies with a <clink name="SERVERMSG:server"/>,
+      indicating the most recently known IP of the user.
+      </Description>
+   </Command>
+
+   <Command Name="FINDIP" Source="client">
+      <Arguments>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+      </Arguments>
+	  <Description>
+      The server replies with a stream of <clink name="SERVERMSG:server"/>s,
+      listing users whose most recently used IP matches that given.
+      </Description>
+   </Command>
+
+   <Command Name="SETBOTMODE" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no"/>
+        <Argument Name="mode" Optional="no" Sentence="no">
+		 0 or 1
+		</Argument>
+      </Arguments>
+      <Description>
+	  Send to add or remove a botflag from a client.
+      The server replies with a <clink name="SERVERMSG:server"/>s.
+      </Description>
+   </Command>
+   
+    <Command Name="BROADCAST" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSG"/> to all users.
+	  </Description>
+    </Command>
+
+    <Command Name="BROADCASTEX" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSGBOX"/> to all users.
+	  </Description>
+    </Command>
+
+    <Command Name="ADMINBROADCAST" Source="client">
+      <Arguments>
+        <Argument Name="message" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sends a <clink name="SERVERMSG"/> to all users, prefixed by "Admin broadcast:".
+	  </Description>
+    </Command>
+	
+<!-- channel commands -->
+	
     <Command Name="CHANNELS" Source="client">
       <Description>
       Sent by a client when requesting the list of all channels on the server
       </Description>
       <Response>
-      A series of <clink name="CHANNEL"/> command,
+      A series of <clink name="CHANNEL"/> commands,
       followed by an <clink name="ENDOFCHANNELS"/> command.
       </Response>
       <Examples>
@@ -943,55 +1112,46 @@
       Sent to a client who previously requested the channel list,
       after a series of <clink name="CHANNEL"/> commands (one for each channel).
       </Description>
-    </Command>
-
-    <Command Name="MUTELIST" Source="client">
+    </Command>	
+    <Command Name="JOIN" Source="client">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by a client when requesting the mute list of a channel.
-      </Description>
-      <Examples>
-        <Example>MUTELIST main</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="MUTELISTBEGIN" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server when sending channel's mute list to the client.
-      </Description>
-      <Response>
-      0 or more <clink name="MUTELIST:server"/> commands
-      and finally by a <clink name="MUTELISTEND"/> command.
-      </Response>
-    </Command>
-
-    <Command Name="MUTELIST" Source="server">
-      <Arguments>
-        <Argument Name="mute description" Optional="no" Sentence="yes">
-        The form of this argument is not prescribed
-        (it may vary from version to version).
-        The lobby client program should simply display it as it receives it.
+        <Argument Name="key" Optional="yes" Sentence="no">
+        If the channel is locked, non-priviledged clients must supply the correct key to join.
         </Argument>
       </Arguments>
       <Description>
-      Multiple commands of this kind may be sent after a <clink name="MUTELISTBEGIN"/> command
-      (or none, if the mute list is empty).
+      Sent by a client requesting to join a channel.
       </Description>
+	  <Response>
+	    <clink name="JOIN:server"/> or <clink name="JOINFAILED"/>. See there for further responses.
+	  </Response>
       <Examples>
-        <Example>MUTELIST Johnny, 345 seconds remaining</Example>
-        <Example>MUTELIST rabbit, indefinite time remaining</Example>
+        <Example>JOIN moddev</Example>
       </Examples>
     </Command>
 
-    <Command Name="MUTELISTEND" Source="server">
+    <Command Name="JOIN" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no">
+        Name of the channel which the client has just joined
+        </Argument>
+      </Arguments>
       <Description>
-      Sent by the server after it has finished sending the list of mutes for a channel.
-      Also see the <clink name="MUTELIST:server"/> and <clink name="MUTELISTBEGIN"/> commands.
+      Sent to a client who has successfully <clink name="JOIN:client"/>ed a channel.
+      </Description>
+      <Examples>
+        <Example>JOIN main</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="JOINFAILED" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent if joining a channel failed for some reason.
       </Description>
     </Command>
 
@@ -999,47 +1159,43 @@
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
         <Argument Name="author" Optional="no" Sentence="no"/>
-        <Argument Name="changedTime" Optional="no" Sentence="no">
-        Time in seconds since Jan 1, 1970 (UTC).
-        </Argument>
         <Argument Name="topic" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a client who just joined the channel,
-      if some topic is set for this channel.
+      Sent to a client who just <clink name="JOIN"/>ed a channel, or who was already present in a channel when the topic was changed.
+      This command informs the client of the current channel topic.
       </Description>
     </Command>
 
     <Command Name="CHANNELTOPIC" Source="client">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="topic" Optional="no" Sentence="yes"/>
+        <Argument Name="topic" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent a by privileged user who is trying to change a channel's topic.
-      Use "*" as topic if you wish to remove the topic.
+        A request to change a channel's topic, typically sent by a priviledged user.
+      </Description>
+    </Command>
+
+    <Command Name="NOCHANNELTOPIC" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to a client who just <clink name="JOIN"/>ed a channel, or who was already present in a channel when the topic was changed.
+      This command informs the client that no topic is set for this channel.
       </Description>
     </Command>
 
     <Command Name="CLIENTS" Source="server">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="clients" Optional="no" Sentence="yes"/>
+        <Argument Name="clients" Optional="no" Sentence="yes">
+		  A sentence in which each word is the username of a client present in the channel. 
+		</Argument>
       </Arguments>
       <Description>
-      Sent to a client who just joined the channel.
-      Note: Multiple commands of this kind can be sent in a row.
-      The server takes the list of clients in a channel,
-      separates it into several lines and sends each line seperately.
-      This ensures no line is too long,
-      because the client may have some limit set on the maximum line-length
-      and it could ignore the line if it was too long.
-      Also note, that the clients user-name is sent in this list too!
-      So when the client receives a JOIN command,
-      he should not add his name in the client list of the channel,
-      but he should wait for the CLIENTS command,
-      which will contain his name too
-      and he will add himself automatically then.
+      Sent to a client who just joined the channel. This command informs the client of the list of users present in the channel, including the client itself.
       </Description>
     </Command>
 
@@ -1059,10 +1215,13 @@
         <Argument Name="chanName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to leave a channel.
-      When the client is disconnected,
-      he is automatically removed from all channels.
+      Sent by a client when requesting to leave a channel.
+      <br/><br/>
+	  Note that when the client is disconnected, the client is automatically removed from all channels.
       </Description>
+	  <Response>
+		None. The server will broadcast the <clink name="LEFT"/> command to (other) users who remain in the channel.
+	  </Response>
     </Command>
 
     <Command Name="LEFT" Source="server">
@@ -1072,13 +1231,7 @@
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients in a channel when some client left this channel.
-      WARNING:
-      The server does not send this command to a client that has just left a channel,
-      because there is no need to,
-      as the client who has left the channel knows that already.
-      A client that was kicked from the channel is notified about it
-      via the <clink name="FORCELEAVECHANNEL:server"/> command.
+      Sent by the server to inform a client, present in a channel, that another user has left that channel.
       </Description>
     </Command>
 
@@ -1089,11 +1242,14 @@
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client (moderator),
+      Sent by a priviledged client,
       requsting that a user be removed from the channel.
-      The user will be notified with a
-      <clink name="FORCELEAVECHANNEL:server"/> command.
+      If the user is present, they will be removed. 
       </Description>
+	  <Response>
+		The removed user will be notified with a
+      <clink name="FORCELEAVECHANNEL:server"/> command, and other clients in the channel will notified with a <clink name="LEFT"/> command.	  
+	  </Response>
     </Command>
 
     <Command Name="FORCELEAVECHANNEL" Source="server">
@@ -1103,10 +1259,8 @@
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a user who has just been kicked from the channel #chanName
-      by user "userName".
-      The lobby client should now internally close/detach from the channel,
-      as he was removed from the clients list of #channame on the server side.
+      Sent to a user who has just been kicked from a channel.
+      Notifies that the server no longer regards the recipient as present in the channel; a lobby client should display this to the user.
       </Description>
     </Command>
 
@@ -1132,7 +1286,8 @@
       to be allowed to use this command.
       </Description>
       <Response>
-      See <clink name="SAID:server"/>.
+      See <clink name="SAID:server"/>.<br/>
+	  <i> If the request to speak is denied, a <clink name="FAILED"/> command will be sent in JSON format. </i>
       </Response>
     </Command>
 
@@ -1155,9 +1310,13 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by any client when he is trying to say something in "/me" IRC style.
-      Also see the <clink name="SAY:client"/> command.
+      Sent by any client requesting to say something in a channel in "/me" IRC style.
+      (The <clink name="SAY:client"/> command is used for normal chat messages.)
       </Description>
+      <Response>
+      See <clink name="SAIDEX:server"/>.<br/>
+	  <i> If the request to speak is denied, a <clink name="FAILED"/> command will be sent in JSON format. </i>
+      </Response>
     </Command>
 
     <Command Name="SAIDEX" Source="server">
@@ -1181,7 +1340,7 @@
       Send a private chat message to an other client.
       </Description>
       <Response>
-      See <clink name="SAYPRIVATE:server"/>.
+      <clink name="SAYPRIVATE:server"/> and <clink name="SAIDPRIVATE:server"/>
       </Response>
     </Command>
 
@@ -1192,8 +1351,7 @@
       </Arguments>
       <Description>
       Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
-      This way, the client can verify that the server did get his chat message
-      and that the receiver will get it too.
+      This notifies the client that the server sent the private message on to its intended recipient.
       </Description>
     </Command>
 
@@ -1203,7 +1361,7 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Indicates that a user sent a private chat message to the receiving client.
+      Sends a private message on to its intended recipient.
       </Description>
     </Command>
 
@@ -1213,9 +1371,12 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client when he is trying to say something in "/me" IRC style in a private chat.
-      Also see the <clink name="SAYPRIVATE:client"/> command.
+      Sent by a client requesting to say something in "/me" IRC style in a private message.
+      (Normal chat messages are sent via the <clink name="SAYPRIVATE:client"/> command.)
       </Description>
+      <Response>
+      <clink name="SAYPRIVATEEX:server"/> and <clink name="SAIDPRIVATE:server"/>
+      </Response>
     </Command>
 
     <Command Name="SAYPRIVATEEX" Source="server">
@@ -1224,7 +1385,8 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Indicates that a user sent a private "/me" IRC style chat message to the receiving client.
+      Sent to a client that just sent a <clink name="SAYPRIVATE:client"/> command.
+      This notifies the client that the server sent the private message on to its intended recipient.
       </Description>
     </Command>
 
@@ -1234,11 +1396,68 @@
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Indicates that a user sent a private chat message to the receiving client
-      using the <clink name="SAYPRIVATEEX:client"/> command.
+      Sends a private message in "/me" IRC style on to its intended recipient.
       </Description>
     </Command>
 
+    <Command Name="GETCHANNELMESSAGES" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="lastID" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a client requesting the history of a channel, since the lastID.
+	  </Description>
+	  <Response>
+	  The server will respond with a sequence of <clink name="SAID"/> commands via the <clink name="JSON"/> command, one for each chat message requested (up to a two week limit). 
+	  </Response>
+    </Command>
+	
+    <Command Name="MUTELIST" Source="client">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a client when requesting the mute list of a channel.
+      </Description>
+	  <Response>
+		The response begins with <clink name="MUTELISTBEGIN"/>.
+	  </Response>
+      <Examples>
+        <Example>MUTELIST main</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="MUTELISTBEGIN" Source="server">
+      <Arguments>
+        <Argument Name="chanName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server as a notification that the server is about to send a channel's mute list to the client. 
+	  It will be followed by multiple <clink name="MUTELIST"/> commands, one for each entry on the channels mutelist, and finally a <clink name="MUTELISTEND"/> command.
+      </Description>
+    </Command>
+
+    <Command Name="MUTELIST" Source="server">
+      <Arguments>
+        <Argument Name="mute description" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		  An item on the mutelist of a channel.
+      </Description>
+      <Examples>
+        <Example>MUTELIST Johnny, 345 seconds remaining</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="MUTELISTEND" Source="server">
+      <Description>
+		Notifies that the stream of multiple <clink name="MUTELIST:server"/> command, sent following <clink name="MUTELISTBEGIN"/>, is now completed.
+      </Description>
+    </Command>
+
+<!-- joining/opening battle commands -->
+	
     <Command Name="OPENBATTLE" Source="client">
       <Arguments>
         <Argument Name="type" Optional="no" Sentence="no">
@@ -1259,39 +1478,37 @@
         <Argument Name="gameHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="rank" Optional="no" Sentence="no"/>
+        <Argument Name="rank" Optional="no" Sentence="no">
+		The minimum rank required for a client in the battle to be allowed to become a player.
+		</Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
-        <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
-        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
+        <Argument Name="engineName" Optional="no" Sentence="yes">Use 'Spring'</Argument>
+        <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', same format as in <clink name="TASSERVER:server"/></Argument>
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the client when he is trying to open a new battle. ( Compatibility-Flag need: 'cl' )
-      The client becomes a founder of this battle, if the command is successful.
-
+      Sent by the client requesting to open a new battle. 
+      If the command is successful, the client becomes the founder (i.e. host) of the new battle.
+	  <br/><br/>
+	  Clients without botflags will have their maxPlayers capped at 10; 
+	  the founding client will be informed via a server message if the server applies this limitation.
       </Description>
       <Response>
-      The cient is notified about this command's success
-      via the <clink name="OPENBATTLE:server"/> /<clink name="OPENBATTLEFAILED:server"/> commands.
+      If accepted: <clink name="BATTLEOPENED"/> and <clink name="OPENBATTLE:server"/><br/>
+	  If denied: <clink name="OPENBATTLEFAILED:server"/> 
       </Response>
     </Command>
 
-    <Command Name="OPENBATTLE" Source="server">
+    <Command Name="OPENBATTLEFAILED" Source="server">
       <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent to a client who previously sent a <clink name="OPENBATTLE:client"/> command,
-      if the client's request to open a new battle has been approved.
-      If the server rejected the request,
-      the client is notified via the <clink name="OPENBATTLEFAILED"/> command.
-      The server first sends a <clink name="BATTLEOPENED"/>, then this command
-      (this is important - the client must have the battle in his battle list
-      before he receives this command!).
+      Informs a client that tried to open a battle that their request has been rejected.
       </Description>
     </Command>
 
@@ -1319,7 +1536,7 @@
         </Argument>
         <Argument Name="rank" Optional="no" Sentence="no"/>
         <Argument Name="mapHash" Optional="no" Sentence="no">
-        A signed 32-bit integer as returned from (acquired via the unitsync library).
+        A signed 32-bit integer (acquired via the unitsync library).
         </Argument>
         <Argument Name="engineName" Optional="no" Sentence="yes">For example: 'my spring'</Argument>
         <Argument Name="engineVersion" Optional="no" Sentence="yes">For example: '94.1.1-1062-g9d16c2d develop', See also <clink name="TASSERVER:server"/></Argument>
@@ -1328,20 +1545,22 @@
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to all registered users,
-      when a new battle has been opened. ( Compatibility-Flag need: 'cl' )
-      A series of instances of this command are sent to user when he logs in
-      (1 command for each battle).
+      Sent by the server to all registered users, when a new battle becomes open. 
       </Description>
     </Command>
 
-    <Command Name="BATTLECLOSED" Source="server">
+    <Command Name="OPENBATTLE" Source="server">
       <Arguments>
         <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent when the founder has closed a battle (or if he was disconnected).
-      </Description>
+      Sent to a client who previously sent an <clink name="OPENBATTLE:client"/> command,
+      if the client's request to open a new battle has been approved. 
+	  <br/><br/>
+	  Note that the corresponding <clink name="BATTLEOPENED"/> command is sent <i>before</i> this command is used to reflect the successful <clink name="OPENBATTLE:client"/> command back to the client.
+	  <br/><br/>
+      After sending this command, the server will send a <clink name="JOINBATTLE:server"/> (to notify the founding client that they have joined their own battle) followed by a <clink name="REQUESTBATTLESTATUS"/>.
+	  </Description>
     </Command>
 
     <Command Name="JOINBATTLE" Source="client">
@@ -1349,33 +1568,18 @@
         <Argument Name="battleID" Optional="no" Sentence="no"/>
         <Argument Name="password" Optional="yes" Sentence="no"/>
         <Argument Name="scriptPassword" Optional="yes" Sentence="no">
-        A random, client-generated string,
-        wich will be written to script.txt by the host,
-        to avoid account spoofing
-        (= someone is trying to join the battle under a wrong user-name).
-        If set, the password has to be set too, even if it is empty.
+        A random, client-generated string (which is used to avoid account spoofing ingame, and will appear in script.txt).
+        Note that if this argument is sent, a password must be sent too. If the battle is not passworded then an empty password should be sent.
         </Argument>
       </Arguments>
       <Description>
-      Sent by a client trying to join a battle.
-      The password is an optional parameter.
+      Sent by a client requesting to join a battle.
       </Description>
-    </Command>
-
-    <Command Name="JOINBATTLE" Source="server">
-      <Arguments>
-        <Argument Name="battleID" Optional="no" Sentence="no"/>
-        <Argument Name="hashCode" Optional="no" Sentence="no">
-        A signed 32-bit integer.
-        </Argument>
-      </Arguments>
-      <Description>
-      Tells the client that he has just joined the battle successfully.
-      The server will also send a series of
-      <clink name="CLIENTBATTLESTATUS"/> commands after this command,
-      so that the user will get the battle statuses of all the clients in the battle.
-      </Description>
-    </Command>
+	  <Response>
+	  The server will reply to the client with either <clink name="JOINBATTLE:server"/> or <clink name="JOINBATTLEFAILED"/>. 
+	  In order to determine which response is given, the server will typically send a <clink name="JOINBATTLEREQUEST"/> to the battle founder, and wait for the reply. 
+	  </Response>
+	</Command>
 
     <Command Name="JOINBATTLEREQUEST" Source="server">
       <Arguments>
@@ -1383,16 +1587,11 @@
         <Argument Name="ip" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to a battle founder,
-      each time a client requests to join his battle,
-      if the battle founder supports the battle authorization system
-      (i.e., he provided the battle authorization compatibility flag ('b')
-      in the <clink name="LOGIN"/> command).
+      Sent by the server to a battle founder, each time a client requests to join his battle.
       </Description>
       <Response>
-      When the client receives this command,
-      he must send either a <clink name="JOINBATTLEACCEPT"/>
-      or a <clink name="JOINBATTLEDENY"/> command to the server.
+      The battle founder should reply with either <clink name="JOINBATTLEACCEPT"/>
+      or <clink name="JOINBATTLEDENY"/>.
       </Response>
     </Command>
 
@@ -1401,9 +1600,12 @@
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client in response to a <clink name="JOINBATTLEREQUEST"/> command
-      in order to allow the user to join the battle.
+      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to allow the user to join their battle.
       </Description>
+      <Response>
+      None. The client server will now send <clink name="JOINBATTLE:server"/> to the client, and join the client to the battle.
+      </Response>
     </Command>
 
     <Command Name="JOINBATTLEDENY" Source="client">
@@ -1412,8 +1614,41 @@
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by a client in response to a <clink name="JOINBATTLEREQUEST"/> command
-      in order to prevent the user from joining the battle.
+      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to disallow the user to join their battle.
+      </Description>
+      <Response>
+      None. The client server will now send <clink name="JOINBATTLEFAILED"/> to the client.
+      </Response>
+    </Command>
+
+    <Command Name="JOINBATTLE" Source="server">
+      <Arguments>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="hashCode" Optional="no" Sentence="no">
+        A signed 32-bit integer (acquired via the unitsync library).
+  	    This code is computed using the current map, game, and other dependencies.
+	    It is used to check that the client has correct non-corrupt downloads of the required content.
+        </Argument>
+      </Arguments>
+      <Description>
+      Notifies a client that their request to <clink name="JOINBATTLE:client"/> was successful, and that they have just joined the battle.
+      <br/><br/>
+	  Clients in the battle will be notified of the new user via <clink name="JOINEDBATTLE"/>.
+	  <br/><br/>      
+	  Next, the server will send a series of commands to the newly joined client, which might include <clink name="DISABLEUNITS"/>, <clink name="ADDBOT"/>, <clink name="ADDSTARTRECT"/>, <clink name="SETSCRIPTTAGS"/> and so on, 
+	  along with multiple <clink name="CLIENTBATTLESTATUS"/>, in order to describe the current state of the battle to the joining client.
+	  <br/><br/>
+	  If the battle has natType>0, the server will also send the clients IP port to the host, via the <clink name="CLIENTIPPORT"/> command. <i> Someone who knows more about this should write more! </i>
+	  </Description>
+    </Command>
+
+    <Command Name="JOINBATTLEFAILED" Source="server">
+      <Arguments>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Notifies a client that their request to <clink name="JOINBATTLE:client"/> was denied.
       </Description>
     </Command>
 
@@ -1447,28 +1682,77 @@
     <Command Name="LEAVEBATTLE" Source="client">
       <Description>
       Sent by the client when he leaves a battle.
-      Also sent by a founder of the battle when he closes his battle.
+	  <br/><br/>
+      When this command is by the founder of a battle, it notifies that the battle is now closed.
       </Description>
+	  <Response>
+	  If sent by the founder, <clink name="BATTLECLOSED"/>.
+	  </Response>
     </Command>
 
-    <Command Name="JOINBATTLEFAILED" Source="server">
+    <Command Name="BATTLECLOSED" Source="server">
       <Arguments>
-        <Argument Name="reason" Optional="no" Sentence="yes"/>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Tells a user that just tried to join a battle that he has been rejected.
+      Sent to all users to notify that a battle has been closed.
       </Description>
     </Command>
 
-    <Command Name="OPENBATTLEFAILED" Source="server">
+<!-- udp port commands -->
+
+    <Command Name="UDPSOURCEPORT" Source="server">
       <Arguments>
-        <Argument Name="reason" Optional="no" Sentence="yes"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Tells a user that just tried to open a battle that this request has been rejected.
+      Sent as a response to a client's UDP packet
+      (used with "hole punching" NAT traversal technique).
+	  <br/><i> Someone who knows more about this should document it!</i>
+      </Description>
+      <Examples>
+        <Example>UDPSOURCEPORT 52361</Example>
+      </Examples>
+    </Command>
+
+    <Command Name="CLIENTIPPORT" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent to the battle's host, notifying him about another client's IP address
+      and his public UDP source port. 
+      <!--The host needs to know public UDP source ports of all players in his battle
+      in order for the <i>Hole punching</i> technique to work.
+      The IP is needed for both NAT traversal methods
+      ("hole punching" and "fixed source ports").
+      This command is sent to the the battle host immediately after a new user joins the battle
+      (currently only if some NAT traversal technique is used).-->
       </Description>
     </Command>
 
+    <Command Name="HOSTPORT" Source="server">
+      <Arguments>
+        <Argument Name="port" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server to all clients participating in the battle, except for the host, notifying them about the (possibly new) host port.
+      <!--This message will only be sent right before the host starts a game,
+      if this battle is being hosted using "hole punching" NAT traversal technique.
+      When a client receives this message,
+      he should replace the battle's host port with this new port,
+      so that when the game actually starts,
+      he will connect to this new port,
+      rather than to the port which the host selected when he initialy started the battle
+      (with the <clink name="OPENBATTLE"/> command).-->
+      </Description>
+    </Command>
+		
+	
+<!-- battle state commands -->
+	
     <Command Name="UPDATEBATTLEINFO" Source="server">
       <Arguments>
         <Argument Name="battleID" Optional="no" Sentence="no"/>
@@ -1482,7 +1766,7 @@
         A boolean ("0" (for false) or "1").
         Note that when the client creates a battle,
         the server assumes it is unlocked (by default).
-        The client must make sure it uses this same default.
+        The client must make sure it assumes this same default.
         </Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer.
@@ -1507,7 +1791,7 @@
         A boolean ("0" (for false) or "1").
         Note that when the client creates a battle,
         the server assumes it is unlocked (by default).
-        The client must make sure it uses this same default.
+        The client must make sure it assumes this same default.
         </Argument>
         <Argument Name="mapHash" Optional="no" Sentence="no">
         A signed 32-bit integer.
@@ -1529,14 +1813,11 @@
       </Arguments>
       <Description>
       Send a chat message to all clients participating in a battle.
-      A 'battleID' argument is not required,
-      since every user can participate in only one battle at a time.
-      If the user is not participating in any battle,
-      receiption of this command is considered invalid
-      and will therefore be ignored.
+      (A 'battleID' argument is not required,
+      since every user can participate in only one battle at a time.)
       </Description>
       <Response>
-      See <clink name="SAIDBATTLE:server"/>.
+      <clink name="SAIDBATTLE:server"/>.
       </Response>
     </Command>
 
@@ -1548,11 +1829,8 @@
       <Description>
       Sent to the participants of a battle when a client sent a chat message to it,
       using the <clink name="SAYBATTLE:client"/> command.
-      A 'battleID' is not required,
-      since every client knows which battle he is participating in,
-      since every client may participate in only one battle at a time.
-      If the client is not participating in any battle,
-      he should ignore this command or raise an error.
+      (A 'battleID' is not required,
+      since every client knows which battle he is participating in.)
       </Description>
     </Command>
 
@@ -1563,12 +1841,10 @@
       <Description>
       Sent by any client participating in a battle
       when he wants to say something in "/me" IRC style.
-      The server can forge this command too
-      (for example, when the founder of the battle kicks a user,
-      the server uses this command to indicate what just happened).
+      Also gets sent by the server to inform users when e.g. a user is kicked from the battle.
       </Description>
       <Response>
-      See <clink name="SAIDBATTLEEX:server"/>.
+      <clink name="SAIDBATTLEEX:server"/>.
       </Response>
     </Command>
 
@@ -1582,6 +1858,8 @@
       when the client sent the <clink name="SAYBATTLEEX:client"/> command.
       </Description>
     </Command>
+	
+<!-- client status changes -->
 
     <Command Name="MYSTATUS" Source="client">
       <Arguments>
@@ -1603,9 +1881,13 @@
       </Arguments>
       <Description>
       Sent by a client to inform the server about his changed status.
-      To figure out if a battle is "in-game",
-      a client must check the in-game status of the host.
+      <br/><br/>
+	  Note: To tell out if a battle is "in-game", a client must check the in-game status of the host.
       </Description>
+	  <Response>
+	  The status change will be communicated to relevant users via <clink name="CLIENTSTATUS"/> commands.<br/><br/>
+	  If a battle founder changes from being not in-game to being in-game, <clink name="HOSTPORT"/> commands will be sent to users in their battle.
+	  </Response>
     </Command>
 
     <Command Name="CLIENTSTATUS" Source="server">
@@ -1658,6 +1940,9 @@
       <Description>
       Sent by a client to the server, telling him his battle status changed.
       </Description>
+	  <Response>
+	  The status change will communicated to relevant users via the <clink name="CLIENTBATTLESTATUS"/> and <clink name="UPDATEBATTLEINFO:server"/> commands.
+	  </Response>
     </Command>
 
     <Command Name="CLIENTBATTLESTATUS" Source="server">
@@ -1681,15 +1966,12 @@
     <Command Name="REQUESTBATTLESTATUS" Source="server">
       <Description>
       Sent by the server to a user which just opened a battle or joined one.
-      This command is sent after all <clink name="CLIENTBATTLESTATUS"/>
+      Sent after all <clink name="CLIENTBATTLESTATUS"/>
       commands for all clients have been sent.
-      This way, the user can choose a suitable team, ally-team and color,
-      since he knows the battle statuses of other clients already.
       </Description>
       <Response>
-      When a client receives this command,
-      he has to send the <clink name="MYBATTLESTATUS"/> command to the server,
-      so that the server can synchronize the battle status with the other clients.
+      This command is an invitation for the user with a <clink name="MYBATTLESTATUS"/> and choose a suitable team, ally-team and color,
+      since the user now knows the battle statuses of other clients.
       </Response>
     </Command>
 
@@ -1702,9 +1984,9 @@
       </Arguments>
       <Description>
       Sent by the founder of the battle when changing a user's handicap value
-      (which is part of his battle status).
-      Only the founder can change other users handicap values
-      (even they themselves ca not change it).
+      (which is part of that users battle status).
+      <br/><br/>
+	  Only the founder can change other users handicap values, and that requests from non-founder users will be ignored.
       </Description>
     </Command>
 
@@ -1713,24 +1995,20 @@
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of the battle when he kicks a client out of the battle.
-      The server removes the client from the battle
-      and notifies him about it via the <clink name="FORCEQUITBATTLE:server"/> command.
+      Sent by the founder of the battle, to tell the server to kick a client from the battle.
+      The server removes the target client from the battle and notifies the target client via <clink name="FORCEQUITBATTLE:server"/> command.
       </Description>
     </Command>
 
     <Command Name="FORCEQUITBATTLE" Source="server">
       <Description>
-      Sent to a client that just got kicked by the battle founder,
-      using the <clink name="KICKFROMBATTLE"/> command.
-      the client does not need to send the <clink name="LEAVEBATTLE"/> command,
-      as that is already done by the server.
-      The only purpose of this command,
-      is to notify the client that he was kicked from the battle.
-      Note that the client should close the battle internally,
-      since he is no longer a part of it
-      (or he can do that once he receives
-      the <clink name="LEFTBATTLE:server"/> command containing his user name).
+      Sent to a client that was kicked from their current battle by the battle founder.
+      <br/><br/>
+	  The client does not need to send <clink name="LEAVEBATTLE"/>,
+      as removal has already been done by the server.
+      The only purpose of this command
+      is to notify the client that they were kicked.
+      (The client will also recieve a corresponding <clink name="LEFTBATTLE:server"/> notification.)
       </Description>
     </Command>
 
@@ -1741,7 +2019,7 @@
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's team number to 'teamNo'.
+      to change the team number of a user.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1753,7 +2031,7 @@
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's ally number to 'allyno'.
+      to change the ally team number of a user.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1770,7 +2048,7 @@
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's team color to 'color'.
+      to change the team colour of a team.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1781,7 +2059,7 @@
       </Arguments>
       <Description>
       Sent by the founder of a battle
-      when he is trying to force some other client's mode to 'spectator'.
+      to force a given user to become a spectator.
       The server will update the client's battle status automatically.
       </Description>
     </Command>
@@ -1795,9 +2073,9 @@
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of a battle,
-      telling the server that he disabled one or more units.
-      At least one unit name must be passed as an argument.
+      Sent by the founder of a battle
+      to tell the server that one or more units are now disabled.
+      The server will update the client's battle status automatically.
       </Description>
     </Command>
 
@@ -1810,7 +2088,7 @@
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
+      Sent by the server to all clients in a battle,
       telling them that some units have been added to disabled units list.
       Also see the <clink name="DISABLEUNITS:client"/> command.
       </Description>
@@ -1825,9 +2103,9 @@
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the founder of the battle,
-      telling the server that he enabled one or more previously disabled units.
-      At least one unit name must be passed as an argument.
+      Sent by the founder of a battle
+      to tell the server that one or more units are now enabled.
+      The server will update the client's battle status automatically.
       </Description>
     </Command>
 
@@ -1840,8 +2118,9 @@
         <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
-      telling them that some units have been removed from disabled units list.
+      Sent by the server to all clients in a battle,
+      telling them that some units have been added to enabled units list.
+      Also see the <clink name="DISABLEUNITS:client"/> command.
       </Description>
     </Command>
 
@@ -1855,7 +2134,7 @@
 
     <Command Name="ENABLEALLUNITS" Source="server">
       <Description>
-      Sent by the server to all clients in a battle except for the founder,
+      Sent by the server to all clients in a battle,
       telling them that the disabled units list has been cleared.
       </Description>
     </Command>
@@ -1865,10 +2144,7 @@
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client to the server when trying to play a "ring" sound to an other user.
-      Only privileged users can ring everyone,
-      although "normal" clients can ring players participating in their battle
-      when they are hosting.
+      Sent to request that a "ring" sound to be played to other user.
       </Description>
       <Response>
       See <clink name="RING:server"/>.
@@ -1880,39 +2156,7 @@
         <Argument Name="userName" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Telling a client that a user just rang.
-      As a consequence, the client should play the "ring" sound.
-      </Description>
-    </Command>
-
-    <Command Name="REDIRECT" Source="server">
-      <Arguments>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-        <Argument Name="port" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server when running in "redirection mode".
-      When a client connects, the server will send him only this message
-      and disconnect the socket immediately.
-      The client should connect to the given IP and port, in that case.
-      This command may be useful when the official server ip/address changes,
-      so that clients are automatically redirected to the new one.
-      </Description>
-      <Examples>
-        <Example>
-        REDIRECT 87.96.164.14 8200
-        </Example>
-      </Examples>
-    </Command>
-
-    <Command Name="BROADCAST" Source="server">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server when an urgent message has to be delivered to all users.
-      The lobby client program should display this message either in some system log
-      or in some message box (the user has to see this message!).
+      Sent to notify a client that another user requested that a "ring" sound be played to them.
       </Description>
     </Command>
 
@@ -2166,289 +2410,7 @@
       </Examples>
     </Command>
 
-    <Command Name="TESTLOGIN" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="password" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Used to test if user-name and password are valid.
-      Currently, this command is restricted to users with admin access only.
-      It is meant to be used with some external server process
-      to identify a user via a web login form
-      and create a session cookie based on that.
-      </Description>
-      <Response>
-      Either <clink name="TESTLOGINACCEPT"/> or <clink name="TESTLOGINDENY"/>.
-      </Response>
-    </Command>
-
-    <Command Name="TESTLOGINACCEPT" Source="server">
-      <Description>
-      Used as a response to a <clink name="TESTLOGIN"/> command
-      in case the user-name/password pair is valid.
-      Use message ID to bind the response to a request.
-      </Description>
-    </Command>
-
-    <Command Name="TESTLOGINDENY" Source="server">
-      <Description>
-      Used as a response to a <clink name="TESTLOGIN"/> command
-      in case the user-name/password pair is not valid.
-      Use message ID to bind the response to a request.
-      </Description>
-    </Command>
-
-    <Command Name="GETINGAMETIME" Source="client">
-      <Description>
-      The server replies with a <clink name="SERVERMSG:server"/>,
-      indicating the user's ingame time in minutes.
-      It is understood as the acumulated time the user has spent in-game,
-      be it as a player or as a spectator, since recording of history,
-      not just for the current or last game.
-      </Description>
-   </Command>
-
-    <Command Name="FORCEJOINBATTLE" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      A client may send this command if he is a battle host or a lobby moderator.
-      The server will decide if they are, and send a command to the addressed user.
-      See the <i>Match-Making</i> section in the beginning of this document for more details.
-      </Description>
-      <Response>
-      See <clink name="FORCEJOINBATTLE:server"/> and <clink name="FORCEJOINBATTLEFAILED:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="FORCEJOINBATTLE" Source="server">
-      <Arguments>
-        <Argument Name="destinationBattleID" Optional="no" Sentence="no"/>
-        <Argument Name="destinationBattlePassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent to a user specified in a previous <clink name="FORCEJOINBATTLE:client"/>
-      command which was received on the server form an other client (host or lobby moderator).
-      The receiving client must subsequently comply by sending a
-      <clink name="JOINBATTLE:client"/> command to the server.
-      See the <i>Match-Making</i> section in the beginning of this document for more details.
-      </Description>
-    </Command>
-
-    <Command Name="FORCEJOINBATTLEFAILED" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to the user who just sent a <clink name="FORCEJOINBATTLE:client"/> request,
-      in the case of it being rejected by the server.
-      </Description>
-    </Command>
-
-    <Command Name="LISTCOMPFLAGS" Source="client">
-      <Description>
-      A client may send this command after it has received <clink name="TASSERVER"/>
-      to query the server for supported comp-flags that may be specified on <clink name="LOGIN"/>.
-      </Description>
-      <Response>
-      See <clink name="COMPFLAGS:server"/>.
-      </Response>
-   </Command>
-
-   <Command Name="COMPFLAGS" Source="server">
-      <Arguments>
-        <Argument Name="compFlag1" Optional="yes" Sentence="no"/>
-        <Argument Name="compFlag2" Optional="yes" Sentence="no"/>
-        <Argument Name="..." Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent as a response to a <clink name="LISTCOMPFLAGS:client"/> command.
-      The server sends a list of supported comp-flags that may be specified
-      by the client on <clink name="LOGIN"/>.
-      </Description>
-      <Examples>
-        <Example>COMPFLAGS a b</Example>
-        <Example>COMPFLAGS a b sp</Example>
-        <Example>COMPFLAGS</Example>
-      </Examples>
-    </Command>
-
-    <Command Name="CONNECTUSER" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no">
-        This might be IP v4 or v6, and has to be in the form "IP:Port".
-        </Argument>
-        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-      The client may send this command if it is a battle host or lobby moderator.
-      The server will decide if they are, and send <clink name="CONNECTUSER"/> to the affected user,
-      or <clink name="CONNECTUSERFAILED:server"/> to the client issuing this command.
-      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
-      </Description>
-      <Response>
-      See <clink name="CONNECTUSER:server"/> and <clink name="CONNECTUSERFAILED:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="CONNECTUSER" Source="server">
-      <Arguments>
-        <Argument Name="ipAndPort" Optional="no" Sentence="no">
-        This might be IP v4 or v6, and has to be in the form "IP:Port".
-        </Argument>
-        <Argument Name="scriptPassword" Optional="yes" Sentence="no"/>
-       </Arguments>
-      <Description>
-      Instructs the client to connect spring to the given IP:port
-      with the script password given in <clink name="CONNECTUSER:client"/>.
-      See the <i>Decoupling games from battle-rooms</i> section in the beginning of this document for more details.
-      </Description>
-    </Command>
-
-    <Command Name="CONNECTUSERFAILED" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to the user who just sent a <clink name="CONNECTUSER:client"/> request,
-      in the case of it being rejected by the server.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATA" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a data message to a specific channel.
-      The client has to join the channel first,
-      to be allowed to use this command.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATA:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATA" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to all clients participating in a specific channel
-      when one of the clients sent a data message to it
-      (including the author of the message).
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATAPRIVATE" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a private data message to an other client.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATAPRIVATE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATAPRIVATE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Indicates that a user sent a private data message to the receiving client.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="SAYDATABATTLE" Source="client">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a data message to all clients participating in a battle.
-      A 'battleID' argument is not required,
-      since every user can participate in only one battle at a time.
-      If the user is not participating in any battle,
-      receiption of this command is considered invalid
-      and will therefore be ignored.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-      <Response>
-      See <clink name="SAIDDATABATTLE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDDATABATTLE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to the participants of a battle when a client sent a data message to it,
-      using the <clink name="SAYDATABATTLE:client"/> command.
-      A 'battleID' is not required,
-      since every client knows which battle he is participating in,
-      since every client may participate in only one battle at a time.
-      If the client is not participating in any battle,
-      he should ignore this command or raise an error.
-      For more info, see the <i>Inter-lobby-client data exchange</i> section
-      in the beginning of this document.
-      </Description>
-    </Command>
-
-    <Command Name="RECOVERACCOUNT" Source="client">
-      <Arguments>
-        <Argument Name="email" Optional="no" Sentence="no">
-          The email address associated with a given username.
-          Case will not be considered.
-        </Argument>
-        <Argument Name="userName" Optional="yes" Sentence="no"/>
-      </Arguments>
-      <Description>
-        Sends an e-mail with account recovery information.
-        If one or more accounts with the given email address (and optional userName) exists,
-        the server sends an email to that address,
-        containing the associated username(s)
-        and a means to reset the password(s).
-        This could either be a new temporary password
-        or for example a one-time-token that authorizes setting up a new password via some web interface.
-        If no account matching the given search criterias is found, no error is returned.
-      </Description>
-    </Command>
-
-    <Command Name="NOCHANNELTOPIC" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no">
-          The Channel name which the client joined
-        </Argument>
-      </Arguments>
-      <Description>
-        This command informs the client that the channel it just joined has no topic set.
-        Also see the <clink name="JOIN:client"/> and <clink name="CHANNELTOPIC:server"/> command.
-      </Description>
-    </Command>
+<!-- ignore list -->   
 
     <Command Name="IGNORE" Source="client">
       <Arguments>
@@ -2557,246 +2519,82 @@
         Sent by the server after it has finished sending the ignore list for a client.
         Also see the <clink name="IGNORELIST:server"/> and <clink name="IGNORELISTBEGIN"/> commands.
       </Description>
-    </Command>
+    </Command>	
 
-    <Command Name="GETPUBLICKEY" Source="client">
-      <Description>
-        Requests the server's public RSA key. Note that this is only provided
-        for convenience; clients should preferably obtain the key over HTTPS
-        from <url>https://github.com/spring/LOCATION_TO_BE_DECIDED/</url>.
-        It is also possible (but not recommended, though key revocations are unlikely)
-        to hardcode the key directly within the client application. Can only be sent
-        prior to establishing a secure session, otherwise will not be processed.
-      </Description>
-      <Examples>
-        <Example>GETPUBLICKEY</Example>
-      </Examples>
-    </Command>
+<!-- compat flags -->
 
-    <Command Name="GETSIGNEDMSG" Source="client">
+    <Command Name="LISTCOMPFLAGS" Source="client">
       <Description>
-        Requests the server to cryptographically sign a message, allowing a
-        client to verify its identity. Can only be sent prior to establishing
-        a secure session, otherwise will not be processed.
+      A client may send this command after it has received <clink name="TASSERVER"/>
+      to query the server for supported comp-flags that may be specified on <clink name="LOGIN"/>.
       </Description>
+      <Response>
+      See <clink name="COMPFLAGS:server"/>.
+      </Response>
+   </Command>
+
+   <Command Name="COMPFLAGS" Source="server">
       <Arguments>
-        <Argument Name="message_to_sign" Optional="yes" Sentence="no">
-          An arbitrary base64-encoded string which the server should sign with
-          its private RSA key. If left empty, the server will sign its current
-          <clink name="MOTD:server"/> instead.
-        </Argument>
+        <Argument Name="compFlag1" Optional="yes" Sentence="no"/>
+        <Argument Name="compFlag2" Optional="yes" Sentence="no"/>
+        <Argument Name="..." Optional="yes" Sentence="no"/>
       </Arguments>
+      <Description>
+      Sent as a response to a <clink name="LISTCOMPFLAGS:client"/> command.
+      The server sends a list of supported comp-flags that may be specified
+      by the client on <clink name="LOGIN"/>.
+      </Description>
       <Examples>
-        <Example>GETSIGNEDMSG ""</Example>
-        <Example>GETSIGNEDMSG SGVsbG8gV29ybGQ=</Example>
+        <Example>COMPFLAGS a b</Example>
+        <Example>COMPFLAGS a b sp</Example>
+        <Example>COMPFLAGS</Example>
       </Examples>
     </Command>
 
-    <Command Name="SETSHAREDKEY" Source="client">
-      <Description>
-        Instructs the server to set a session-key. Initially sent in plaintext,
-        but at any point after establishing a secure session a client may send
-        this command again (in encrypted form!) with a different RSA-encrypted
-        key value.
-        <br/><br/>
-        After sending this command, a client should wait until it receives
-        <clink name="SHAREDKEY:server"/> with <b>key_status</b> ACCEPTED and
-        has verified the key digest before sending any other data. It should
-        then send <clink name="ACKSHAREDKEY:client"/>, which (if implemented
-        properly) will be the FIRST message encrypted with the new key.
-        <br/><br/>
-        The format of AES(-256) encrypted messages recognized and transmitted
-        by the server during a secure session is
-        <br/><br/>
-          MARKER_BYTE + BASE64(MSG) [+ MARKER_BYTE + BASE64(MAC)] + PARTIT_BYTE
-        <br/><br/>
-        where
-        <ul>
-          <li>MARKER_BYTE is the literal byte-value (character) 0x01</li>
-          <li>PARTIT_BYTE is the literal byte-value (character) 0x0a</li><br/>
-          <li>MSG is the output of ENCRYPT_AES(TIME + DATA, KEY)</li>
-          <li>MAC is the output of HMAC_SHA256(MSG, KEY)</li><br/>
-          <li>ENCRYPT_AES is AES256 operated in CBC mode with a 16-byte IV</li>
-          <li>HMAC_SHA256 is the cryptographic checksum function using SHA256</li><br/>
-          <li>TIME is the four-byte (LE) representation of a strictly increasing int32</li>
-          <li>DATA is any command string, or a batch of commands separated by newlines</li>
-        </ul>
-        For example, DATA might be "LOGIN user pass\nJOIN main\n" and TIME (a
-        counter that should be increased for each encrypted message) might be
-        0xfe000000 indicating that DATA is the 254th secure message sent by the
-        client this session. Sending a message during a secure session that does
-        not conform to this format will cause it to be skipped, or decrypted to
-        garbage and then dropped. MAC's are optional and only need to be added
-        if the server has set the corresponding flag (<b>use_msg_auth_codes</b>)
-        in <clink name="PUBLICKEY:server"/>.
-      </Description>
+<!-- Other -->
+
+    <Command Name="REDIRECT" Source="server">
       <Arguments>
-        <Argument Name="session_key" Optional="yes" Sentence="no">
-          The new session-key, encrypted with the server's public RSA key and
-          base64-encoded for transport. If left empty, the server will disable
-          a client's current secure session (NOTE: no longer supported) if one
-          was already established.
-          <br/><br/>
-          NOTE: the server will use SHA256(DECRYPT_RSA(DECODE(session_key))) as
-          its actual key to ensure it always has the proper length of 32 bytes.
-        </Argument>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+        <Argument Name="port" Optional="no" Sentence="no"/>
       </Arguments>
+      <Description>
+      Sent by the server when running in "redirection mode".
+      When a client connects, the server will send him only this message
+      and disconnect the socket immediately.
+      The client should connect to the given IP and port, in that case.
+      This command may be useful when the official server ip/address changes,
+      so that clients are automatically redirected to the new one.
+      </Description>
       <Examples>
-        <Example>SETSHAREDKEY U0VDUkVUIQ==</Example>
+        <Example>
+        REDIRECT 87.96.164.14 8200
+        </Example>
       </Examples>
     </Command>
 
-    <Command Name="ACKSHAREDKEY" Source="client">
+    <Command Name="FAILED" Source="server">
       <Description>
-        Instructs the server that its last <clink name="SHAREDKEY:server"/>
-        response was received and contained the correct session-key digest.
-        If the key digest from <clink name="SHAREDKEY:server"/> does *not*
-        match the client's but the key status is set to ACCEPTED, the client
-        should become EXTREMELY suspicious and think twice about issuing this
-        command. Can only be sent after having received SHAREDKEY ACCEPTED,
-        otherwise will not be processed.
-      </Description>
-      <Examples>
-        <Example>ACKSHAREDKEY</Example>
-      </Examples>
+		A command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
+		<i> Someone who knows more about this should document it! </i>
+	  </Description>
     </Command>
 
-
-    <Command Name="PUBLICKEY" Source="server">
+    <Command Name="PROMOTE" Source="client">
       <Description>
-      Sent by the server in response to <clink name="GETPUBLICKEY:client"/>.
-      Transfers the server's public RSA key in base64-encoded PEM format, as
-      well three boolean status flags (packed into a single 32-bit integer)
-      indicating requirements for secure sessions.
-      </Description>
-      <Arguments>
-        <Argument Name="server_public_key" Optional="no" Sentence="no">
-          The RSA key with which a client should encrypt its chosen AES(-256)
-          session-key when it sends the <clink name="SETSHAREDKEY:client"/>
-          command.
-        </Argument>
-        <Argument Name="session_flag_bits" Optional="no" Sentence="no">
-          An integer packing three flags (<b>force_secure_auths</b>,
-          <b>force_secure_comms</b>, and <b>use_msg_auth_codes</b>) that
-          clients must inspect before establishing a secure session.
-          <br/><br/>
-          <b>force_secure_auths</b>:
-            Whether the server expects the <clink name="LOGIN:client"/> and
-            <clink name="REGISTER:client"/> client commands to be sent encrypted.
-            Encoded in the first bit of <b>session_flag_bits</b>.
-          <br/><br/>
-          <b>force_secure_comms</b>:
-            Whether the server expects ALL client commands (including
-            <clink name="LOGIN:client"/> and <clink name="REGISTER:client"/>)
-            to be sent encrypted. When true, a client can not disable
-            a secure session after establishing it. Encoded in the second
-            bit of <b>session_flag_bits</b>.
-          <br/><br/>
-          <b>use_msg_auth_codes</b>:
-            Whether the server expects encrypted data to include MAC's,
-            or message authentication codes. Encoded in the third bit of
-            <b>session_flag_bits</b>.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>PUBLICKEY QkVHSU4gUFVCTElDIEtFWS5FTkQgUFVCTElDIEtFWQ== 7</Example>
-      </Examples>
+		This command posts a message in particular channels, calling for players. It is currently the (only) test case for a client command used JSON format.
+	  </Description>
     </Command>
 
-    <Command Name="SIGNEDMSG" Source="server">
+    <Command Name="JSON" Source="server">
       <Description>
-        Sent by the server in response to <clink name="GETSIGNEDMSG:client"/>.
-      </Description>
-      <Arguments>
-        <Argument Name="message_signature" Optional="no" Sentence="no">
-          A base64-encoded long (in the unlimited-precision sense) integer
-          representing the RSA cryptographic signature of the message.
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SIGNEDMSG MTIzNDU2Nzg5MA==</Example>
-      </Examples>
+		A command used to send information to clients in JSON format. (Currently rarely used.)
+	  </Description>
     </Command>
 
-    <Command Name="SHAREDKEY" Source="server">
-      <Description>
-        Sent by the server in response to <clink name="SETSHAREDKEY:client"/>.
-      </Description>
-      <Arguments>
-        <Argument Name="key_status" Optional="no" Sentence="no">
-          Can be "ENFORCED", "DISABLED", "REJECTED", "ACCEPTED", or "INITSESS".
-          <br/><br/>
-          ENFORCED
-            means disabling a secure session is not permitted by the server.
-            Depends on the <b>force_secure_comms</b> parameter included in
-            the <clink name="PUBLICKEY:server"/> response.
-          <br/><br/>
-          DISABLED
-            indicates the current secure session was successfully disabled.
-            This is the LAST encrypted server response a client will receive.
-            No longer supported: any attempt to disable a secure session will
-            generate an ENFORCED reply.
-            <br/><br/>
-          REJECTED
-            means the session-key was considered invalid.
-            <br/><br/>
-          ACCEPTED
-            indicates the session-key was accepted and will be used to decrypt all
-            subsequent client commands including <clink name="ACKSHAREDKEY:client"/>.
-            <br/><br/>
-          INITSESS
-            is only sent when the client first establishes a secure session. This
-            is the LAST unencrypted server response a client will receive and is
-            always followed immediately by ACCEPTED (encrypted with the new key).
-        </Argument>
-        <Argument Name="key_digest" Optional="no" Sentence="no">
-          SHA256 hash of the old session-key in case of ENFORCED, DISABLED, or
-          INITSESS. SHA256 hash of the new session-key in case of ACCEPTED or
-          REJECTED.
-          <br/><br/>
-          NOTE: since the server uses SHA256(DECRYPT_RSA(DECODE(session_key))) as
-          its actual key, digests are created based on this input value rather than
-          on the "raw" key. Digests are base64-encoded for transport.
-        </Argument>
-        <Argument Name="extra_data" Optional="yes" Sentence="no">
-          If key_status is REJECTED, this will contain either the number of missing
-          key-bytes (if the raw unhashed key-length was considered too small) or an
-          exception text (if decryption of the session-key failed for whatever reason).
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SHAREDKEY INITSESS 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</Example>
-        <Example>SHAREDKEY ACCEPTED 49p0UFEzDbg8YNF3W+0hO90j1ohKLOLQWCA4xU7IwRM=</Example>
-        <Example>SHAREDKEY REJECTED yfxdBikidP2YvLV4gmV79x3h7aTfkCxRnZFfxYWxAZA= 19</Example>
-      </Examples>
-    </Command>
-    <Command Name="SUBSCRIBE" Source="client">
-      <Description>
-        Sent by the client to subscribe to a channel
-      </Description>
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
-          Name of the channel
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>SUBSCRIBE chanName=sy</Example>
-      </Examples>
-    </Command>
-    <Command Name="UNSUBSCRIBE" Source="client">
-      <Description>
-        Sent by the client to subscribe to a channel
-      </Description>
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no" Named="yes">
-          Name of the channel to unsubscribe
-        </Argument>
-      </Arguments>
-      <Examples>
-        <Example>UNSUBSCRIBE chanName=sy</Example>
-      </Examples>
-    </Command>
-
+	
+	
+	
   </CommandList>
 
 </ProtocolDescription>
