@@ -393,7 +393,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	
 	<Command Name="STLS" Source="client">
       <Description>
-        Initiate a TLS connection to the server. <i>Someone who knows more about this should document it!</i>
+        Initiate a TLS connection to the server.
 	  </Description>
       <Response>
       <clink name="OK"/>
@@ -402,7 +402,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 
     <Command Name="OK" Source="server">
       <Description>
-      Sent as the response to a <clink name="STLS"/> command. <i>Someone who knows more about this should document it!</i>
+      Sent as the response to a <clink name="STLS"/> command. The client now can now start the tls connection. The server will send again the greeting
+      <clink name="TASSERVER"/>.
       </Description>
     </Command>
 
