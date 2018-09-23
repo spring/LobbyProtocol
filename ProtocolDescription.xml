@@ -1046,7 +1046,23 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
    </Command>
    
-    <Command Name="BROADCAST" Source="client">
+   <Command Name="SETMINSPRINGVERSION" Source="client">
+      <Arguments>
+        <Argument Name="springVersion" Optional="no" Sentence="no">
+			A major engine version e.g. '104.0' or '94.1'. Use '*' to allow all engine versions.
+		</Argument>
+      </Arguments>
+      <Description>
+        Change the minimal (Spring) engine version. 
+        <br/><br/>
+        The server will issue a <clink name="BROADCAST"/> to inform all users, and will close all battles that do not match the new version requirements.
+      </Description>
+      <Example>
+        SETMINSPRINGVERSION 104.0
+      </Example>
+   </Command>
+
+   <Command Name="BROADCAST" Source="client">
       <Arguments>
         <Argument Name="message" Optional="no" Sentence="yes"/>
       </Arguments>
