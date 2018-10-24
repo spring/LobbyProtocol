@@ -59,7 +59,7 @@
 	  </td></tr>
     </table>
 
-    <h2> Compatability Flags </h2>
+    <h2> Compatibility Flags </h2>
     <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
       <tr><td>
         <xsl:apply-templates select="CompatFlags"/>

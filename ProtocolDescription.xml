@@ -148,9 +148,13 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   </p>
   <p>
   If email verification is enabled, then it is required for registering a new account and for changing email address.
-  In this case, both <clink name="REGISTRATIONACCEPTED"/> and <clink name="CHANGEEMAILREQUESTACCEPTED"/> cause a verification code to be created, and sent.
-  The verification code is expected back in <clink name="CONFIRMAGREEMENT"/> and <clink name="CHANGEEMAIL"/> respectively.
-  It can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
+  The following pairs list which commands notify that verification codes were sent, and where they are expected back:
+  <ul>
+    <li> sent: <clink name="REGISTRATIONACCEPTED"/>, back: <clink name="CONFIRMAGREEMENT"/> </li>
+    <li> sent: <clink name="CHANGEEMAILREQUESTACCEPTED"/>, back: <clink name="CHANGEEMAIL"/> </li>
+	<li> sent: <clink name="RESETPASSWORDREQUESTACCEPTED"/>, back: <clink name="RESETPASSWORD"/></li>
+  </ul>
+  The code can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
   </p>
   <p>
   Lobby clients should always assume that verification is enabled.
@@ -158,6 +162,28 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
   </p>
 
+  <h4> ChanServ </h4>
+  <p>
+  ChanServ is a fake client, which the server shows as present in all registered channels. 
+  It listens for channel commands such as !ban !op and !setfounder, and also carries them out.
+  The long term plan is that ChanServ will deprecated, and replaced with server commands and a client-side GUI.
+  </p>
+  
+  <h4> Bridge bots </h4>
+  <p>
+  The interface stemming from <clink name="BRIDGECLIENTFROM"/>, <clink name="JOINFROM"/> and <clink name="SAYFROM"/> 
+  allows users in external chat channels (e.g. Discord, IRC) to join and talk natively within Uberserver channels and battles, via bridge bot. 
+  Users talking via a bridge bot are referred to as bridged users.
+  </p>
+  <p>
+  Bridged users are identified by a <i>(location, external_id)</i> pair, which should be unique (and should not change when the same user is bridged again).
+  Each external user also has a <i>external_username</i> which should be their username within their location (e.g. their name on Discord).
+  At most one bridge bot can bridge users from any given location.
+  </p>
+  <p>
+  The server uses usernames of the form <i>external_username@location</i> for bridged users.   
+  </p>
+  
   <h4>Syncing</h4>
   <p>
   To be in <i>sync</i> means to have the same versions of all the content
@@ -279,25 +305,17 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<br/><br/>
         This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
     <p><ul>
-      <li><b>a</b>: userIDs sent in the <clink name="ADDUSER"/> command</li>
-      <li><b>b</b>: battle authorization 
-        <clink name="JOINBATTLEREQUEST"/>, <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
-      <li><b>cl</b>:
-        <ul>
-        <li>added <clink name="CHANGEEMAIL"/></li>
-        <li>added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
-        <li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
-        </ul>
-      </li>
+	  <li><b>u</b>: battle/channel merge, support for bridge bots.</li>
+	  <li><b>a</b>: ?? </li>
+	  <li><b>sp</b>: script passwords </li>
+      <li><b>cl</b>: added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
       <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
         and change the time resolution of the changedTime argument in
         <clink name="CHANNELTOPIC:server"/>,
         which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
         while before it was the same in milliseconds</li>
       <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is sent in plaintext format</li>
-      <li><b>cu</b>: CONNECTUSER command set (note: these commands were later removed)</li>
-      <li><b>sd</b>: SAYDATA* command set (note: these commands were later removed)</li>
-      <li><b>m</b>: FORCEJOINBATTLE command set (note: these commands were later removed)</li>
+      <li><b>cu, sd, m, b, a</b>: deprecated</li>
     </ul></p>
   <p>
   In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
@@ -308,30 +326,51 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   <Versions>
  <Version Name="0.38 -- current dev/live version --">  
   <ul>
-    <li> Added email verification commands. (See above.) 
+    <li> Added 'u' compat flag, for Battle/Channel merge:
+	  <ul>
+	    <li><clink name="JOINBATTLE:server"/> sends an extra arg, the name of the channel in which the battle chat takes place.</li>
+		<li> Use <clink name="SAY"/> and <clink name="SAYEX"/> to talk in battles i.e. into that channel.</li>
+		<li> Users joining/leaving a battle are automatical joined/left to its channel.</li>
+	  </ul>
+	<li> Added new interface for bridge bots: <clink name="BRIDGECLIENTFROM"/>, <clink name="UNBRIDGECLIENTFROM"/>, 
+	  <clink name="JOINFROM"/>, <clink name="SAYFROM"/>, <clink name="LEAVEFROM"/>, <clink name="CLIENTSFROM"/>. </li>
+	</li>
+    <li> Added email verification and related features:
 	<ul>
-	  <li>Added/updated <clink name="CHANGEEMAIL"/>, <clink name="CHANGEEMAILREQUEST"/> command set. </li>
+	  <li>Added/updated <clink name="CHANGEEMAIL"/> command set. </li>
 	  <li>Added <clink name="RESENDVERIFICATION"/> command set. </li>
+	  <li>Added <clink name="RESETPASSWORD"/> command set. </li>
       <li> If email verification is enabled, 
 	  <ul> 
 	    <li> <clink name="REGISTER"/> requires an email arg</li>
 		<li> <clink name="CONFIRMAGREEMENT"/> requires a verification code arg</li>
         <li> <clink name="CHANGEEMAIL"/> requires a verification code arg</li>
+        <li> <clink name="RESETPASSWORD"/> requires a verification code arg</li>
 	  </ul></li>
 	</ul></li>
-	  <li> Added new moderation interface, with new/updated commands. The new interface is
+	  <li> Replaced the whole moderation interface, with new/updated commands:
+		<ul>
+		  <li>
+          <clink name="KICK"/>,
           <clink name="BAN"/>,
           <clink name="BANSPECIFIC"/>,
           <clink name="UNBAN"/>,
-          <clink name="BLACKLIST"/>,
-          <clink name="UNBLACKLIST"/>,
           <clink name="LISTBANS"/>,
+          </li>
+		  <li>
+		  <clink name="BLACKLIST"/>,
+          <clink name="UNBLACKLIST"/>,
           <clink name="LISTBLACKLIST"/>.
-          All other moderation commands (KICKBAN, BANIP, KICKUSER, BANLIST) were removed.
 		  </li>
-	<li> All cypto commands from 0.37 were removed. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
-    <li> All SAYDATA* commands were removed. </li>
-    <li> The FORCEJOINBATTLE command set was removed. </li>
+		</ul>
+      </li>
+	<li> Removed all cypto commands from 0.37. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
+    <li> Removed SAYDATA command set. </li>
+    <li> Removed SAYBATTLEPRIVATE command set. </li>
+    <li> Removed FORCEJOINBATTLE. </li>
+	<li> Removed JOINBATTLEREQUEST command set.</li>
+	<li> Deprecated SAYBATTLE, SAYBATTLEEX. </li>
+	<li> Deprecated MUTE, UNMUTE, MUTELIST, SETCHANNELKEY. </li>
     </ul>
  
  </Version>
@@ -342,7 +381,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <li>Added the <clink name="NOCHANNELTOPIC:server"/> server command.</li>
     <li>Added the <clink name="IGNORE"/> command set.</li>
     <li>Added crypto commands for secure connections (edit: removed/replaced in 0.38).</li>
-    <li>Added the SAYDATA* command set (edit: removed in 0.38).</li>
+    <li>Added the SAYDATA command set (edit: removed in 0.38).</li>
   </ul>
   </Version>
 
@@ -355,6 +394,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <li>Added the <clink name="CHANGEEMAIL:client"/> client command.</li>
     <li>Added the <clink name="EXIT:client"/> client command.</li>
     <li>Added the <clink name="GETINGAMETIME:client"/> client command.</li>
+	<li>removed REQUESTUPDATEFILE, OFFERFILE, FORGEREVERSEMSG, USERID, GENERATEUSERID, ACQUIREUSERID</li>
     <li>'scriptPassword' argument added: This change affects the following commands:
         <clink name="LOGIN"/>, <clink name="JOINBATTLE"/>, <clink name="JOINEDBATTLE"/>.</li>
   </ul>
@@ -809,6 +849,70 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	    Notifies that a verification code was not re-sent, in response to <clink name="RESENDVERIFICATION"/>.
 	  </Description>
     </Command>	
+	
+    <Command Name="RESETPASSWORDREQUEST" Source="client">
+      <Arguments>
+        <Argument Name="email" Optional="no" Sentence="no">
+          The email address associated to the acccount.
+        </Argument>
+      </Arguments>
+      <Description>
+		Requests a verification code, to be sent to the email address of a user wishing to reset their password.
+	  </Description>
+      <Response>
+		<clink name="RESETPASSWORDREQUESTACCEPTED"/> or <clink name="RESETPASSWORDREQUESTDENIED"/>
+      </Response>
+    </Command>
+
+    <Command Name="RESETPASSWORDREQUESTACCEPTED" Source="server">
+      <Description>
+	    Notifies that a verification code was sent, in response to <clink name="RESETPASSWORDREQUEST"/>.
+		<br/><br/>
+		No response is required from the client, although a <clink name="RESETPASSWORD"/> command would normally be sent.
+	  </Description>
+    </Command>
+
+    <Command Name="RESETPASSWORDREQUESTDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+	  <Description>
+	    Notifies that a verification code was not sent, in response to <clink name="RESETPASSWORDREQUEST"/>.
+	  </Description>
+    </Command>
+	
+    <Command Name="RESETPASSWORD" Source="client">
+      <Arguments>
+        <Argument Name="email" Optional="no" Sentence="no">
+          The email address the user wishes to change too. 
+        </Argument>
+        <Argument Name="verificationCode" Optional="no" Sentence="no">
+		  The verification code recieved as a result of <clink name="RESETPASSWORDREQUESTACCEPTED"/>.
+		</Argument>
+      </Arguments>
+      <Description>
+        Asks the server to change the password associated to the client. See also <clink name="RESETPASSWORDREQUEST"/>, which would typically be called first.
+	  </Description>
+      <Response>
+		<clink name="RESETPASSWORDDENIED"/> or <clink name="RESETPASSWORDACCEPTED"/>
+      </Response>
+    </Command>
+
+    <Command Name="RESETPASSWORDACCEPTED" Source="server">
+      <Description>
+	    Notifies that client that their password was changed, in response to <clink name="RESETPASSWORD"/>. The new password will be emailed to the client.
+	  </Description>
+    </Command>
+
+    <Command Name="RESETPASSWORDDENIED" Source="server">
+	  <Arguments>
+        <Argument Name="errorMsg" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+	    Notifies that the password could not be changed, in response to <clink name="RESETPASSWORD"/>.
+	  </Description>
+    </Command>	
+	
 
 <!--- other users logins -->	
 
@@ -874,7 +978,25 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	
 <!--- moderation interface -->	
 
-    <Command Name="BAN" Source="client">
+    <Command Name="KICK" Source="client">
+      <Arguments>
+        <Argument Name="username" Optional="no" Sentence="no">
+          The target of the ban. 
+        </Argument>
+        <Argument Name="reason" Optional="no" Sentence="yes"/>
+      </Arguments>
+      <Description>
+		Requests that the server kicks the corresponding user.
+ 	  </Description>
+      <Response>
+        None. The server will give a response via server message(s).
+	  </Response>
+      <Examples>
+        <Example>KICK [SMART]dude spammin</Example>
+      </Examples>
+    </Command>    
+	
+	<Command Name="BAN" Source="client">
       <Arguments>
         <Argument Name="username" Optional="no" Sentence="no">
           The target of the ban. 
@@ -1154,7 +1276,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         </Argument>
       </Arguments>
       <Description>
-      Sent to a client who has successfully <clink name="JOIN:client"/>ed a channel.
+      Sent to a client who has successfully <clink name="JOIN:client"/>ed a channel. 
+	  The server will now send the client a <clink name="CLIENTS"/> and a <clink name="CLIENTSFROM"/> command, which together give the list of users present in the channel.
       </Description>
       <Examples>
         <Example>JOIN main</Example>
@@ -1248,35 +1371,6 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Arguments>
       <Description>
       Sent by the server to inform a client, present in a channel, that another user has left that channel.
-      </Description>
-    </Command>
-
-    <Command Name="FORCELEAVECHANNEL" Source="client">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by a priviledged client,
-      requsting that a user be removed from the channel.
-      If the user is present, they will be removed. 
-      </Description>
-	  <Response>
-		The removed user will be notified with a
-      <clink name="FORCELEAVECHANNEL:server"/> command, and other clients in the channel will notified with a <clink name="LEFT"/> command.	  
-	  </Response>
-    </Command>
-
-    <Command Name="FORCELEAVECHANNEL" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to a user who has just been kicked from a channel.
-      Notifies that the server no longer regards the recipient as present in the channel; a lobby client should display this to the user.
       </Description>
     </Command>
 
@@ -1429,49 +1523,151 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	  </Response>
     </Command>
 	
-    <Command Name="MUTELIST" Source="client">
+<!-- bridge bot interface -->
+
+    <Command Name="BRIDGECLIENTFROM" Source="client">
       <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
+        <Argument Name="externalUsername" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by a client when requesting the mute list of a channel.
-      </Description>
+      Sent by a bridge bot notifying the server of a new bridged client.
+	  </Description>
 	  <Response>
-		The response begins with <clink name="MUTELISTBEGIN"/>.
+	  The server will reply with either <clink name="FAILED"/> or <clink name="BRIDGEDCLIENTFROM:server"/>. 
 	  </Response>
-      <Examples>
-        <Example>MUTELIST main</Example>
-      </Examples>
     </Command>
 
-    <Command Name="MUTELISTBEGIN" Source="server">
+    <Command Name="BRIDGEDCLIENTFROM" Source="server">
       <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no">
+		A string which unqiuely identifies the external client, within its specified location.
+		</Argument>
+        <Argument Name="externalUsername" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-      Sent by the server as a notification that the server is about to send a channel's mute list to the client. 
-	  It will be followed by multiple <clink name="MUTELIST"/> commands, one for each entry on the channels mutelist, and finally a <clink name="MUTELISTEND"/> command.
-      </Description>
+      Sent by the server in response to a successful <clink name="BRIDGECLIENTFROM"/> command.
+	  <br/><br/>
+	  The server will use 'externalUser@location' as the username for the bridged client.
+	  </Description>
     </Command>
 
-    <Command Name="MUTELIST" Source="server">
+    <Command Name="UNBRIDGECLIENTFROM" Source="client">
       <Arguments>
-        <Argument Name="mute description" Optional="no" Sentence="yes"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-		  An item on the mutelist of a channel.
-      </Description>
-      <Examples>
-        <Example>MUTELIST Johnny, 345 seconds remaining</Example>
-      </Examples>
+      Sent by a bridge bot notifying the server that a bridged client has left the bridge.
+	  </Description>
+	  <Response>
+	  The server will reply with either <clink name="FAILED"/> or <clink name="UNBRIDGEDCLIENTFROM:server"/>. 
+	  </Response>
     </Command>
 
-    <Command Name="MUTELISTEND" Source="server">
+    <Command Name="UNBRIDGEDCLIENTFROM" Source="server">
+      <Arguments>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
+        <Argument Name="externalUsername" Optional="no" Sentence="no"/>
+      </Arguments>
       <Description>
-		Notifies that the stream of multiple <clink name="MUTELIST:server"/> command, sent following <clink name="MUTELISTBEGIN"/>, is now completed.
-      </Description>
+      Sent by the server in response to a successful <clink name="UNBRIDGECLIENTFROM"/> command.
+	  </Description>
+    </Command>
+	
+    <Command Name="JOINFROM" Source="client">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+	  Send by a bridge requesting to join a bridged client to a channel.
+	  </Description>
+	  <Response>
+	  The server will reply with either <clink name="FAILED"/> or <clink name="UNBRIDGECLIENTFROM:server"/>. 
+	  </Response>
     </Command>
 
+    <Command Name="JOINEDFROM" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no">
+		This will have the form external_username@location.
+		</Argument>
+      </Arguments>
+      <Description>
+      Sent by the server in response to a successful <clink name="JOINFROM"/> command.	  
+	  </Description>
+    </Command>	
+
+   <Command Name="CLIENTSFROM" Source="server">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="clientsp" Optional="no" Sentence="yes">
+		A list of usernames of clients who are bridged into this channel.
+		</Argument>
+      </Arguments>
+      <Description>
+	  Sent by the server to a client who just joined a channel.
+	  </Description>
+    </Command>
+
+    <Command Name="LEAVEFROM" Source="client">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+	  Send by a bridge bot requesting to remove a bridged client from a channel.
+	  </Description>
+	  <Response>
+	  The server will reply with either <clink name="FAILED"/> or <clink name="LEFTFROM:server"/>. 
+	  </Response>
+    </Command>
+
+    <Command Name="LEFTFROM" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no">
+		This will have the form external_username@location.
+		</Argument>
+      </Arguments>
+      <Description>
+      Sent by the server in response to a successful <clink name="LEFTFROM"/> command.	  
+	  </Description>
+    </Command>	
+	
+    <Command Name="SAYFROM" Source="client">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no"/>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
+        <Argument Name="message" Optional="yes" Sentence="yes "/>
+      </Arguments>
+      <Description>
+	  Send by a bridge bot requesting to remove a bridged client from a channel.
+	  </Description>
+	  <Response>
+	  The server will reply with either <clink name="FAILED"/> or <clink name="SAIDFROM:server"/>. 
+	  </Response>
+    </Command>
+
+    <Command Name="SAIDFROM" Source="server">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no">
+		This will have the form external_username@location.
+		</Argument>
+        <Argument Name="message" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by the server in response to a successful <clink name="SAYFROM"/> command.	  
+	  </Description>
+    </Command>		
+	
 <!-- joining/opening battle commands -->
 	
     <Command Name="OPENBATTLE" Source="client">
@@ -1593,50 +1789,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
 	  <Response>
 	  The server will reply to the client with either <clink name="JOINBATTLE:server"/> or <clink name="JOINBATTLEFAILED"/>. 
-	  In order to determine which response is given, the server will typically send a <clink name="JOINBATTLEREQUEST"/> to the battle founder, and wait for the reply. 
 	  </Response>
 	</Command>
-
-    <Command Name="JOINBATTLEREQUEST" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="ip" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by the server to a battle founder, each time a client requests to join his battle.
-      </Description>
-      <Response>
-      The battle founder should reply with either <clink name="JOINBATTLEACCEPT"/>
-      or <clink name="JOINBATTLEDENY"/>.
-      </Response>
-    </Command>
-
-    <Command Name="JOINBATTLEACCEPT" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
-      instructing the server to allow the user to join their battle.
-      </Description>
-      <Response>
-      None. The client server will now send <clink name="JOINBATTLE:server"/> to the client, and join the client to the battle.
-      </Response>
-    </Command>
-
-    <Command Name="JOINBATTLEDENY" Source="client">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="reason" Optional="yes" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by a battle founder, in response to a <clink name="JOINBATTLEREQUEST"/> command,
-      instructing the server to disallow the user to join their battle.
-      </Description>
-      <Response>
-      None. The client server will now send <clink name="JOINBATTLEFAILED"/> to the client.
-      </Response>
-    </Command>
 
     <Command Name="JOINBATTLE" Source="server">
       <Arguments>
@@ -1823,58 +1977,6 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
     </Command>
 
-    <Command Name="SAYBATTLE" Source="client">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Send a chat message to all clients participating in a battle.
-      (A 'battleID' argument is not required,
-      since every user can participate in only one battle at a time.)
-      </Description>
-      <Response>
-      <clink name="SAIDBATTLE:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDBATTLE" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent to the participants of a battle when a client sent a chat message to it,
-      using the <clink name="SAYBATTLE:client"/> command.
-      (A 'battleID' is not required,
-      since every client knows which battle he is participating in.)
-      </Description>
-    </Command>
-
-    <Command Name="SAYBATTLEEX" Source="client">
-      <Arguments>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by any client participating in a battle
-      when he wants to say something in "/me" IRC style.
-      Also gets sent by the server to inform users when e.g. a user is kicked from the battle.
-      </Description>
-      <Response>
-      <clink name="SAIDBATTLEEX:server"/>.
-      </Response>
-    </Command>
-
-    <Command Name="SAIDBATTLEEX" Source="server">
-      <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no"/>
-        <Argument Name="message" Optional="no" Sentence="yes"/>
-      </Arguments>
-      <Description>
-      Sent by the server to all clients participating in a battle
-      when the client sent the <clink name="SAYBATTLEEX:client"/> command.
-      </Description>
-    </Command>
-	
 <!-- client status changes -->
 
     <Command Name="MYSTATUS" Source="client">
