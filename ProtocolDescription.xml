@@ -1545,9 +1545,15 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 
     <Command Name="BRIDGECLIENTFROM" Source="client">
       <Arguments>
-        <Argument Name="location" Optional="no" Sentence="no"/>
-        <Argument Name="externalID" Optional="no" Sentence="no"/>
-        <Argument Name="externalUsername" Optional="no" Sentence="no"/>
+        <Argument Name="location" Optional="no" Sentence="no">
+		'discord', for example. Battle hosts bridging ingame users should use their own name username as the location.
+		</Argument>
+        <Argument Name="externalID" Optional="no" Sentence="no">
+		A string which unqiuely identifies the external client, within its specified location, and which will not change if the external client changes username.
+        </Argument>
+		<Argument Name="externalUsername" Optional="no" Sentence="no">
+		The current username of the external client, in its external location.
+		</Argument>
       </Arguments>
       <Description>
       Sent by a bridge bot notifying the server of a new bridged client.
@@ -1560,9 +1566,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <Command Name="BRIDGEDCLIENTFROM" Source="server">
       <Arguments>
         <Argument Name="location" Optional="no" Sentence="no"/>
-        <Argument Name="externalID" Optional="no" Sentence="no">
-		A string which unqiuely identifies the external client, within its specified location.
-		</Argument>
+        <Argument Name="externalID" Optional="no" Sentence="no"/>
         <Argument Name="externalUsername" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
@@ -1603,7 +1607,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="externalID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-	  Send by a bridge requesting to join a bridged client to a channel.
+	  Send by a bridge bot requesting to join a bridged client to a channel.
 	  </Description>
 	  <Response>
 	  The server will reply with either <clink name="FAILED"/> or <clink name="UNBRIDGECLIENTFROM:server"/>. 
@@ -1613,25 +1617,13 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <Command Name="JOINEDFROM" Source="server">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form external_username@location.
+		This will have the form externalUsername@location.
 		</Argument>
       </Arguments>
       <Description>
       Sent by the server in response to a successful <clink name="JOINFROM"/> command.	  
 	  </Description>
     </Command>	
-
-   <Command Name="CLIENTSFROM" Source="server">
-      <Arguments>
-        <Argument Name="chan" Optional="no" Sentence="no"/>
-        <Argument Name="clientsp" Optional="no" Sentence="yes">
-		A list of usernames of clients who are bridged into this channel.
-		</Argument>
-      </Arguments>
-      <Description>
-	  Sent by the server to a client who just joined a channel.
-	  </Description>
-    </Command>
 
     <Command Name="LEAVEFROM" Source="client">
       <Arguments>
@@ -1650,7 +1642,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <Command Name="LEFTFROM" Source="server">
       <Arguments>
         <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form external_username@location.
+		This will have the form externalUsername@location.
 		</Argument>
       </Arguments>
       <Description>
@@ -1677,7 +1669,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <Arguments>
         <Argument Name="chan" Optional="no" Sentence="no"/>
         <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form external_username@location.
+		This will have the form externalUsername@location.
 		</Argument>
         <Argument Name="message" Optional="yes" Sentence="yes"/>
       </Arguments>
@@ -1686,6 +1678,18 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	  </Description>
     </Command>		
 	
+   <Command Name="CLIENTSFROM" Source="server">
+      <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="clients" Optional="no" Sentence="yes">
+		A list of usernames of clients who are bridged into this channel.
+		</Argument>
+      </Arguments>
+      <Description>
+	  Sent by the server to a client who just joined a channel.
+	  </Description>
+    </Command>
+
 <!-- joining/opening battle commands -->
 	
     <Command Name="OPENBATTLE" Source="client">
