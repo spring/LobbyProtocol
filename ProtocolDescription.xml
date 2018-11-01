@@ -34,8 +34,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   </p>
   <p>
   A <i>line</i>, also known as a <i>message</i>, consists of a single protocol command, plus its arguments, communicated as a single string, and terminated by a newline character (\n).
-  Lines may be of any length; 600 KB long strings have been verified to worked in both directions. 
-  A natural implementation of the protocol will result in almost all lines being under 1 KB in length.
+  Lines may be of any length, although the server enforces a somewhat (arbitrary) limit of 10,000 chars.
+  A natural implementation of the protocol will result in almost all lines being under 1,000 chars in length.
   <!--Nevertheless, some commands (like <clink name="AGREEMENT"/>) do divide the data they send into several lines, but only for clarity.-->
   </p>
   <p>
@@ -142,8 +142,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   <h4>Email Verification</h4>
   <p>
   If a valid 'server_email_account.txt' exists (in the same directory as <code>server.py</code>), then Uberserver will carry out email verification. 
-  In order to verify an email address: the server sends a four digit verification code to an email address, and the client must send this code back to the server.
-  Each verification code is valid for 24h, and allows max 3 attempts at verification.
+  In order to verify an email address: the server sends a four or eight digit verification code to an email address, and the client must send this code back to the server.
+  Each verification code is valid for 48h, and allows max 3 attempts at verification.
   Currently, the same email address can be used to verify multiple accounts, but this may change in future.
   </p>
   <p>
@@ -162,11 +162,23 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
   </p>
 
+  <h4> Channels and Battles </h4>
+  <p>
+  A channel is an IRC-like setting in which users can send messages, which are typically visible to all other users in the same channel. 
+  A battle is a special type of channel, with extra properties corresponding to the extra information needed to set up and launch an online multiplayer game of Spring.
+  </p><p>
+  Channels can be either registered or unregistered. Unregistered channels simply forward messages between clients and have no stored settings or data.
+  Registered channels can set topics, password, mutes/bans, store a history, and so on; these data/settings are stored within the server database.
+  </p><p>
+  Each registered channel has a founder who sets the various permanent properties of the channel (such as a password).
+  The founder may also pick channel operators, who are able to handle day-to-day stuff like mutes, topics and bans.   
+  </p>
+  
   <h4> ChanServ </h4>
   <p>
-  ChanServ is a fake client, which the server shows as present in all registered channels. 
-  It listens for channel commands such as !ban !op and !setfounder, and also carries them out.
-  The long term plan is that ChanServ will deprecated, and replaced with server commands and a client-side GUI.
+  ChanServ is a fake client, which the server shows as present in all registered channels and battles. 
+  It listens for text-based channel commands such as !register, !ban, !op and !setfounder, and also carries them out.
+  The long term plan is that ChanServ will be replaced with server commands and a client-side GUI.
   </p>
   
   <h4> Bridge bots </h4>
@@ -176,12 +188,13 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   Users talking via a bridge bot are referred to as bridged users.
   </p>
   <p>
-  Bridged users are identified by a <i>(location, external_id)</i> pair, which should be unique (and should not change when the same user is bridged again).
-  Each external user also has a <i>external_username</i> which should be their username within their location (e.g. their name on Discord).
+  Bridged users are identified to the bridge bot by a <i>(location, external_id)</i> pair, which should be unique (and should not change when the same user is bridged again).
+  Each external user also has a <i>external_username</i> which should be their current username within their location (e.g. their screenname on Discord).
   At most one bridge bot can bridge users from any given location.
   </p>
   <p>
-  The server uses usernames of the form <i>external_username@location</i> for bridged users.   
+  For non bridge bots, the server identifies bridged users by a username of the form <i>external_username@location</i> for bridged users. 
+  Note that the '@' char is not permitted in normal usernames.  
   </p>
   
   <h4>Syncing</h4>
@@ -305,8 +318,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<br/><br/>
         This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
     <p><ul>
-	  <li><b>u</b>: battle/channel merge, support for bridge bots.</li>
-	  <li><b>a</b>: ?? </li>
+	  <li><b>u</b>: use <clink name="SAY"/> to talk in battles, support for <clink name="SAYFROM"/> command set.</li>
+	  <li><b>l</b>: send lobby ids/names in <clink name="ADDUSER"/> </li>
 	  <li><b>sp</b>: script passwords </li>
       <li><b>cl</b>: added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
       <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
@@ -314,8 +327,9 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <clink name="CHANNELTOPIC:server"/>,
         which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
         while before it was the same in milliseconds</li>
-      <li><b>p</b>: <clink name="AGREEMENT:server"/> The agreement is sent in plaintext format</li>
-      <li><b>cu, sd, m, b, a</b>: deprecated</li>
+      <li><b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
+      <li><b>b</b>: <clink name="JOINBATTLEREQUEST"/> and <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
+	  <li><b>cu, sd, m, a</b>: deprecated</li>
     </ul></p>
   <p>
   In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
@@ -926,7 +940,10 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="cpu" Optional="no" Sentence="no">
         deprecated, see the <clink name="LOGIN"/> command.
         </Argument>
-        <Argument Name="userID" Optional="yes" Sentence="no"/>
+        <Argument Name="userID" Optional="no" Sentence="no"/>
+        <Argument Name="lobbyID" Optional="no" Sentence="no">
+		A string of text sent by the client, typically identifying the lobby client they are using.
+		</Argument>
       </Arguments>
       <Description>
       Tells the client that a new user joined a server.
@@ -954,7 +971,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Arguments>
       <Description>
       A general purpose message sent by the server.
-      The lobby client program should display this message to the user in a non-invasive way, but clearly visible to the user.
+      The lobby client program should display this message to the user in a non-invasive way, but clearly visible to the user 
+	  (for example, as a SAYEX-style message from the server, printed into all the users chat panels).
       </Description>
       <Examples>
         <Example>SERVERMSG Server is going down in 5 minutes for a restart, due to a new update.</Example>
@@ -972,7 +990,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         </Argument>
       </Arguments>
       <Description>
-      The lobby client program should display this message to the user in an invasive way, which requires response from the user (e.g. a dialogue box).
+      The lobby client program should display this message to the user in an invasive way, which requires response from the user (for example, in a dialogue box with an OK button).
       </Description>
     </Command>
 	
@@ -1789,6 +1807,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
 	  <Response>
 	  The server will reply to the client with either <clink name="JOINBATTLE:server"/> or <clink name="JOINBATTLEFAILED"/>. 
+	  In order to determine which response is given, the server may send a <clink name="JOINBATTLEREQUEST"/> to the battle founder, and wait for the reply. 
 	  </Response>
 	</Command>
 
@@ -1811,6 +1830,39 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	  <br/><br/>
 	  If the battle has natType>0, the server will also send the clients IP port to the host, via the <clink name="CLIENTIPPORT"/> command. <i> Someone who knows more about this should write more! </i>
 	  </Description>
+    </Command>
+
+	<Command Name="JOINBATTLEREQUEST" Source="server">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="ip" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server to a battle host, each time a client requests to join his battle.
+      </Description>
+      <Response>
+      The battle host should reply with either <clink name="JOINBATTLEACCEPT"/>
+      or <clink name="JOINBATTLEDENY"/>.
+      </Response>
+    </Command>
+    <Command Name="JOINBATTLEACCEPT" Source="client">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by a battle host, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to allow the user to join their battle.
+      </Description>
+    </Command>
+    <Command Name="JOINBATTLEDENY" Source="client">
+      <Arguments>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+        <Argument Name="reason" Optional="yes" Sentence="yes"/>
+      </Arguments>
+      <Description>
+      Sent by a battle host, in response to a <clink name="JOINBATTLEREQUEST"/> command,
+      instructing the server to disallow the user to join their battle.
+      </Description>
     </Command>
 
     <Command Name="JOINBATTLEFAILED" Source="server">
