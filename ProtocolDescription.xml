@@ -189,7 +189,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   </p>
   <p>
   Bridged users are identified to the bridge bot by a <i>(location, external_id)</i> pair, which should be unique (and should not change when the same user is bridged again).
-  Each external user also has a <i>external_username</i> which should be their current username within their location (e.g. their screenname on Discord).
+  Each external user also has a <i>external_username</i> which should be their current username within their location, and such the <i>(location, external_username)</i> is also unique (e.g. use the screenname on Discord, with the 'extra' #1234 part appended when necessary to achieve uniqueness).
   At most one bridge bot can bridge users from any given location.
   </p>
   <p>
@@ -1617,9 +1617,9 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 
     <Command Name="JOINEDFROM" Source="server">
       <Arguments>
-        <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form externalUsername@location.
-		</Argument>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="bridge" Optional="no" Sentence="no"> The username of the bridge bot for this bridged client. </Argument>
+        <Argument Name="userName" Optional="no" Sentence="no">This will have the form externalUsername@location.</Argument>
       </Arguments>
       <Description>
       Sent by the server in response to a successful <clink name="JOINFROM"/> command.	  
@@ -1633,7 +1633,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="externalID" Optional="no" Sentence="no"/>
       </Arguments>
       <Description>
-	  Send by a bridge bot requesting to remove a bridged client from a channel.
+	  Sent by a bridge bot requesting to remove a bridged client from a channel.
 	  </Description>
 	  <Response>
 	  The server will reply with either <clink name="FAILED"/> or <clink name="LEFTFROM:server"/>. 
@@ -1642,6 +1642,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 
     <Command Name="LEFTFROM" Source="server">
       <Arguments>
+        <Argument Name="chan" Optional="no" Sentence="no"/>
         <Argument Name="userName" Optional="no" Sentence="no">
 		This will have the form externalUsername@location.
 		</Argument>
@@ -1659,7 +1660,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="message" Optional="yes" Sentence="yes "/>
       </Arguments>
       <Description>
-	  Send by a bridge bot requesting to remove a bridged client from a channel.
+	  Sent by a bridge bot to notify that a bridged user spoke into a channel.
 	  </Description>
 	  <Response>
 	  The server will reply with either <clink name="FAILED"/> or <clink name="SAIDFROM:server"/>. 
@@ -1682,12 +1683,13 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
    <Command Name="CLIENTSFROM" Source="server">
       <Arguments>
         <Argument Name="chan" Optional="no" Sentence="no"/>
+        <Argument Name="bridge" Optional="no" Sentence="no"> The username of the bridge bot for the following clients. </Argument>
         <Argument Name="clients" Optional="no" Sentence="yes">
 		A list of usernames of clients who are bridged into this channel.
 		</Argument>
       </Arguments>
       <Description>
-	  Sent by the server to a client who just joined a channel.
+	  Sent by the server to a (non-bridged) client who just joined a channel.
 	  </Description>
     </Command>
 
@@ -1778,6 +1780,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="map" Optional="no" Sentence="yes"/>
         <Argument Name="title" Optional="no" Sentence="yes"/>
         <Argument Name="gameName" Optional="no" Sentence="yes"/>
+        <Argument Name="channel" Optional="no" Sentence="yes"> The name of the channel (which will contain no whitespace) in which the chat for this battle takes place. By convention, these channels have names of the form __battle__1234.</Argument>
       </Arguments>
       <Description>
       Sent by the server to all registered users, when a new battle becomes open. 
