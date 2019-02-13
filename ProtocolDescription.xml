@@ -193,8 +193,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   At most one bridge bot can bridge users from any given location.
   </p>
   <p>
-  For non bridge bots, the server identifies bridged users by a username of the form <i>external_username@location</i> for bridged users. 
-  Note that the '@' char is not permitted in normal usernames.  
+  For non bridge bots, the server identifies bridged users by a username of the form <i>external_username:location</i> for bridged users. 
+  Note that the ':' char is not permitted in normal usernames.  
   </p>
   
   <h4>Syncing</h4>
@@ -1573,7 +1573,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <Description>
       Sent by the server in response to a successful <clink name="BRIDGECLIENTFROM"/> command.
 	  <br/><br/>
-	  The server will use 'externalUser@location' as the username for the bridged client.
+	  The server will use 'externalUser:location' as the username for the bridged client.
 	  </Description>
     </Command>
 
@@ -1619,7 +1619,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <Arguments>
         <Argument Name="chan" Optional="no" Sentence="no"/>
         <Argument Name="bridge" Optional="no" Sentence="no"> The username of the bridge bot for this bridged client. </Argument>
-        <Argument Name="userName" Optional="no" Sentence="no">This will have the form externalUsername@location.</Argument>
+        <Argument Name="userName" Optional="no" Sentence="no">This will have the form externalUsername:location.</Argument>
       </Arguments>
       <Description>
       Sent by the server in response to a successful <clink name="JOINFROM"/> command.	  
@@ -1644,7 +1644,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <Arguments>
         <Argument Name="chan" Optional="no" Sentence="no"/>
         <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form externalUsername@location.
+		This will have the form externalUsername:location.
 		</Argument>
       </Arguments>
       <Description>
@@ -1671,7 +1671,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <Arguments>
         <Argument Name="chan" Optional="no" Sentence="no"/>
         <Argument Name="userName" Optional="no" Sentence="no">
-		This will have the form externalUsername@location.
+		This will have the form externalUsername:location.
 		</Argument>
         <Argument Name="message" Optional="yes" Sentence="yes"/>
       </Arguments>
