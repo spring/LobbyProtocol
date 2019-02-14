@@ -2178,7 +2178,17 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
     </Command>
 
-    <Command Name="FORCEQUITBATTLE" Source="server">
+    <Command Name="KICKFROMBATTLE" Source="server">
+      <Arguments>
+        <Argument Name="battleID" Optional="no" Sentence="no"/>
+        <Argument Name="userName" Optional="no" Sentence="no"/>
+      </Arguments>
+      <Description>
+      Sent by the server to notify the battle host that the named user should be kicked from the battle in progress.
+      </Description>
+    </Command>
+    
+	<Command Name="FORCEQUITBATTLE" Source="server">
       <Description>
       Sent to a client that was kicked from their current battle by the battle founder.
       <br/><br/>
