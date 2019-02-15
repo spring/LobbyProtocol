@@ -1894,7 +1894,8 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         </Argument>
       </Arguments>
       <Description>
-      Sent by the server to all clients when a new client joins the battle.
+      Sent by the server to all clients when a new client joins the battle. <br/><br/>
+	  The server does not send this command for a host, when that host opens its own battle.
       </Description>
     </Command>
 
