@@ -177,7 +177,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   <h4> ChanServ </h4>
   <p>
   ChanServ is a fake client, which the server shows as present in all registered channels and battles. 
-  It listens for text-based channel commands such as !register, !ban, !op and !setfounder, and also carries them out.
+  It listens for text-based channel commands (listed on <url>https://springrts.com/wiki/ChanServ</url>) and also carries them out.
   The long term plan is that ChanServ will be replaced with server commands and a client-side GUI.
   </p>
   
