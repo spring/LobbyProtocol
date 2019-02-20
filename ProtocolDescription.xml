@@ -322,14 +322,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	  <li><b>l</b>: send lobby ids/names in <clink name="ADDUSER"/> </li>
 	  <li><b>sp</b>: script passwords </li>
       <li><b>cl</b>: added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
-      <li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
-        and change the time resolution of the changedTime argument in
-        <clink name="CHANNELTOPIC:server"/>,
-        which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
-        while before it was the same in milliseconds</li>
-      <li><b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
-      <li><b>b</b>: <clink name="JOINBATTLEREQUEST"/> and <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/>.</li>
-	  <li><b>cu, sd, m, a</b>: deprecated</li>
+      <li><b>b</b>: <clink name="JOINBATTLEREQUEST"/> and <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/> (this flag is optional).</li>
     </ul></p>
   <p>
   In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
@@ -346,6 +339,17 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<li> Use <clink name="SAY"/> and <clink name="SAYEX"/> to talk in battles i.e. into that channel.</li>
 		<li> Users joining/leaving a battle are automatical joined/left to its channel.</li>
 	  </ul>
+	<li> Remove some support for older compat flags:
+		<ul>
+			<li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
+			and change the time resolution of the changedTime argument in
+			<clink name="CHANNELTOPIC:server"/>,
+			which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
+			while before it was the same in milliseconds</li>
+			<li><b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
+			<li><b>cu, sd, m, a</b>: deprecated</li>
+		</ul>
+	</li>
 	<li> Added new interface for bridge bots: <clink name="BRIDGECLIENTFROM"/>, <clink name="UNBRIDGECLIENTFROM"/>, 
 	  <clink name="JOINFROM"/>, <clink name="SAYFROM"/>, <clink name="LEAVEFROM"/>, <clink name="CLIENTSFROM"/>. </li>
 	</li>
