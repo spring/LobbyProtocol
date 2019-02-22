@@ -316,8 +316,9 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         with the <clink name="LOGIN:client"/> command.
 		Clients should update their behaviour for compatibility with the changes below, and send the appropriate flag to announce compatibility.
 		<br/><br/>
-        This list will be emptied whenever a new protocol version is released, at which point legacy clients may break.
+        This list may be emptied when a new protocol version is released, at which point legacy clients may break.
     <p><ul>
+      <li><b>t</b>: <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic.</li>
 	  <li><b>u</b>: use <clink name="SAY"/> to talk in battles, support for <clink name="SAYFROM"/> command set.</li>
 	  <li><b>l</b>: send lobby ids/names in <clink name="ADDUSER"/> </li>
 	  <li><b>sp</b>: script passwords </li>
@@ -333,19 +334,16 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   <Versions>
  <Version Name="0.38 -- current dev/live version --">  
   <ul>
-    <li> Added 'u' compat flag, for Battle/Channel merge:
+    <li> Added <b>u</b> compat flag, for Battle/Channel merge:
 	  <ul>
 	    <li><clink name="JOINBATTLE:server"/> sends an extra arg, the name of the channel in which the battle chat takes place.</li>
 		<li> Use <clink name="SAY"/> and <clink name="SAYEX"/> to talk in battles i.e. into that channel.</li>
 		<li> Users joining/leaving a battle are automatical joined/left to its channel.</li>
 	  </ul>
+    <li> Added <b>t</b> compat flag; <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic.</li>
 	<li> Remove some support for older compat flags:
 		<ul>
-			<li><b>et</b>: support <clink name="NOCHANNELTOPIC:server"/>
-			and change the time resolution of the changedTime argument in
-			<clink name="CHANNELTOPIC:server"/>,
-			which now uses the unix time format (seconds since Jan 1, 1970 (UTC)),
-			while before it was the same in milliseconds</li>
+			<li><b>et</b>: NOCHANNELTOPIC and related</li>
 			<li><b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
 			<li><b>cu, sd, m, a</b>: deprecated</li>
 		</ul>
@@ -1339,16 +1337,6 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Description>
     </Command>
 
-    <Command Name="NOCHANNELTOPIC" Source="server">
-      <Arguments>
-        <Argument Name="chanName" Optional="no" Sentence="no"/>
-      </Arguments>
-      <Description>
-      Sent to a client who just <clink name="JOIN"/>ed a channel, or who was already present in a channel when the topic was changed.
-      This command informs the client that no topic is set for this channel.
-      </Description>
-    </Command>
-
     <Command Name="CLIENTS" Source="server">
       <Arguments>
         <Argument Name="chanName" Optional="no" Sentence="no"/>
@@ -1358,6 +1346,10 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Arguments>
       <Description>
       Sent to a client who just joined the channel. This command informs the client of the list of users present in the channel, including the client itself.
+	  <br/><br/>
+	  This command is always sent (to a client joining a channel), and the list it conveys includes the newly joined client. 
+	  It is sent after all the <clink name="CLIENTSFROM"/> commands.
+	  Once <clink name="CLIENTS"/> has been processed, the joining client has been informed of the full list of other clients and bridged clients currently present in the joined channel.
       </Description>
     </Command>
 
