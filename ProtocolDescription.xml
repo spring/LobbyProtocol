@@ -141,13 +141,11 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 
   <h4>Email Verification</h4>
   <p>
-  If a valid 'server_email_account.txt' exists (in the same directory as <code>server.py</code>), then Uberserver will carry out email verification. 
+  Uberserver carries out email verification for registering new accounts, for account recovery and for changing email address.
   In order to verify an email address: the server sends a four or eight digit verification code to an email address, and the client must send this code back to the server.
   Each verification code is valid for 48h, and allows max 3 attempts at verification.
-  Currently, the same email address can be used to verify multiple accounts, but this may change in future.
   </p>
   <p>
-  If email verification is enabled, then it is required for registering a new account and for changing email address.
   The following pairs list which commands notify that verification codes were sent, and where they are expected back:
   <ul>
     <li> sent: <clink name="REGISTRATIONACCEPTED"/>, back: <clink name="CONFIRMAGREEMENT"/> </li>
@@ -155,11 +153,6 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	<li> sent: <clink name="RESETPASSWORDREQUESTACCEPTED"/>, back: <clink name="RESETPASSWORD"/></li>
   </ul>
   The code can be re-sent, up to three times, using <clink name="RESENDVERIFICATION:client"/>.
-  </p>
-  <p>
-  Lobby clients should always assume that verification is enabled.
-  However, if verification is not enabled, then no verification codes will be sent, and all verification attempts will automatically pass.
-  In this case, clients requesting verification codes will be informed that all email address and verification code fields can be left blank (or fed arbitrary data). 
   </p>
 
   <h4> Channels and Battles </h4>
