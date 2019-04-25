@@ -2506,7 +2506,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
     <Command Name="FAILED" Source="server">
       <Description>
 		A command used to notify that a command sent to the server has either failed, been denied, or otherwise cannot be completed. 
-		<br>
+		<br/>
 		This normally is used as a generic error command, to inform lobby/client developers that they have not used the protocol correctly.
 	  </Description>
     </Command>
