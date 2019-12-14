@@ -311,16 +311,13 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<br/><br/>
         This list may be emptied when a new protocol version is released, at which point legacy clients may break.
     <p><ul>
-      <li><b>t</b>: <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic.</li>
-	  <li><b>u</b>: use <clink name="SAY"/> to talk in battles, support for <clink name="SAYFROM"/> command set.</li>
-	  <li><b>l</b>: send lobby ids/names in <clink name="ADDUSER"/> </li>
-	  <li><b>sp</b>: script passwords </li>
-      <li><b>cl</b>: added Engine Name / Engine Version to <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/></li>
       <li><b>b</b>: <clink name="JOINBATTLEREQUEST"/> and <clink name="JOINBATTLEACCEPT"/>, <clink name="JOINBATTLEDENY"/> (this flag is optional).</li>
+	  <li><b>sp</b>: script passwords </li>
+	  <li><b>u</b>: use <clink name="SAY"/> to talk in battles, support for <clink name="SAYFROM"/> command set.</li>
     </ul></p>
   <p>
   In a small number of cases, the arguments of a command were different in earlier versions of the protocol. 
-  The details below refer to the latest version of the protocol, and assume that the client has all the latest compatibility flag present.
+  The details below refer to the latest dev version of the protocol, and assume that the client has all the latest compatibility flag present.
   </p>
   </CompatFlags>  
   
@@ -333,30 +330,40 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<li> Use <clink name="SAY"/> and <clink name="SAYEX"/> to talk in battles i.e. into that channel.</li>
 		<li> Users joining/leaving a battle are automatical joined/left to its channel.</li>
 	  </ul>
-    <li> Added <b>t</b> compat flag; <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic.</li>
-	<li> Remove some support for older compat flags:
+	</li>
+    <li> The functionality of some compat flags is now mandatory for all clients:
+	  <ul>
+	    <li> <b>t</b>: <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic </li>
+		<li> <b>l</b>: args of <clink name="ADDUSER"/></li>
+		<li> <b>cl</b>: Engine Name / Engine Version args of <clink name="BATTLEOPENED:server" />/ <clink name="OPENBATTLE:client"/> </li>
+	  </ul>
+	</li>
+	<li> Removed support for some deprecated compat flags:
 		<ul>
-			<li><b>et</b>: NOCHANNELTOPIC and related</li>
-			<li><b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
-			<li><b>cu, sd, m, a</b>: deprecated</li>
+			<li> <b>et</b>: NOCHANNELTOPIC and related</li>
+			<li> <b>p</b>: <clink name="AGREEMENT:server"/>, the agreement is sent in plaintext format</li>
+			<li> <b>cu, sd, m, a</b>: superceeded or were already no ops</li>
 		</ul>
+	  The server no longer expects to be sent these flags.
 	</li>
 	<li> Added new interface for bridge bots: <clink name="BRIDGECLIENTFROM"/>, <clink name="UNBRIDGECLIENTFROM"/>, 
-	  <clink name="JOINFROM"/>, <clink name="SAYFROM"/>, <clink name="LEAVEFROM"/>, <clink name="CLIENTSFROM"/>. </li>
+	  <clink name="JOINFROM"/>, <clink name="SAYFROM"/>, <clink name="LEAVEFROM"/>, <clink name="CLIENTSFROM"/>. 
 	</li>
     <li> Added email verification and related features:
-	<ul>
-	  <li>Added/updated <clink name="CHANGEEMAIL"/> command set. </li>
-	  <li>Added <clink name="RESENDVERIFICATION"/> command set. </li>
-	  <li>Added <clink name="RESETPASSWORD"/> command set. </li>
-      <li> If email verification is enabled, 
-	  <ul> 
-	    <li> <clink name="REGISTER"/> requires an email arg</li>
-		<li> <clink name="CONFIRMAGREEMENT"/> requires a verification code arg</li>
-        <li> <clink name="CHANGEEMAIL"/> requires a verification code arg</li>
-        <li> <clink name="RESETPASSWORD"/> requires a verification code arg</li>
-	  </ul></li>
-	</ul></li>
+		<ul>
+		  <li>Added/updated <clink name="CHANGEEMAIL"/> command set. </li>
+		  <li>Added <clink name="RESENDVERIFICATION"/> command set. </li>
+		  <li>Added <clink name="RESETPASSWORD"/> command set. </li>
+		  <li> When email verification is enabled, 
+		    <ul> 
+		 	  <li> <clink name="REGISTER"/> requires an email arg</li>
+			  <li> <clink name="CONFIRMAGREEMENT"/> requires a verification code arg</li>
+			  <li> <clink name="CHANGEEMAIL"/> requires a verification code arg</li>
+			  <li> <clink name="RESETPASSWORD"/> requires a verification code arg</li>
+		    </ul>
+		  </li>
+		</ul>
+	</li>
 	<li> Replaced the whole moderation interface, with new/updated commands.</li>
 	<li> Removed all cypto commands from 0.37. The server now uses TLS, beginning with <clink name="STLS"/>.</li>
     <li> Removed SAYDATA command set. </li>
