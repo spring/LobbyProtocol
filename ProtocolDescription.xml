@@ -929,7 +929,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         deprecated, see the <clink name="LOGIN"/> command.
         </Argument>
         <Argument Name="userID" Optional="no" Sentence="no"/>
-        <Argument Name="lobbyID" Optional="no" Sentence="no">
+        <Argument Name="lobbyID" Optional="no" Sentence="yes">
 		A string of text sent by the client, typically identifying the lobby client they are using.
 		</Argument>
       </Arguments>
