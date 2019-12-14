@@ -1575,6 +1575,9 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   	    This code is computed using the current map, game, and other dependencies.
 	    It is used to check that the client has correct non-corrupt downloads of the required content.
         </Argument>
+        <Argument Name="channelName" Optional="no" Sentence="no">
+		The name of the chat channel used for this battle.
+		</Argument>
       </Arguments>
       <Description>
       Notifies a client that their request to <clink name="JOINBATTLE:client"/> was successful, and that they have just joined the battle.
