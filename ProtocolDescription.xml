@@ -322,7 +322,12 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   </CompatFlags>  
   
   <Versions>
- <Version Name="0.38 -- current dev/live version --">  
+  
+ <Version Name="0.38+dev -- current live version --">  
+  Nothing new yet!<br/><br/>
+ </Version>  
+  
+ <Version Name="0.38">  
   <ul>
     <li> Added <b>u</b> compat flag, for Battle/Channel merge:
 	  <ul>
