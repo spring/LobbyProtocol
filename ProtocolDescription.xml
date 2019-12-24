@@ -304,7 +304,6 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
   </Intro>
 
   <CompatFlags>
-      <i>Compatibility-Flags: </i>
         This list details the current compatibility flags a client may send
         with the <clink name="LOGIN:client"/> command.
 		Clients should update their behaviour for compatibility with the changes below, and send the appropriate flag to announce compatibility.
@@ -336,7 +335,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 		<li> Users joining/leaving a battle are automatical joined/left to its channel.</li>
 	  </ul>
 	</li>
-    <li> The functionality of some compat flags is now mandatory for all clients:
+    <li> The functionality of some previous compat flags is now mandatory for all clients:
 	  <ul>
 	    <li> <b>t</b>: <clink name="CHANNELTOPIC"/> omits time, empty topic string signifies no topic </li>
 		<li> <b>l</b>: args of <clink name="ADDUSER"/></li>

@@ -59,6 +59,7 @@
 	  </td></tr>
     </table>
 
+    <a name="Changelog"/> <!-- we need this to reference it with "a href" tag -->
     <h2> Compatibility Flags </h2>
     <table border="0" style='width: 750px; table-layout: fixed; border: 2px dotted gray;'>
       <tr><td>
