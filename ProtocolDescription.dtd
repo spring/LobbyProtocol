@@ -53,7 +53,7 @@
 <!ELEMENT ProtocolDescription (Intro, CompatFlags, Versions, CommandList)>
 <!ELEMENT Intro %CommonText;>
 <!ELEMENT CompatFlags %CommonText;>
-<!ELEMENT Versions (Version, Version, Version)>
+<!ELEMENT Versions (Version)+>
 
 <!ELEMENT Version %CommonText;>
 <!ATTLIST Version
