@@ -611,17 +611,17 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       <br/><br/>
       Also see <clink name="LOGININFOEND"/> command.
       </Description>
+	  <Response>
+	    If the client has previously accepted the user agreement: <clink name="ACCEPTED"/> or <clink name="DENIED"/>. <br/>
+		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>.<br/>
+		See these commands for further responses.
+	  </Response>
       <Examples>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 192.168.1.100 SpringLobby 0.264</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>123456</Example>
         <Example>LOGIN Johnny Gnmk1g3mcY6OWzJuM4rlMw== 3200 * SpringLobby 0.264<b>[TAB]</b>0<b>[TAB]</b>a b</Example>
       </Examples>
-	  <Response>
-	    If the client has previously accepted the user agreement: <clink name="ACCEPTED"/> or <clink name="DENIED"/>. <br/>
-		If the client has not already acepted the user agreement: <clink name="AGREEMENT"/>.<br/>
-		See these commands for further responses.
-	  </Response>
     </Command>
 
     <Command Name="ACCEPTED" Source="server">
