@@ -2212,7 +2212,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
       </Arguments>
       <Description>
       Adds a start rectangle for the 'allyno' ally team.
-      Only the battle foudner may use this command.
+      Only the battle founder may use this command.
       See lobby client implementations and Spring docs for more info on this one.
       "left", "top", "right" and "bottom" refer to a virtual rectangle that is 200x200 in size,
       where coordinates should be in the interval [0, 200].
