@@ -1130,7 +1130,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
 	  Note that when the client is disconnected, the client is automatically removed from all channels.
       </Description>
 	  <Response>
-		None. The server will broadcast the <clink name="LEFT"/> command to (other) users who remain in the channel.
+		None. The server will broadcast the <clink name="LEFT"/> command to all users in the channel, including the user who sent the <clink name="LEAVE"/> command.
 	  </Response>
     </Command>
 
@@ -1141,7 +1141,7 @@ NOTE: This document is available in HTML form at: https://springrts.com/dl/Lobby
         <Argument Name="reason" Optional="yes" Sentence="yes"/>
       </Arguments>
       <Description>
-      Sent by the server to inform a client, present in a channel, that another user has left that channel.
+      Sent by the server to inform a client, present in a channel, that another user or himself has left that channel.
       </Description>
     </Command>
 
